@@ -6,6 +6,8 @@
 
 - Donner des noms explicites aux variables (e.g. countRequest pour compter les requêtes)
 
-- Code et commentaires en anglais
+- Code et commentaire en anglais
+
+- Documentation en français
 
 ## Choix d'implémentation
