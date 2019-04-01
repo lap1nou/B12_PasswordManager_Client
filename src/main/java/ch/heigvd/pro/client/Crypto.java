@@ -24,6 +24,5 @@ public class Crypto {
     public static String restOfFiveAnonimitySHA1(String password) {
         return DigestUtils.sha1Hex(password.getBytes()).substring(kAnonimityConstant).toUpperCase();
     }
-
-
+    
 }
