@@ -19,6 +19,7 @@ public class PasswordGenerator {
             result.append(charSet[index.nextInt(charSet.length)]);
         }
 
+        // TODO : Checkez le mot de passe avec le module password checker
         return result.toString();
     }
 }
