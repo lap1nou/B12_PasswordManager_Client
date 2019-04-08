@@ -1,4 +1,4 @@
-package ch.heigvd.pro.client;
+package ch.heigvd.pro.client.crypto;
 
 import org.apache.commons.codec.digest.DigestUtils;
 

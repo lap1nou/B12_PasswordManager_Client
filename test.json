@@ -1,0 +1,1 @@
+{"entryList":[{"id":0,"username":"User1","target":"http://google.ch","password":{"id":0,"strength":0.0,"password":"1234"},"email":"user1@gmail.com"},{"id":1,"username":"User2","target":"http://google.com","password":{"id":1,"strength":0.0,"password":"12345"},"email":"user2@gmail.com"}]}

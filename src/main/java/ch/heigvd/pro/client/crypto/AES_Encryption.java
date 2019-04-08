@@ -1,5 +1,10 @@
-package ch.heigvd.pro.client;
+package ch.heigvd.pro.client.crypto;
 
+import ch.heigvd.pro.client.Entry;
+import ch.heigvd.pro.client.Safe;
+import ch.heigvd.pro.client.file.FileDriver;
+
+import java.io.File;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -11,12 +16,13 @@ import javax.crypto.spec.SecretKeySpec;
 
 // Code exemple tiré de https://www.javainterviewpoint.com/aes-256-encryption-and-decryption/
 
-public class AES_Encryption
-{
+public class AES_Encryption {
     static String plainText = "This is a plain text which need to be encrypted by Java AES 256 Algorithm in CBC Mode";
 
-    public static void main(String[] args) throws Exception
-    {
+    public static void main(String[] args) throws Exception {
+
+
+        /*
         KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
         keyGenerator.init(256);
 
@@ -34,12 +40,11 @@ public class AES_Encryption
         System.out.println("Encrypted Text : "+Base64.getEncoder().encodeToString(cipherText));
 
         String decryptedText = decrypt(cipherText,key, IV);
-        System.out.println("DeCrypted Text : "+decryptedText);
+        System.out.println("DeCrypted Text : "+decryptedText);*/
 
     }
 
-    public static byte[] encrypt (byte[] plaintext,SecretKey key,byte[] IV ) throws Exception
-    {
+    public static byte[] encrypt(byte[] plaintext, SecretKey key, byte[] IV) throws Exception {
         //Get Cipher Instance
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
@@ -58,8 +63,7 @@ public class AES_Encryption
         return cipherText;
     }
 
-    public static String decrypt (byte[] cipherText, SecretKey key,byte[] IV) throws Exception
-    {
+    public static String decrypt(byte[] cipherText, SecretKey key, byte[] IV) throws Exception {
         //Get Cipher Instance
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
