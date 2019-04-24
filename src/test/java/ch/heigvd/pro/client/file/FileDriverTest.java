@@ -1,8 +1,6 @@
 package ch.heigvd.pro.client.file;
 
-import ch.heigvd.pro.client.Entry;
-import ch.heigvd.pro.client.Password;
-import ch.heigvd.pro.client.Safe;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -10,6 +8,7 @@ import java.io.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileDriverTest {
+    /*
     @Test
     public void saveJsonTest() {
         FileDriver testFileDriver = new FileDriver();
@@ -32,5 +31,5 @@ class FileDriverTest {
             e.printStackTrace();
         }
     }
-
+*/
 }
