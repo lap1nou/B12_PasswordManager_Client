@@ -7,15 +7,16 @@ public class Entry {
     private int id;
     private String username;
     private String target;
+    private transient char[] clearPassword;
     private Password password;
     private String email;
     private Date registerDate;
 
-    public Entry(String username, String target, Password password, String email, Date registerDate) {
+    public Entry(String username, String target, char[] clearPassword, String email, Date registerDate, Safe safe) {
         this.id = idGlobal++;
         this.username = username;
         this.target = target;
-        this.password = password;
+        this.clearPassword = clearPassword;
         this.email = email;
         this.registerDate = registerDate;
     }
@@ -60,4 +61,15 @@ public class Entry {
         this.registerDate = registerDate;
     }
 
+    public char[] getClearPassword() {
+        return clearPassword;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setClearPassword(char[] clearPassword) {
+        this.clearPassword = clearPassword;
+    }
 }

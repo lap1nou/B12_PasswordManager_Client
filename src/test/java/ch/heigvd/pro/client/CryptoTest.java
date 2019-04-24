@@ -1,6 +1,6 @@
 package ch.heigvd.pro.client;
 
-import ch.heigvd.pro.client.crypto.Crypto;
+import ch.heigvd.pro.client.crypto.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

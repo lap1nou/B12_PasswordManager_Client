@@ -14,7 +14,7 @@ import java.util.List;
 
 public class HaveIBeenPwned implements IPasswordCheckerDriver {
     // Used this doc : http://hc.apache.org/httpcomponents-client-ga/quickstart.html
-    private String apiURL = "https://api.pwnedpasswords.com/range/";
+    private final String apiURL = "https://api.pwnedpasswords.com/range/";
     private final int hashLength = 35;
     private CloseableHttpClient httpClient = HttpClients.createDefault();
 
