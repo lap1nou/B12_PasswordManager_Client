@@ -2,6 +2,8 @@
 
 ## Conventions de programmation
 
+- IDE IntelliJ
+
 - Camel case pour nommer les variables (e.g. nomVariable)
 
 - Donner des noms explicites aux variables (e.g. countRequest pour compter les requêtes)
