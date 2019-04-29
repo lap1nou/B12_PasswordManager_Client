@@ -3,18 +3,14 @@ package ch.heigvd.pro.client;
 import ch.heigvd.pro.client.file.FileDriver;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Scanner;
 
 public class main {
-    public static void main(String[] args) {
-        System.out.println("Enter the name of your password file :");
-
+    public static void main(String[] args) throws IOException {
         FileDriver test = new FileDriver();
-        Scanner filenameInput = new Scanner(System.in);
-        String filename = filenameInput.nextLine();
-
-        File passwordDB = new File(filename + ".json");
+        File passwordDB = new File("");
         Safe safeTest = new Safe();
 
         while (true) {
@@ -35,18 +31,18 @@ public class main {
                     Scanner userInput = new Scanner(System.in);
 
                     System.out.println("Enter a username :");
-                    String username = userInput.nextLine();
+                    char[] username = userInput.nextLine().toCharArray();
 
                     System.out.println("Enter a target :");
-                    String target = userInput.nextLine();
+                    char[] target = userInput.nextLine().toCharArray();
 
                     System.out.println("Enter an email :");
-                    String email = userInput.nextLine();
+                    char[] email = userInput.nextLine().toCharArray();
 
                     System.out.println("Enter a password :");
                     char[] clearPassword = userInput.nextLine().toCharArray();
 
-                    Entry newEntry = new Entry(username, target, clearPassword, email, new Date(), safeTest);
+                    Entry newEntry = new Entry(username, target, clearPassword, email, new Date());
 
                     safeTest.addEntry(newEntry);
                     safeTest.encryptPassword();
@@ -74,6 +70,13 @@ public class main {
                     test.saveSafe(safeTest, passwordDB);
                     break;
                 case 6:
+                    System.out.println("Enter the name of your password file :");
+
+                    Scanner filenameInput = new Scanner(System.in);
+                    String filename = filenameInput.nextLine();
+                    passwordDB = new File(filename + ".json");
+                    passwordDB.createNewFile();
+
                     safeTest = test.loadSafe(passwordDB);
 
                     System.out.println("Enter your password :");
@@ -81,6 +84,7 @@ public class main {
                     safeTest.setSafePassword(passwordInput.nextLine().toCharArray());
 
                     safeTest.decryptPassword();
+
                     break;
                 case 7:
                     return;

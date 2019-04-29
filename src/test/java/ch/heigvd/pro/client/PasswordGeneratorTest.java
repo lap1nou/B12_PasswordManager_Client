@@ -11,9 +11,9 @@ class PasswordGeneratorTest {
         char[] charSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"#$%&')(*+,-_./".toCharArray();
 
         PasswordGenerator test = new PasswordGenerator(charSet, 6);
-        String result = test.generatePassword();
+        char[] result = test.generatePassword();
 
-        assertEquals(result.length(), 6);
+        assertEquals(result.length, 6);
     }
 
 }

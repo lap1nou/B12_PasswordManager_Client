@@ -11,15 +11,22 @@ public class PasswordGenerator {
         this.size = size;
     }
 
-    public String generatePassword() {
-        StringBuilder result = new StringBuilder();
+    /**
+     * Generate a random password based on size and charset attributes.
+     *
+     * @return a random password
+     */
+    public char[] generatePassword() {
+        char[] result = new char[this.size];
+
         SecureRandom index = new SecureRandom();
 
         for (int i = 0; i < size; i++) {
-            result.append(charSet[index.nextInt(charSet.length)]);
+            result[i] = charSet[index.nextInt(charSet.length)];
+            System.out.print(result[i]);
         }
 
         // TODO : Checkez le mot de passe avec le module password checker
-        return result.toString();
+        return result;
     }
 }
