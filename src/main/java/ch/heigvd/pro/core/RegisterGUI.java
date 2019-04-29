@@ -21,12 +21,17 @@ public class RegisterGUI extends JFrame {
     private JLabel label;
 
     public RegisterGUI() {
+
+        // Frame initialisation
         setTitle("Register");
         add(mainPanel);
         setLocationRelativeTo(null);
         //setSize(500, 300);
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
+
+        // Listeners
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

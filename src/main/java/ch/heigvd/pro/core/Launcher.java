@@ -11,7 +11,6 @@ public class Launcher {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 LoginGUI myLoginGUI = new LoginGUI();
-                myLoginGUI.setVisible(true);
             }
         });
     }

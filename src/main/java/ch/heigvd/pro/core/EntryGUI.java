@@ -21,13 +21,17 @@ public class EntryGUI extends JFrame {
     private JButton autoGenerateButton;
     private JProgressBar progressBar1;
 
-    public EntryGUI(String title) {
-        super(title);
+    public EntryGUI() {
+
+        // Frame initialisations
+        setTitle("Entry");
         add(mainPanel);
         setLocationRelativeTo(null);
-        //setSize(500, 300);
-        pack();
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(600, 450);
+        setResizable(false);
+        //pack();
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         progressBar1.setValue(50);
+        setVisible(true);
     }
 }

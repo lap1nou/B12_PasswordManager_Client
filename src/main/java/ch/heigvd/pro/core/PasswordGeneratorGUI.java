@@ -18,13 +18,16 @@ public class PasswordGeneratorGUI extends JFrame {
     private JButton showButton;
     private JButton generateButton;
 
-    public PasswordGeneratorGUI(String title) {
-        super(title);
+    public PasswordGeneratorGUI() {
+
+        // Frame initialisation
+        setTitle("Password Generator");
         add(mainPanel);
         setLocationRelativeTo(null);
         setSize(450, 250);
         //setResizable(false);
         //pack();
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setVisible(true);
     }
 }

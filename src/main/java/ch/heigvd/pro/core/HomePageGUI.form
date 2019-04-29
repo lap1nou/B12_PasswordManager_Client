@@ -24,9 +24,16 @@
                 <constraints/>
                 <properties>
                   <text value="File"/>
+                  <toolTipText value=""/>
                 </properties>
                 <border type="none" title=""/>
                 <children>
+                  <component id="aa768" class="javax.swing.JMenuItem" binding="menuItemNewEntry">
+                    <constraints/>
+                    <properties>
+                      <text value="New Entry"/>
+                    </properties>
+                  </component>
                   <component id="932b9" class="javax.swing.JMenuItem" binding="menuItemSave">
                     <constraints/>
                     <properties>
@@ -82,13 +89,13 @@
         <border type="none"/>
         <children/>
       </grid>
-      <grid id="5d79c" binding="westPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="5d79c" binding="westPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints border-constraint="West"/>
         <properties/>
         <border type="none"/>
         <children>
-          <component id="d584" class="javax.swing.JTree" binding="tree1" default-binding="true">
+          <component id="d584" class="javax.swing.JTree" binding="groupTree">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="50"/>
@@ -96,32 +103,30 @@
             </constraints>
             <properties/>
           </component>
-          <vspacer id="68189">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-            </constraints>
-          </vspacer>
         </children>
       </grid>
-      <grid id="a7ea1" binding="eastPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="86781" binding="centerPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
-        <constraints border-constraint="East"/>
+        <constraints border-constraint="Center"/>
         <properties/>
         <border type="none"/>
         <children>
-          <component id="6f935" class="javax.swing.JTable" binding="table1" default-binding="true">
+          <scrollpane id="4ad3b">
             <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                <preferred-size width="150" height="50"/>
-              </grid>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
-          </component>
-          <vspacer id="907cb">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-            </constraints>
-          </vspacer>
+            <border type="none"/>
+            <children>
+              <component id="712d3" class="javax.swing.JTable" binding="entryTable">
+                <constraints/>
+                <properties>
+                  <toolTipText value=""/>
+                  <updateSelectionOnSort value="true"/>
+                </properties>
+              </component>
+            </children>
+          </scrollpane>
         </children>
       </grid>
     </children>

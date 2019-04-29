@@ -15,13 +15,18 @@ public class CreateMasterKeyGUI extends JFrame {
     private JButton helpButton;
     private JButton cancelButton;
     private JButton confirmButton;
+    private JPanel centerPanel;
 
-    public CreateMasterKeyGUI(String title) {
-        super(title);
+    public CreateMasterKeyGUI() {
+
+        // Frame initialisations
+        setTitle("Create Master Key");
         add(mainPanel);
         setLocationRelativeTo(null);
         setSize(500, 300);
+        setResizable(false);
         //pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
     }
 }

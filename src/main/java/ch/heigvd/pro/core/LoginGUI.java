@@ -20,6 +20,8 @@ public class LoginGUI extends JFrame {
     private JLabel label;
 
     public LoginGUI() {
+
+        //Frame initialisation
         setTitle("Login");
         add(mainPanel);
         setLocationRelativeTo(null);
@@ -27,19 +29,20 @@ public class LoginGUI extends JFrame {
         setResizable(false);
         //pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
+
+        // Listeners
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 RegisterGUI myRegisterGUI = new RegisterGUI();
-                myRegisterGUI.setVisible(true);
                 dispose();
             }
         });
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 HomePageGUI myHomePageGUI = new HomePageGUI();
-                myHomePageGUI.setVisible(true);
                 dispose();
             }
         });
