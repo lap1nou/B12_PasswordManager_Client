@@ -11,6 +11,7 @@ import java.io.IOException;
 
 // Source : https://www.tutorialspoint.com/gson/gson_object_serialization.htm
 public class FileDriver implements IStorePasswordDriver {
+
     /**
      * Load JSON from a file and return the Safe object of the JSON data.
      *

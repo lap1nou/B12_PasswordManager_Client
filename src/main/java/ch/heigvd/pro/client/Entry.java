@@ -5,14 +5,14 @@ import java.util.Date;
 public class Entry {
     private static int idGlobal = 0;
     private int id;
-    private String username;
-    private String target;
+    private char[] username;
+    private char[] target;
     private transient char[] clearPassword;
     private Password password;
-    private String email;
+    private char[] email;
     private Date registerDate;
 
-    public Entry(String username, String target, char[] clearPassword, String email, Date registerDate, Safe safe) {
+    public Entry(char[] username, char[] target, char[] clearPassword, char[] email, Date registerDate) {
         this.id = idGlobal++;
         this.username = username;
         this.target = target;
@@ -29,11 +29,11 @@ public class Entry {
         this.id = id;
     }
 
-    public String getUsername() {
+    public char[] getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(char[] username) {
         this.username = username;
     }
 
@@ -45,11 +45,11 @@ public class Entry {
         this.password = password;
     }
 
-    public String getEmail() {
+    public char[] getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(char[] email) {
         this.email = email;
     }
 
@@ -65,7 +65,7 @@ public class Entry {
         return clearPassword;
     }
 
-    public String getTarget() {
+    public char[] getTarget() {
         return target;
     }
 
