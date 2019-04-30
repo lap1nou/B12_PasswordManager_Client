@@ -38,6 +38,7 @@ public class PasswordChecker {
         int specialCharPoint = 0;
 
         // Check if the password length is bigger than 8 and that the password is not leaked
+        //if(password.length < MIN_LENGTH || pwnChecker.isLeaked(password)){
         if(password.length < MIN_LENGTH || pwnChecker.isLeaked(password)){
             return lengthPoint;
         }
@@ -79,7 +80,7 @@ public class PasswordChecker {
 
             //It will define the point if the password contains 1 or more lowercase character
             if (Character.isLowerCase(password[i])) {
-                if(lowerCasePoint != 0){
+                if(lowerCasePoint == 0){
                     lowerCasePoint += MAX_POINT_LOWERCASE;
                 }
             }
@@ -87,13 +88,13 @@ public class PasswordChecker {
 
             //It will define the point if the password contains 1 or more lowercase character
             if (Character.isDigit(password[i])) {
-                if(numericPoint != 0){
+                if(numericPoint == 0){
                     numericPoint += MAX_POINT_NUMERIC;
                 }
             }
         }
 
-        return upperCasePoint + lowerCasePoint + specialCharPoint + numericPoint;
+        return upperCasePoint + lowerCasePoint + specialCharPoint + numericPoint + lengthPoint;
     }
 
 }
