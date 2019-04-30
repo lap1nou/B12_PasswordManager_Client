@@ -28,6 +28,12 @@
                 </properties>
                 <border type="none" title=""/>
                 <children>
+                  <component id="18241" class="javax.swing.JMenuItem" binding="menuItemNewGroup">
+                    <constraints/>
+                    <properties>
+                      <text value="New Group"/>
+                    </properties>
+                  </component>
                   <component id="aa768" class="javax.swing.JMenuItem" binding="menuItemNewEntry">
                     <constraints/>
                     <properties>

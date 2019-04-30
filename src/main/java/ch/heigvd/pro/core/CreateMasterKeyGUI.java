@@ -1,6 +1,8 @@
 package ch.heigvd.pro.core;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class CreateMasterKeyGUI extends JFrame {
     private JPanel mainPanel;
@@ -26,7 +28,15 @@ public class CreateMasterKeyGUI extends JFrame {
         setSize(500, 300);
         setResizable(false);
         //pack();
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
+
+        // Listeners
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
     }
 }

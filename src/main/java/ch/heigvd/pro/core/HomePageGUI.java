@@ -26,6 +26,7 @@ public class HomePageGUI extends JFrame {
     private JPanel centerPanel;
     private JTable entryTable;
     private JMenuItem menuItemNewEntry;
+    private JMenuItem menuItemNewGroup;
 
     public HomePageGUI() {
 
@@ -60,6 +61,14 @@ public class HomePageGUI extends JFrame {
                                 HomePageGUI.this.setEnabled(true);
                             }
                         });
+
+                        newEntry.getCancelButton().addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                HomePageGUI.this.setEnabled(true);
+                                newEntry.dispose();
+                            }
+                        });
                     }
                 });
                 setEnabled(false);
@@ -78,9 +87,31 @@ public class HomePageGUI extends JFrame {
                                 HomePageGUI.this.setEnabled(true);
                             }
                         });
+
+                        passwordGenerator.getCancelButton().addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                HomePageGUI.this.setEnabled(true);
+                                passwordGenerator.dispose();
+                            }
+                        });
                     }
                 });
                 setEnabled(false);
+            }
+        });
+
+        menuItemAbout.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(null, "ImPass 1.0\n" + "This program is open source and not certified\n");
+            }
+        });
+
+        menuItemNewGroup.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String groupName = JOptionPane.showInputDialog("Enter the new group name");
             }
         });
     }
