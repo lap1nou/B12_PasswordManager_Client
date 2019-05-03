@@ -65,6 +65,12 @@ public class LoginGUI extends JFrame {
         usernamePasswordRadioButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                usernameTextField.setEnabled(true);
+                passwordField.setEnabled(true);
+                forgetPasswordButton.setEnabled(true);
+                labelAccount.setEnabled(true);
+
                 keyFileTextField.setEnabled(false);
             }
         });
@@ -76,7 +82,9 @@ public class LoginGUI extends JFrame {
                 passwordField.setEnabled(false);
                 forgetPasswordButton.setEnabled(false);
                 labelAccount.setEnabled(false);
-                
+
+                keyFileTextField.setEnabled(true);
+
 
             }
         });
