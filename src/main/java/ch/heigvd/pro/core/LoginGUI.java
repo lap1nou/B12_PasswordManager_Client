@@ -1,6 +1,7 @@
 package ch.heigvd.pro.core;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -19,37 +20,48 @@ public class LoginGUI extends JFrame {
     private JFormattedTextField usernameTextField;
     private JPasswordField passwordField;
     private JLabel labelAccount;
-    private JLabel keyFileLabel;
-    private JTextField keyFileTextField;
+    private JLabel databaseLabel;
+    private JTextField databaseTextField;
     private JLabel textSelection;
-    private JRadioButton usernamePasswordRadioButton;
-    private JRadioButton keyFileRadioButton;
+    private JRadioButton onlineRadioButton;
+    private JRadioButton offRadioButton;
     private JLabel usernameLabel;
-    private JLabel masterFileldPassword;
+    private JLabel passwordLabel;
     private JButton browseButton;
+    private JPanel centerPanel;
+    private Color oldForegroundLabelAccount;
 
     public LoginGUI() {
 
-        //Frame initialisation
+        // Frame initialisation
         setTitle("Login");
         add(mainPanel);
         setLocationRelativeTo(null);
-        setSize(400, 200);
+        setSize(400, 250);
         setResizable(false);
         //pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
 
+        // Initialisation mode online/offline
         ButtonGroup group = new ButtonGroup();
-        group.add(keyFileRadioButton);
-        group.add(usernamePasswordRadioButton);
+        group.add(offRadioButton);
+        group.add(onlineRadioButton);
+        databaseLabel.setVisible(false);
+        databaseTextField.setVisible(false);
+        browseButton.setVisible(false);
 
         // Listeners
         labelAccount.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                RegisterGUI myRegisterGUI = new RegisterGUI();
+                if(onlineRadioButton.isSelected()) {
+                    RegisterGUI myRegisterGUI = new RegisterGUI();
+
+                } else if (offRadioButton.isSelected()) {
+                    HomePageGUI newHomePageUI = new HomePageGUI();
+                }
                 dispose();
             }
         });
@@ -62,43 +74,74 @@ public class LoginGUI extends JFrame {
         });
 
 
-        usernamePasswordRadioButton.addActionListener(new ActionListener() {
+        onlineRadioButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                usernameTextField.setEnabled(true);
-                passwordField.setEnabled(true);
-                forgetPasswordButton.setEnabled(true);
-                labelAccount.setEnabled(true);
-
-                keyFileTextField.setEnabled(false);
+                usernameLabel.setVisible(true);
+                usernameTextField.setVisible(true);
+                usernameTextField.setText("");
+                passwordLabel.setText("Password:");
+                passwordField.setText("");
+                databaseLabel.setVisible(false);
+                databaseTextField.setVisible(false);
+                browseButton.setVisible(false);
+                loginButton.setText("Login");
+                labelAccount.setText("Click here to create a new account");
             }
         });
 
-        keyFileRadioButton.addActionListener(new ActionListener() {
+        offRadioButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                usernameTextField.setEnabled(false);
-                passwordField.setEnabled(false);
-                forgetPasswordButton.setEnabled(false);
-                labelAccount.setEnabled(false);
-
-                keyFileTextField.setEnabled(true);
-
-
+                usernameLabel.setVisible(false);
+                usernameTextField.setVisible(false);
+                passwordLabel.setText("Master Password:");
+                passwordField.setText("");
+                databaseLabel.setVisible(true);
+                databaseTextField.setVisible(true);
+                databaseTextField.setText("");
+                browseButton.setVisible(true);
+                loginButton.setText("OK");
+                labelAccount.setText("Click here to create a new database");
             }
         });
 
         browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser = new JFileChooser(new File("c:\\"));
-                chooser.showOpenDialog(null);
-                // chooser.setFileFilter(new FileTypeFilter(".txt", ".docx", ".pdf"));
-                File f = chooser.getSelectedFile();
-                String filename = f.getAbsolutePath();
-                keyFileTextField.setText(filename);
+                JFileChooser chooser = new JFileChooser();
+                int ret = chooser.showOpenDialog(null);
+                //chooser.setFileFilter(new FileTypeFilter(".txt", ".docx", ".pdf"));
+                if(ret == JFileChooser.APPROVE_OPTION) {
+                    String filename = chooser.getSelectedFile().getAbsolutePath();
+                    databaseTextField.setText(filename);
+                }
+            }
+        });
 
+        labelAccount.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+                oldForegroundLabelAccount = labelAccount.getForeground();
+                labelAccount.setForeground(Color.BLUE);
+            }
+        });
+
+        labelAccount.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                super.mouseExited(e);
+                labelAccount.setForeground(oldForegroundLabelAccount);
+
+            }
+        });
+
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
             }
         });
     }

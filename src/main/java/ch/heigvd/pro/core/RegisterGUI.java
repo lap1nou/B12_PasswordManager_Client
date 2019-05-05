@@ -1,6 +1,7 @@
 package ch.heigvd.pro.core;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 
 public class RegisterGUI extends JFrame {
@@ -20,6 +21,7 @@ public class RegisterGUI extends JFrame {
     private JFormattedTextField formattedTextField5;
     private JPasswordField passwordField1;
     private JPasswordField passwordField2;
+    private Color oldForegroundLabel;
 
     public RegisterGUI() {
 
@@ -93,6 +95,24 @@ public class RegisterGUI extends JFrame {
                 LoginGUI myLoginGUI = new LoginGUI();
                 myLoginGUI.setVisible(true);
                 dispose();
+            }
+        });
+
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+                oldForegroundLabel = label.getForeground();
+                label.setForeground(Color.BLUE);
+            }
+        });
+
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                super.mouseExited(e);
+                label.setForeground(oldForegroundLabel);
+
             }
         });
 
