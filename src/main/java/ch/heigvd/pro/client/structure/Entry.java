@@ -1,4 +1,4 @@
-package ch.heigvd.pro.client;
+package ch.heigvd.pro.client.structure;
 
 import java.util.Date;
 
@@ -51,6 +51,10 @@ public class Entry {
 
     public void setEmail(char[] email) {
         this.email = email;
+    }
+
+    public void setTarget(char[] target) {
+        this.target = target;
     }
 
     public Date getRegisterDate() {

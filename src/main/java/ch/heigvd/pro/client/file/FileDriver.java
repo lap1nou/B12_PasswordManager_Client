@@ -1,6 +1,6 @@
 package ch.heigvd.pro.client.file;
 
-import ch.heigvd.pro.client.Safe;
+import ch.heigvd.pro.client.structure.Safe;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 

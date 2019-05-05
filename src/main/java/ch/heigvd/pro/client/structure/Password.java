@@ -1,4 +1,4 @@
-package ch.heigvd.pro.client;
+package ch.heigvd.pro.client.structure;
 
 public class Password {
     private static int idGlobal = 0;

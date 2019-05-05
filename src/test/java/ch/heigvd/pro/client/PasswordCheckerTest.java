@@ -1,5 +1,7 @@
 package ch.heigvd.pro.client;
 
+import ch.heigvd.pro.client.password.PasswordChecker;
+import ch.heigvd.pro.client.structure.Entry;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;

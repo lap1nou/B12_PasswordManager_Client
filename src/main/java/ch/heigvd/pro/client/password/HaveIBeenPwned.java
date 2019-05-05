@@ -1,6 +1,7 @@
-package ch.heigvd.pro.client;
+package ch.heigvd.pro.client.password;
 
 import ch.heigvd.pro.client.crypto.Crypto;
+import ch.heigvd.pro.client.password.IPasswordCheckerDriver;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -27,7 +28,7 @@ public class HaveIBeenPwned implements IPasswordCheckerDriver {
      * @param password the checked password
      * @return true if the password was leaked somewhere in the database, false otherwise
      */
-    public boolean isLeaked(String password) {
+    public boolean isLeaked(char[] password) {
         HttpGet test = new HttpGet(apiURL + Crypto.fiveAnonimitySHA1(password));
 
         try {
