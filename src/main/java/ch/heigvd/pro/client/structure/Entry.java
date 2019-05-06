@@ -1,28 +1,30 @@
 package ch.heigvd.pro.client.structure;
 
 import ch.heigvd.pro.client.crypto.Crypto;
+import ch.heigvd.pro.client.password.PasswordChecker;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
 public class Entry {
-    private static int idGlobal = 0;
     private int id;
     private char[] username;
     private char[] target;
     private transient char[] clearPassword;
+    private char[] encryptedPassword;
     private byte[] iv;
     private char[] salt;
-    private Password password;
     private char[] email;
+    private int strength;
     private Date registerDate;
 
-    public Entry(char[] username, char[] target, char[] clearPassword, char[] email, char[] salt, Date registerDate) {
-        this.id = idGlobal++;
+    public Entry(int id, char[] username, char[] target, char[] clearPassword, char[] email, char[] salt, Date registerDate) {
+        this.id = id;
         this.username = username;
         this.target = target;
         this.clearPassword = clearPassword;
+        this.strength = PasswordChecker.checkStrong(clearPassword);
         this.email = email;
         this.registerDate = registerDate;
         this.salt = salt;
@@ -36,12 +38,12 @@ public class Entry {
         this.username = username;
     }
 
-    public Password getPassword() {
-        return password;
+    public char[] getPassword() {
+        return encryptedPassword;
     }
 
-    public void setPassword(Password password) {
-        this.password = password;
+    public void setPassword(char[] password) {
+        this.encryptedPassword = password;
     }
 
     public char[] getEmail() {

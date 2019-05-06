@@ -1,7 +1,6 @@
 package ch.heigvd.pro.client.crypto;
 
 import ch.heigvd.pro.client.structure.Entry;
-import ch.heigvd.pro.client.structure.Password;
 import ch.heigvd.pro.client.*;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -70,7 +69,7 @@ public class Crypto {
 
             aesCipher.init(Cipher.DECRYPT_MODE, aesKey, new IvParameterSpec(entry.getIv()));
 
-            byte[] decryptedPassword = aesCipher.doFinal(Base64.getDecoder().decode(entry.getPassword().toString()));
+            byte[] decryptedPassword = aesCipher.doFinal(Base64.getDecoder().decode(Utils.charToByteArray(entry.getPassword())));
             byte[] decryptedTarget = aesCipher.doFinal(Base64.getDecoder().decode(Utils.charToByteArray(entry.getTarget())));
             byte[] decryptedUsername = aesCipher.doFinal(Base64.getDecoder().decode(Utils.charToByteArray(entry.getUsername())));
 
@@ -117,7 +116,7 @@ public class Crypto {
             byte[] encryptedUsername = aesCipher.doFinal(Utils.charToByteArray(entry.getUsername()));
 
             entry.setIv(iv);
-            entry.setPassword(new Password(Base64.getEncoder().encodeToString(encryptedPassword)));
+            entry.setPassword(Base64.getEncoder().encodeToString(encryptedPassword).toCharArray());
             entry.setTarget(Utils.byteToCharArray(Base64.getEncoder().encode(encryptedTarget)));
             entry.setUsername(Utils.byteToCharArray(Base64.getEncoder().encode(encryptedUsername)));
 

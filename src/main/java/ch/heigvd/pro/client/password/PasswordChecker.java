@@ -7,17 +7,17 @@ import java.util.Arrays;
 
 public class PasswordChecker {
 
-    private HaveIBeenPwned pwnChecker = new HaveIBeenPwned();
-    private final int MIN_LENGTH = 8;
-    private final int MAX_POINT_LENGTH = 35;
-    private final int MAX_POINT_UPPERCASE = 24;
-    private final int MAX_POINT_LOWERCASE = 12;
-    private final int MAX_POINT_NUMERIC = 13;
-    private final int MAX_POINT_SPECIAL_CHAR = 16;
-    private final double RATIO_LENGTH = 2.5;
-    private final int POINT = 8;
+    private static HaveIBeenPwned pwnChecker = new HaveIBeenPwned();
+    private final static int MIN_LENGTH = 8;
+    private final static int MAX_POINT_LENGTH = 35;
+    private final static int MAX_POINT_UPPERCASE = 24;
+    private final static int MAX_POINT_LOWERCASE = 12;
+    private final static int MAX_POINT_NUMERIC = 13;
+    private final static int MAX_POINT_SPECIAL_CHAR = 16;
+    private final static double RATIO_LENGTH = 2.5;
+    private final static int POINT = 8;
 
-    private ArrayList<Character> specialCharacter = new ArrayList<Character>(Arrays.asList('~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '-'));
+    private static ArrayList<Character> specialCharacter = new ArrayList<Character>(Arrays.asList('~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '-'));
 
     /**
      * This function will check all new password who will be assign to an entry and will define
@@ -27,11 +27,10 @@ public class PasswordChecker {
      * source: https://www.javacodeexamples.com/check-password-strength-in-java-example/668
      * https://en.wikipedia.org/wiki/Password_strength#cite_note-23
      *
-     * @param entry password to check
+     * @param password password to check
      * @return the password score
      */
-    public int checkStrong(Entry entry) {
-        char[] password = entry.getClearPassword();
+    public static int checkStrong(char[] password) {
         int lengthPoint = 0;
         int upperCasePoint = 0;
         int lowerCasePoint = 0;
