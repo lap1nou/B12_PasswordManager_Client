@@ -55,7 +55,7 @@ public class LoginGUI extends JFrame {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                if(onlineRadioButton.isSelected()) {
+                if (onlineRadioButton.isSelected()) {
                     RegisterGUI myRegisterGUI = new RegisterGUI();
 
                 } else if (offRadioButton.isSelected()) {
@@ -112,7 +112,7 @@ public class LoginGUI extends JFrame {
                 JFileChooser chooser = new JFileChooser();
                 int ret = chooser.showOpenDialog(null);
                 //chooser.setFileFilter(new FileTypeFilter(".txt", ".docx", ".pdf"));
-                if(ret == JFileChooser.APPROVE_OPTION) {
+                if (ret == JFileChooser.APPROVE_OPTION) {
                     String filename = chooser.getSelectedFile().getAbsolutePath();
                     databaseTextField.setText(filename);
                 }

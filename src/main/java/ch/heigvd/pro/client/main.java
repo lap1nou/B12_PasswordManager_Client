@@ -5,8 +5,6 @@ import ch.heigvd.pro.client.file.*;
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Folder;
 import ch.heigvd.pro.client.structure.Safe;
-import ch.heigvd.pro.client.gui.*;
-import sun.rmi.runtime.Log;
 
 import javax.crypto.BadPaddingException;
 import javax.swing.*;
@@ -60,7 +58,7 @@ public class main {
 
                     SecureRandom salt = new SecureRandom();
 
-                    Entry newEntry = new Entry(username, target, clearPassword, email, Utils.byteToCharArray(Crypto.generateSalt(32)), new Date());
+                    Entry newEntry = new Entry(0, username, target, clearPassword, email, Utils.byteToCharArray(Crypto.generateSalt(32)), new Date());
                     newEntry.encryptEntry(safeTest.getSafePassword());
 
                     List<Entry> entryList = new ArrayList<>();
@@ -145,11 +143,10 @@ public class main {
                 default:
                     break;
             }
-
         }
-        /*
-        GUIManager newGUIMan = new GUIManager();
-        newGUIMan.start();
-         */
+
+        //GUIManager newGUIMan = new GUIManager();
+        //newGUIMan.start();
+
     }
 }

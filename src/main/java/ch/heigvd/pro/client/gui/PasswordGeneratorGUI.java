@@ -20,6 +20,7 @@ public class PasswordGeneratorGUI extends JFrame {
     private JButton showButton;
     private JButton generateButton;
     private JButton cancelButton;
+    private JButton okButton;
 
     public PasswordGeneratorGUI() {
 
