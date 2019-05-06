@@ -84,15 +84,17 @@
               <text value="Notes:"/>
             </properties>
           </component>
-          <component id="f2fc" class="javax.swing.JTextArea" binding="textArea1" default-binding="true">
+          <component id="f2fc" class="javax.swing.JTextArea" binding="notesField">
             <constraints>
               <grid row="5" column="0" row-span="1" col-span="4" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="50"/>
               </grid>
             </constraints>
-            <properties/>
+            <properties>
+              <text value=""/>
+            </properties>
           </component>
-          <component id="3d617" class="javax.swing.JFormattedTextField" binding="formattedTextField1" default-binding="true">
+          <component id="3d617" class="javax.swing.JFormattedTextField" binding="usernameField">
             <constraints>
               <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
@@ -108,7 +110,7 @@
               <text value="User Name:"/>
             </properties>
           </component>
-          <component id="cd163" class="javax.swing.JFormattedTextField" binding="formattedTextField2" default-binding="true">
+          <component id="cd163" class="javax.swing.JFormattedTextField" binding="entryNameField">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>
@@ -137,10 +139,10 @@
               <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="URL:"/>
+              <text value="Target:"/>
             </properties>
           </component>
-          <component id="398ae" class="javax.swing.JFormattedTextField" binding="formattedTextField3" default-binding="true">
+          <component id="398ae" class="javax.swing.JFormattedTextField" binding="targetField">
             <constraints>
               <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="0" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="-1"/>

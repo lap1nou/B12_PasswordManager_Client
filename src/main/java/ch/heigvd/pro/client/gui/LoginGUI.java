@@ -1,11 +1,15 @@
 package ch.heigvd.pro.client.gui;
 
+import ch.heigvd.pro.client.file.FileDriver;
+import ch.heigvd.pro.client.structure.Safe;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
 public class LoginGUI extends JFrame {
     public JPanel mainPanel;
@@ -29,6 +33,8 @@ public class LoginGUI extends JFrame {
     private JButton browseButton;
     private JPanel centerPanel;
     private Color oldForegroundLabelAccount;
+
+    private Safe safe = new Safe();
 
     public LoginGUI() {
 
@@ -59,7 +65,7 @@ public class LoginGUI extends JFrame {
                     RegisterGUI myRegisterGUI = new RegisterGUI();
 
                 } else if (offRadioButton.isSelected()) {
-                    HomePageGUI newHomePageUI = new HomePageGUI();
+                    HomePageGUI newHomePageUI = new HomePageGUI(safe);
                 }
                 dispose();
             }
@@ -67,11 +73,20 @@ public class LoginGUI extends JFrame {
 
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                HomePageGUI myHomePageGUI = new HomePageGUI();
-                dispose();
+                FileDriver test = new FileDriver();
+                File passwordDB = new File(databaseTextField.getText());
+
+                safe = test.loadSafe(passwordDB);
+                safe.setSafePassword(passwordField.getPassword());
+
+                if (safe.isPasswordCorrect()) {
+                    HomePageGUI myHomePageGUI = new HomePageGUI(safe);
+                    dispose();
+                } else {
+                    System.out.println("Error");
+                }
             }
         });
-
 
         onlineRadioButton.addActionListener(new ActionListener() {
             @Override

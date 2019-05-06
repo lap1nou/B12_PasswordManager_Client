@@ -2,6 +2,7 @@ package ch.heigvd.pro.client;
 
 import ch.heigvd.pro.client.crypto.Crypto;
 import ch.heigvd.pro.client.file.*;
+import ch.heigvd.pro.client.gui.GUIManager;
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Folder;
 import ch.heigvd.pro.client.structure.Safe;
@@ -19,7 +20,7 @@ import java.util.Scanner;
 public class main {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-
+/*
         FileDriver test = new FileDriver();
         File passwordDB = new File("");
         Safe safeTest = new Safe();
@@ -41,14 +42,17 @@ public class main {
                 case 1:
                     Scanner userInput = new Scanner(System.in);
 
+                    System.out.println("Enter an entry name :");
+                    char[] entryName = userInput.nextLine().toCharArray();
+
                     System.out.println("Enter a username :");
                     char[] username = userInput.nextLine().toCharArray();
 
                     System.out.println("Enter a target :");
                     char[] target = userInput.nextLine().toCharArray();
 
-                    System.out.println("Enter an email :");
-                    char[] email = userInput.nextLine().toCharArray();
+                    System.out.println("Enter a notes :");
+                    char[] notes = userInput.nextLine().toCharArray();
 
                     System.out.println("Enter a password :");
                     char[] clearPassword = userInput.nextLine().toCharArray();
@@ -56,9 +60,7 @@ public class main {
                     System.out.println("Enter a folder name :");
                     String folderName = userInput.nextLine();
 
-                    SecureRandom salt = new SecureRandom();
-
-                    Entry newEntry = new Entry(0, username, target, clearPassword, email, Utils.byteToCharArray(Crypto.generateSalt(32)), new Date());
+                    Entry newEntry = new Entry(0, entryName, username, target, clearPassword, notes, new Date());
                     newEntry.encryptEntry(safeTest.getSafePassword());
 
                     List<Entry> entryList = new ArrayList<>();
@@ -85,8 +87,8 @@ public class main {
                             System.out.println(e.getUsername());
                             System.out.print("Target : ");
                             System.out.println(e.getTarget());
-                            System.out.print("Email : ");
-                            System.out.println(e.getEmail());
+                            System.out.print("Notes : ");
+                            System.out.println(e.getNotes());
 
                             System.out.print("Password : ");
                             System.out.println(e.getClearPassword());
@@ -144,9 +146,9 @@ public class main {
                     break;
             }
         }
-
-        //GUIManager newGUIMan = new GUIManager();
-        //newGUIMan.start();
+*/
+        GUIManager newGUIMan = new GUIManager();
+        newGUIMan.start();
 
     }
 }
