@@ -24,14 +24,6 @@ public class Safe {
         return folderList;
     }
 
-    public boolean isEncrypted() {
-        return encrypted;
-    }
-
-    public void setEncrypted(boolean encrypted) {
-        this.encrypted = encrypted;
-    }
-
     public void setSafePassword(char[] safePassword) {
         this.safePassword = safePassword;
     }
@@ -66,5 +58,9 @@ public class Safe {
                 }
             }
         }
+    }
+
+    public char[] getSafePassword() {
+        return safePassword;
     }
 }

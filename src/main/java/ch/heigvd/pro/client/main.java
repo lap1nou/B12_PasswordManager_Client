@@ -1,5 +1,6 @@
 package ch.heigvd.pro.client;
 
+import ch.heigvd.pro.client.crypto.Crypto;
 import ch.heigvd.pro.client.file.FileDriver;
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Folder;
@@ -8,6 +9,7 @@ import ch.heigvd.pro.client.structure.Safe;
 import javax.crypto.BadPaddingException;
 import java.io.File;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,12 +37,6 @@ public class main {
 
             switch (menuInput.nextInt()) {
                 case 1:
-                    try {
-                        safeTest.decryptPassword();
-                    } catch (BadPaddingException e) {
-                        e.printStackTrace();
-                    }
-
                     Scanner userInput = new Scanner(System.in);
 
                     System.out.println("Enter a username :");
@@ -58,28 +54,29 @@ public class main {
                     System.out.println("Enter a folder name :");
                     String folderName = userInput.nextLine();
 
-                    Entry newEntry = new Entry(username, target, clearPassword, email, new Date());
+                    SecureRandom salt = new SecureRandom();
+
+                    Entry newEntry = new Entry(username, target, clearPassword, email, Utils.byteToCharArray(Crypto.generateSalt(32)), new Date());
+                    newEntry.encryptEntry(safeTest.getSafePassword());
+
                     List<Entry> entryList = new ArrayList<>();
                     entryList.add(newEntry);
 
                     Folder newFolder = new Folder(folderName, entryList);
-
                     safeTest.addFolder(newFolder);
-                    safeTest.encryptPassword();
 
                     break;
                 case 2:
 
                     break;
                 case 3:
-                    try {
-                        safeTest.decryptPassword();
-                    } catch (BadPaddingException e) {
-                        e.printStackTrace();
-                    }
-
                     for (Folder f : safeTest.getFolderList()) {
                         for (Entry e : f.getEntrylist()) {
+                            try {
+                                e.decryptEntry(safeTest.getSafePassword());
+                            } catch (BadPaddingException e1) {
+                                e1.printStackTrace();
+                            }
 
                             System.out.println("======= ENTRY =======");
                             System.out.print("Username : ");
@@ -94,10 +91,10 @@ public class main {
 
                             System.out.println();
                             System.out.println();
+
+                            e.encryptEntry(safeTest.getSafePassword());
                         }
                     }
-
-                    safeTest.encryptPassword();
 
                     break;
                 case 4:
@@ -114,13 +111,6 @@ public class main {
                     System.out.println("Enter your password :");
                     safeTest.setSafePassword(passwordInput.nextLine().toCharArray());
 
-                    try {
-                        safeTest.decryptPassword();
-                        safeTest.encryptPassword();
-
-                    } catch (BadPaddingException e) {
-                        System.out.println("Error, wrong password !");
-                    }
                     break;
                 case 6:
                     System.out.println("Enter the name of your password file :");

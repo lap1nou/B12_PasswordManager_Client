@@ -1,5 +1,9 @@
 package ch.heigvd.pro.client.structure;
 
+import ch.heigvd.pro.client.crypto.Crypto;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 public class Entry {
@@ -8,25 +12,20 @@ public class Entry {
     private char[] username;
     private char[] target;
     private transient char[] clearPassword;
+    private byte[] iv;
+    private char[] salt;
     private Password password;
     private char[] email;
     private Date registerDate;
 
-    public Entry(char[] username, char[] target, char[] clearPassword, char[] email, Date registerDate) {
+    public Entry(char[] username, char[] target, char[] clearPassword, char[] email, char[] salt, Date registerDate) {
         this.id = idGlobal++;
         this.username = username;
         this.target = target;
         this.clearPassword = clearPassword;
         this.email = email;
         this.registerDate = registerDate;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+        this.salt = salt;
     }
 
     public char[] getUsername() {
@@ -49,20 +48,8 @@ public class Entry {
         return email;
     }
 
-    public void setEmail(char[] email) {
-        this.email = email;
-    }
-
     public void setTarget(char[] target) {
         this.target = target;
-    }
-
-    public Date getRegisterDate() {
-        return registerDate;
-    }
-
-    public void setRegisterDate(Date registerDate) {
-        this.registerDate = registerDate;
     }
 
     public char[] getClearPassword() {
@@ -75,5 +62,25 @@ public class Entry {
 
     public void setClearPassword(char[] clearPassword) {
         this.clearPassword = clearPassword;
+    }
+
+    public void setIv(byte[] iv) {
+        this.iv = iv;
+    }
+
+    public byte[] getIv() {
+        return iv;
+    }
+
+    public void encryptEntry(char[] safePassword) {
+        SecretKey aesKey = Crypto.generateKey(safePassword, this.salt, Crypto.KEY_LENGTH, Crypto.NUMBER_OF_ITERATIONS);
+
+        Crypto.encryptAES(this, aesKey);
+    }
+
+    public void decryptEntry(char[] safePassword) throws BadPaddingException {
+        SecretKey aesKey = Crypto.generateKey(safePassword, this.salt, Crypto.KEY_LENGTH, Crypto.NUMBER_OF_ITERATIONS);
+
+        Crypto.decryptAES(this, aesKey);
     }
 }

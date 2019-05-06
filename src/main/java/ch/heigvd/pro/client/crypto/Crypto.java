@@ -11,10 +11,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import java.security.AlgorithmParameters;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.KeySpec;
@@ -23,7 +20,9 @@ import java.util.Arrays;
 import java.util.Base64;
 
 public class Crypto {
-    public static final int kAnonimityConstant = 5;
+    public static final int K_ANONIMITY_CONSTANT = 5;
+    public static final int KEY_LENGTH = 256;
+    public static final int NUMBER_OF_ITERATIONS = 1000000;
 
     /**
      * Returns the first five characters of the SHA1 of the given password in upper case.
@@ -33,7 +32,7 @@ public class Crypto {
      */
     public static String fiveAnonimitySHA1(char[] password) {
         char[] passwordTmp = password.clone();
-        String result = DigestUtils.sha1Hex(Utils.charToByteArray(passwordTmp)).substring(0, kAnonimityConstant).toUpperCase();
+        String result = DigestUtils.sha1Hex(Utils.charToByteArray(passwordTmp)).substring(0, K_ANONIMITY_CONSTANT).toUpperCase();
 
         // Cleaning password copy
         Arrays.fill(passwordTmp, (char) 0);
@@ -49,7 +48,7 @@ public class Crypto {
      */
     public static String restOfFiveAnonimitySHA1(char[] password) {
         char[] passwordTmp = password.clone();
-        String result = DigestUtils.sha1Hex(Utils.charToByteArray(passwordTmp)).substring(kAnonimityConstant).toUpperCase();
+        String result = DigestUtils.sha1Hex(Utils.charToByteArray(passwordTmp)).substring(K_ANONIMITY_CONSTANT).toUpperCase();
 
         // Cleaning password copy
         Arrays.fill(passwordTmp, (char) 0);
@@ -69,7 +68,7 @@ public class Crypto {
         try {
             aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
-            aesCipher.init(Cipher.DECRYPT_MODE, aesKey, new IvParameterSpec(entry.getPassword().getIv()));
+            aesCipher.init(Cipher.DECRYPT_MODE, aesKey, new IvParameterSpec(entry.getIv()));
 
             byte[] decryptedPassword = aesCipher.doFinal(Base64.getDecoder().decode(entry.getPassword().toString()));
             byte[] decryptedTarget = aesCipher.doFinal(Base64.getDecoder().decode(Utils.charToByteArray(entry.getTarget())));
@@ -117,7 +116,8 @@ public class Crypto {
             byte[] encryptedTarget = aesCipher.doFinal(Utils.charToByteArray(entry.getTarget()));
             byte[] encryptedUsername = aesCipher.doFinal(Utils.charToByteArray(entry.getUsername()));
 
-            entry.setPassword(new Password(Base64.getEncoder().encodeToString(encryptedPassword), iv));
+            entry.setIv(iv);
+            entry.setPassword(new Password(Base64.getEncoder().encodeToString(encryptedPassword)));
             entry.setTarget(Utils.byteToCharArray(Base64.getEncoder().encode(encryptedTarget)));
             entry.setUsername(Utils.byteToCharArray(Base64.getEncoder().encode(encryptedUsername)));
 
@@ -163,6 +163,15 @@ public class Crypto {
         }
 
         return aesKey;
+    }
+
+    public static byte[] generateSalt(int numberOfByte) {
+        SecureRandom randomValue = new SecureRandom();
+
+        byte[] salt = new byte[numberOfByte];
+        randomValue.nextBytes(salt);
+
+        return salt;
     }
 
 }
