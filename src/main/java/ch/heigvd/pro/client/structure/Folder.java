@@ -18,4 +18,8 @@ public class Folder {
     public String getName() {
         return name;
     }
+
+    public void addEntry(Entry newEntry) {
+        this.entrylist.add(newEntry);
+    }
 }

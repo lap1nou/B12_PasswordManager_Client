@@ -1,7 +1,11 @@
 package ch.heigvd.pro.client.gui;
 
+import ch.heigvd.pro.client.structure.Entry;
+import ch.heigvd.pro.client.structure.Safe;
+
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.Date;
 
 public class EntryGUI extends JFrame {
     private JPanel mainPanel;
@@ -10,19 +14,19 @@ public class EntryGUI extends JFrame {
     private JPanel eastPanel;
     private JPanel southPanel;
     private JPanel centerPanel;
-    private JTextArea textArea1;
-    private JFormattedTextField formattedTextField1;
-    private JFormattedTextField formattedTextField2;
+    private JTextArea notesField;
+    private JFormattedTextField usernameField;
+    private JFormattedTextField entryNameField;
     private JPasswordField passwordField1;
     private JPasswordField passwordField2;
-    private JFormattedTextField formattedTextField3;
+    private JFormattedTextField targetField;
     private JButton saveButton;
     private JButton cancelButton;
     private JButton showButton;
     private JButton autoGenerateButton;
     private JProgressBar progressBar1;
 
-    public EntryGUI() {
+    public EntryGUI(Safe safe, int folderNumber) {
 
         // Frame initialisations
         setTitle("Entry");
@@ -35,14 +39,12 @@ public class EntryGUI extends JFrame {
         progressBar1.setValue(50);
         setVisible(true);
 
-
-
         // Listeners
         showButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                passwordField1.setEchoChar((char)0);
+                passwordField1.setEchoChar((char) 0);
             }
 
             @Override
@@ -56,11 +58,11 @@ public class EntryGUI extends JFrame {
             @Override
             public void focusLost(FocusEvent e) {
                 super.focusLost(e);
-                if(passwordField1.getPassword().length != 0) {
+                if (passwordField1.getPassword().length != 0) {
                     passwordField2.setEditable(true);
                 }
 
-                if(passwordField2.getPassword().length != 0) {
+                if (passwordField2.getPassword().length != 0) {
                     passwordField2.setText("");
                 }
             }
@@ -75,10 +77,10 @@ public class EntryGUI extends JFrame {
                 boolean different = false;
 
                 // Check same length
-                if(pass1.length == pass2.length) {
+                if (pass1.length == pass2.length) {
                     // CHeck same length and same chars
-                    for(int i = 0; i < pass1.length; ++i) {
-                        if(pass1[i] != pass2[i]) {
+                    for (int i = 0; i < pass1.length; ++i) {
+                        if (pass1[i] != pass2[i]) {
                             different = true;
                         }
                     }
@@ -86,20 +88,37 @@ public class EntryGUI extends JFrame {
                     different = true;
                 }
 
-                if(different) {
+                if (different) {
                     JOptionPane.showMessageDialog(null, "Passwords must be the same");
                     passwordField1.setText("");
                     passwordField2.setText("");
-
                 }
                 passwordField2.setEditable(false);
 
+                // TODO : Clean with Array.fill()
                 // Clean password arrays
                 for (int i = 0; i < pass1.length; i++) {
                     pass1[i] = '\0';
                 }
                 for (int i = 0; i < pass2.length; i++) {
                     pass2[i] = '\0';
+                }
+            }
+        });
+
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                // Verify that all fields are filled
+                if (!usernameField.getText().isEmpty()
+                        && passwordField1.getPassword().length != 0
+                        && passwordField2.getPassword().length != 0
+                        && !targetField.getText().isEmpty()
+                        && !entryNameField.getText().isEmpty()) {
+
+                    safe.getFolderList().get(folderNumber).addEntry(new Entry(0, entryNameField.getText().toCharArray(),
+                            usernameField.getText().toCharArray(), targetField.getText().toCharArray(),
+                            passwordField1.getPassword(), notesField.getText().toCharArray(), new Date()));
                 }
             }
         });

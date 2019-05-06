@@ -1,5 +1,6 @@
 package ch.heigvd.pro.client.structure;
 
+import ch.heigvd.pro.client.Utils;
 import ch.heigvd.pro.client.crypto.Crypto;
 import ch.heigvd.pro.client.password.PasswordChecker;
 
@@ -9,25 +10,28 @@ import java.util.Date;
 
 public class Entry {
     private int id;
+    private char[] entryName;
     private char[] username;
     private char[] target;
     private transient char[] clearPassword;
     private char[] encryptedPassword;
     private byte[] iv;
     private char[] salt;
-    private char[] email;
     private int strength;
+    private String icon;
+    private char[] notes;
     private Date registerDate;
 
-    public Entry(int id, char[] username, char[] target, char[] clearPassword, char[] email, char[] salt, Date registerDate) {
+    public Entry(int id, char[] entryname, char[] username, char[] target, char[] clearPassword, char[] notes, Date registerDate) {
+        this.entryName = entryname;
         this.id = id;
         this.username = username;
         this.target = target;
         this.clearPassword = clearPassword;
         this.strength = PasswordChecker.checkStrong(clearPassword);
-        this.email = email;
         this.registerDate = registerDate;
-        this.salt = salt;
+        this.salt = Utils.byteToCharArray(Crypto.generateSalt(Crypto.SALT_BYTE_LENGTH));
+        this.notes = notes;
     }
 
     public char[] getUsername() {
@@ -44,10 +48,6 @@ public class Entry {
 
     public void setPassword(char[] password) {
         this.encryptedPassword = password;
-    }
-
-    public char[] getEmail() {
-        return email;
     }
 
     public void setTarget(char[] target) {
@@ -72,6 +72,26 @@ public class Entry {
 
     public byte[] getIv() {
         return iv;
+    }
+
+    public Date getRegisterDate() {
+        return registerDate;
+    }
+
+    public char[] getEntryName() {
+        return entryName;
+    }
+
+    public void setEntryName(char[] entryName) {
+        this.entryName = entryName;
+    }
+
+    public char[] getNotes() {
+        return notes;
+    }
+
+    public void setNotes(char[] notes) {
+        this.notes = notes;
     }
 
     public void encryptEntry(char[] safePassword) {

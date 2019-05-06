@@ -21,6 +21,7 @@ import java.util.Base64;
 public class Crypto {
     public static final int K_ANONIMITY_CONSTANT = 5;
     public static final int KEY_LENGTH = 256;
+    public static final int SALT_BYTE_LENGTH = 32;
     public static final int NUMBER_OF_ITERATIONS = 1000000;
 
     /**
