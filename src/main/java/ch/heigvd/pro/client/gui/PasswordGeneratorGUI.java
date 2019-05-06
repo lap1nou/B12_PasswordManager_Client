@@ -1,8 +1,14 @@
 package ch.heigvd.pro.client.gui;
 
+import ch.heigvd.pro.client.password.PasswordGenerator;
+
 import javax.swing.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.nio.CharBuffer;
 
 public class PasswordGeneratorGUI extends JFrame {
     private JPanel mainPanel;
@@ -11,16 +17,22 @@ public class PasswordGeneratorGUI extends JFrame {
     private JPanel southPanel;
     private JPanel westPanel;
     private JCheckBox upperCaseAZCheckBox;
-    private JFormattedTextField formattedTextField1;
+    private JFormattedTextField length;
+    private JFormattedTextField passwordField;
     private JPanel centerPanel;
     private JCheckBox lowerCaseAZCheckBox;
     private JCheckBox numbers09CheckBox;
     private JCheckBox specialCheckBox;
-    private JPasswordField passwordField1;
-    private JButton showButton;
+    private JButton copyButton;
     private JButton generateButton;
     private JButton cancelButton;
     private JButton okButton;
+    private JButton generatePassword;
+
+    private String alphabetLowercase = "abcdefghijklmnopqrstuvwxyz";
+    private String alphabetUppercase = "ABCDEFGHIJKLMNOPQRSTUVWXY";
+    private String numeric = "0123456789";
+    private String specialCharacter = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 
     public PasswordGeneratorGUI() {
 
@@ -30,23 +42,45 @@ public class PasswordGeneratorGUI extends JFrame {
         setLocationRelativeTo(null);
         setSize(450, 400);
         setResizable(false);
-        //pack();
-        passwordField1.setText("test");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
 
-        // Listeners
-        showButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-                passwordField1.setEchoChar((char)0);
-            }
 
+        generatePassword.addActionListener(new ActionListener() {
             @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                passwordField1.setEchoChar('*');
+            public void actionPerformed(ActionEvent e) {
+                String parameterPassword = "";
+
+                if(lowerCaseAZCheckBox.isSelected()){
+                    parameterPassword += alphabetLowercase;
+                }
+                if(upperCaseAZCheckBox.isSelected()){
+                    parameterPassword += alphabetUppercase;
+                }
+                if(numbers09CheckBox.isSelected()){
+                    parameterPassword += numeric;
+                }
+                if(specialCheckBox.isSelected()){
+                    parameterPassword += specialCharacter;
+                }
+
+                PasswordGenerator passwordGenerator = new PasswordGenerator(parameterPassword.toCharArray(),Integer.parseInt(length.getText()));
+
+                CharBuffer charBuffer = CharBuffer.wrap(passwordGenerator.generatePassword());
+
+                passwordField.setValue(charBuffer.toString());
+            }
+        });
+
+        /*
+         * source : https://stackoverflow.com/questions/24702434/copy-text-to-clipboard-from-a-jtextfield-with-press-of-a-button
+         */
+        copyButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                StringSelection stringSelection = new StringSelection (passwordField.getText());
+                Clipboard clpbrd = Toolkit.getDefaultToolkit ().getSystemClipboard ();
+                clpbrd.setContents (stringSelection, null);
             }
         });
     }

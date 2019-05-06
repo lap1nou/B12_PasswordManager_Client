@@ -23,7 +23,6 @@ public class PasswordGenerator {
 
         for (int i = 0; i < size; i++) {
             result[i] = charSet[index.nextInt(charSet.length)];
-            System.out.print(result[i]);
         }
 
         // TODO : Checkez le mot de passe avec le module password checker
