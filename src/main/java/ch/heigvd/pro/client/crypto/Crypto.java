@@ -2,7 +2,7 @@ package ch.heigvd.pro.client.crypto;
 
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Password;
-import ch.heigvd.pro.client.Utils;
+import ch.heigvd.pro.client.*;
 
 import org.apache.commons.codec.digest.DigestUtils;
 

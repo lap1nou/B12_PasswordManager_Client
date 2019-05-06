@@ -1,12 +1,15 @@
 package ch.heigvd.pro.client;
 
 import ch.heigvd.pro.client.crypto.Crypto;
-import ch.heigvd.pro.client.file.FileDriver;
+import ch.heigvd.pro.client.file.*;
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Folder;
 import ch.heigvd.pro.client.structure.Safe;
+import ch.heigvd.pro.client.gui.*;
+import sun.rmi.runtime.Log;
 
 import javax.crypto.BadPaddingException;
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -17,7 +20,8 @@ import java.util.Scanner;
 
 public class main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+
         FileDriver test = new FileDriver();
         File passwordDB = new File("");
         Safe safeTest = new Safe();
@@ -143,8 +147,9 @@ public class main {
             }
 
         }
-
+        /*
+        GUIManager newGUIMan = new GUIManager();
+        newGUIMan.start();
+         */
     }
-
-
 }
