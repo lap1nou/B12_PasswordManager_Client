@@ -1,4 +1,4 @@
-package ch.heigvd.pro.client;
+package ch.heigvd.pro.client.password;
 
 import java.security.SecureRandom;
 

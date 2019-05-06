@@ -1,7 +1,7 @@
 package ch.heigvd.pro.client.crypto;
 
-import ch.heigvd.pro.client.Entry;
-import ch.heigvd.pro.client.Password;
+import ch.heigvd.pro.client.structure.Entry;
+import ch.heigvd.pro.client.structure.Password;
 import ch.heigvd.pro.client.Utils;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -11,18 +11,18 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import java.security.AlgorithmParameters;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.KeySpec;
 
+import java.util.Arrays;
 import java.util.Base64;
 
 public class Crypto {
-    public static final int kAnonimityConstant = 5;
+    public static final int K_ANONIMITY_CONSTANT = 5;
+    public static final int KEY_LENGTH = 256;
+    public static final int NUMBER_OF_ITERATIONS = 1000000;
 
     /**
      * Returns the first five characters of the SHA1 of the given password in upper case.
@@ -30,8 +30,14 @@ public class Crypto {
      * @param password the password to compute the hash of
      * @return the first five characters of the SHA1, of password in upper case
      */
-    public static String fiveAnonimitySHA1(String password) {
-        return DigestUtils.sha1Hex(password.getBytes()).substring(0, kAnonimityConstant).toUpperCase();
+    public static String fiveAnonimitySHA1(char[] password) {
+        char[] passwordTmp = password.clone();
+        String result = DigestUtils.sha1Hex(Utils.charToByteArray(passwordTmp)).substring(0, K_ANONIMITY_CONSTANT).toUpperCase();
+
+        // Cleaning password copy
+        Arrays.fill(passwordTmp, (char) 0);
+
+        return result;
     }
 
     /**
@@ -40,8 +46,14 @@ public class Crypto {
      * @param password the password to compute the hash of
      * @return the substring from the characters number five of the SHA1, of password in upper case
      */
-    public static String restOfFiveAnonimitySHA1(String password) {
-        return DigestUtils.sha1Hex(password.getBytes()).substring(kAnonimityConstant).toUpperCase();
+    public static String restOfFiveAnonimitySHA1(char[] password) {
+        char[] passwordTmp = password.clone();
+        String result = DigestUtils.sha1Hex(Utils.charToByteArray(passwordTmp)).substring(K_ANONIMITY_CONSTANT).toUpperCase();
+
+        // Cleaning password copy
+        Arrays.fill(passwordTmp, (char) 0);
+
+        return result;
     }
 
     /**
@@ -50,24 +62,28 @@ public class Crypto {
      * @param entry  the entry to decrypt
      * @param aesKey the key to use
      */
-    public static void decryptAES(Entry entry, SecretKey aesKey) {
+    public static void decryptAES(Entry entry, SecretKey aesKey) throws BadPaddingException {
         Cipher aesCipher = null;
 
         try {
             aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
-            aesCipher.init(Cipher.DECRYPT_MODE, aesKey, new IvParameterSpec(entry.getPassword().getIv()));
+            aesCipher.init(Cipher.DECRYPT_MODE, aesKey, new IvParameterSpec(entry.getIv()));
 
-            byte[] result = aesCipher.doFinal(Base64.getDecoder().decode(entry.getPassword().toString()));
+            byte[] decryptedPassword = aesCipher.doFinal(Base64.getDecoder().decode(entry.getPassword().toString()));
+            byte[] decryptedTarget = aesCipher.doFinal(Base64.getDecoder().decode(Utils.charToByteArray(entry.getTarget())));
+            byte[] decryptedUsername = aesCipher.doFinal(Base64.getDecoder().decode(Utils.charToByteArray(entry.getUsername())));
 
-            char[] charResult = Utils.byteToCharArray(result);
+            char[] decryptedPasswordChar = Utils.byteToCharArray(decryptedPassword);
+            char[] decryptedTargetChar = Utils.byteToCharArray(decryptedTarget);
+            char[] decryptedUsernameChar = Utils.byteToCharArray(decryptedUsername);
 
-            entry.setClearPassword(charResult);
+            entry.setClearPassword(decryptedPasswordChar);
+            entry.setTarget(decryptedTargetChar);
+            entry.setUsername(decryptedUsernameChar);
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
             e.printStackTrace();
         } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
@@ -95,9 +111,16 @@ public class Crypto {
             AlgorithmParameters aesParams = aesCipher.getParameters();
 
             byte[] iv = aesParams.getParameterSpec(IvParameterSpec.class).getIV();
-            byte[] test = aesCipher.doFinal(Utils.charToByteArray(entry.getClearPassword()));
 
-            entry.setPassword(new Password(Base64.getEncoder().encodeToString(test), iv));
+            byte[] encryptedPassword = aesCipher.doFinal(Utils.charToByteArray(entry.getClearPassword()));
+            byte[] encryptedTarget = aesCipher.doFinal(Utils.charToByteArray(entry.getTarget()));
+            byte[] encryptedUsername = aesCipher.doFinal(Utils.charToByteArray(entry.getUsername()));
+
+            entry.setIv(iv);
+            entry.setPassword(new Password(Base64.getEncoder().encodeToString(encryptedPassword)));
+            entry.setTarget(Utils.byteToCharArray(Base64.getEncoder().encode(encryptedTarget)));
+            entry.setUsername(Utils.byteToCharArray(Base64.getEncoder().encode(encryptedUsername)));
+
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         } catch (NoSuchPaddingException e) {
@@ -140,6 +163,15 @@ public class Crypto {
         }
 
         return aesKey;
+    }
+
+    public static byte[] generateSalt(int numberOfByte) {
+        SecureRandom randomValue = new SecureRandom();
+
+        byte[] salt = new byte[numberOfByte];
+        randomValue.nextBytes(salt);
+
+        return salt;
     }
 
 }

@@ -1,5 +1,6 @@
 package ch.heigvd.pro.client;
 
+import ch.heigvd.pro.client.password.PasswordGenerator;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

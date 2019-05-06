@@ -1,6 +1,6 @@
 package ch.heigvd.pro.client.file;
 
-import ch.heigvd.pro.client.Safe;
+import ch.heigvd.pro.client.structure.Safe;
 
 import java.io.File;
 

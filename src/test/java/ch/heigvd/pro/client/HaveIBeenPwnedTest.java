@@ -1,6 +1,7 @@
 package ch.heigvd.pro.client;
 
 
+import ch.heigvd.pro.client.password.HaveIBeenPwned;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,8 +14,8 @@ class HaveIBeenPwnedTest {
 
         HaveIBeenPwned test = new HaveIBeenPwned();
 
-        assertTrue(test.isLeaked(leakedPassword));
-        assertFalse(test.isLeaked(notLeakedPassword));
+        assertTrue(test.isLeaked(leakedPassword.toCharArray()));
+        assertFalse(test.isLeaked(notLeakedPassword.toCharArray()));
     }
 
 }
