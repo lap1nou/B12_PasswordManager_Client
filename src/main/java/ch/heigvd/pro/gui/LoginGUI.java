@@ -1,4 +1,4 @@
-package ch.heigvd.pro.core;
+package ch.heigvd.pro.gui;
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,6 +50,7 @@ public class LoginGUI extends JFrame {
         databaseLabel.setVisible(false);
         databaseTextField.setVisible(false);
         browseButton.setVisible(false);
+        browseButton.setIcon( new ImageIcon("icons/open.png"));
 
         // Listeners
         labelAccount.addMouseListener(new MouseAdapter() {

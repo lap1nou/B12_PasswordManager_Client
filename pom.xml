@@ -33,7 +33,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>ch.heigvd.pro.core.Launcher</mainClass>
+                                    <mainClass>ch.heigvd.pro.core.GUIManager</mainClass>
                                 </transformer>
                             </transformers>
                             <shadedArtifactAttached>true</shadedArtifactAttached>

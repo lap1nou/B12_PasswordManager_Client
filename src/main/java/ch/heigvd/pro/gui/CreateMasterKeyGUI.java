@@ -1,4 +1,4 @@
-package ch.heigvd.pro.core;
+package ch.heigvd.pro.gui;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

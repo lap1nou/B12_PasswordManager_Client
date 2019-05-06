@@ -1,57 +1,41 @@
-package ch.heigvd.pro.core;
+package ch.heigvd.pro.gui;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 
-public class EntryGUI extends JFrame {
+public class RegisterGUI extends JFrame {
     private JPanel mainPanel;
     private JPanel northPanel;
+    private JPanel southPanel;
+    private JButton cancelButton;
+    private JButton registerButton;
+    private JLabel label;
     private JPanel westPanel;
     private JPanel eastPanel;
-    private JPanel southPanel;
     private JPanel centerPanel;
-    private JTextArea textArea1;
     private JFormattedTextField formattedTextField1;
     private JFormattedTextField formattedTextField2;
+    private JFormattedTextField formattedTextField3;
+    private JFormattedTextField formattedTextField4;
+    private JFormattedTextField formattedTextField5;
     private JPasswordField passwordField1;
     private JPasswordField passwordField2;
-    private JFormattedTextField formattedTextField3;
-    private JButton saveButton;
-    private JButton cancelButton;
-    private JButton showButton;
-    private JButton autoGenerateButton;
-    private JProgressBar progressBar1;
+    private Color oldForegroundLabel;
 
-    public EntryGUI() {
+    public RegisterGUI() {
 
-        // Frame initialisations
-        setTitle("Entry");
+        // Frame initialisation
+        setTitle("Register");
         add(mainPanel);
         setLocationRelativeTo(null);
-        setSize(600, 450);
+        setSize(300, 400);
         setResizable(false);
         //pack();
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        progressBar1.setValue(50);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
 
-
-
         // Listeners
-        showButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-                passwordField1.setEchoChar((char)0);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                passwordField1.setEchoChar('*');
-            }
-        });
-
         passwordField1.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
@@ -103,10 +87,42 @@ public class EntryGUI extends JFrame {
                 }
             }
         });
-    }
 
-    // Getters
-    public JButton getCancelButton() {
-        return cancelButton;
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                LoginGUI myLoginGUI = new LoginGUI();
+                myLoginGUI.setVisible(true);
+                dispose();
+            }
+        });
+
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mouseEntered(e);
+                oldForegroundLabel = label.getForeground();
+                label.setForeground(Color.BLUE);
+            }
+        });
+
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                super.mouseExited(e);
+                label.setForeground(oldForegroundLabel);
+
+            }
+        });
+
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                LoginGUI myLoginGUI = new LoginGUI();
+                myLoginGUI.setVisible(true);
+                dispose();
+            }
+        });
     }
 }
