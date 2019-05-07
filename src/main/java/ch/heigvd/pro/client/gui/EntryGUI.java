@@ -1,10 +1,12 @@
 package ch.heigvd.pro.client.gui;
 
+import ch.heigvd.pro.client.password.PasswordGenerator;
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Safe;
 
 import javax.swing.*;
 import java.awt.event.*;
+import java.util.Arrays;
 import java.util.Date;
 
 public class EntryGUI extends JFrame {
@@ -26,7 +28,7 @@ public class EntryGUI extends JFrame {
     private JButton autoGenerateButton;
     private JProgressBar progressBar1;
 
-    public EntryGUI(Safe safe, int folderNumber) {
+    public EntryGUI(Safe safe, int folderNumber, HomePageGUI homepage) {
 
         // Frame initialisations
         setTitle("Entry");
@@ -100,6 +102,7 @@ public class EntryGUI extends JFrame {
                 for (int i = 0; i < pass1.length; i++) {
                     pass1[i] = '\0';
                 }
+
                 for (int i = 0; i < pass2.length; i++) {
                     pass2[i] = '\0';
                 }
@@ -116,10 +119,26 @@ public class EntryGUI extends JFrame {
                         && !targetField.getText().isEmpty()
                         && !entryNameField.getText().isEmpty()) {
 
-                    safe.getFolderList().get(folderNumber).addEntry(new Entry(0, entryNameField.getText().toCharArray(),
+                    Entry newEntry = new Entry(0, entryNameField.getText().toCharArray(),
                             usernameField.getText().toCharArray(), targetField.getText().toCharArray(),
-                            passwordField1.getPassword(), notesField.getText().toCharArray(), new Date()));
+                            passwordField1.getPassword(), notesField.getText().toCharArray(), new Date());
+
+                    safe.getFolderList().get(folderNumber).addEntry(newEntry);
+
+                    homepage.InitGroupTree();
+                    homepage.refreshTable();
                 }
+            }
+        });
+
+        autoGenerateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                PasswordGenerator passwordGenerator = new PasswordGenerator("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"#$%&')(*+,-_./".toCharArray(), 15);
+                char[] generatedPassword = passwordGenerator.generatePassword();
+                passwordField1.setText(String.valueOf(generatedPassword));
+                passwordField2.setText(String.valueOf(generatedPassword));
+                Arrays.fill(generatedPassword, (char) 0);
             }
         });
     }

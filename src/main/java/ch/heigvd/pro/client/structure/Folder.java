@@ -22,4 +22,8 @@ public class Folder {
     public void addEntry(Entry newEntry) {
         this.entrylist.add(newEntry);
     }
+
+    public void removeEntry(int index) {
+        this.entrylist.remove(index);
+    }
 }
