@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.CharBuffer;
+import java.util.Arrays;
 
 public class EntryViewGUI extends JFrame {
     private JTextField usernameField;
@@ -26,14 +27,18 @@ public class EntryViewGUI extends JFrame {
 
     private String iconFilename;
 
-    public EntryViewGUI(Safe safe, int folderNumber, int entryNumber, String iconFilename) {
-        this.iconFilename = iconFilename;
+    public EntryViewGUI(Safe safe, int folderNumber, int entryNumber) {
+        this.iconFilename = safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getIcon();
 
         setTitle("Entry edit/view");
         add(mainPanel);
         setLocationRelativeTo(null);
         setSize(650, 700);
         setVisible(true);
+
+        // TODO Resize image
+        ImageIcon myPicture = new ImageIcon(iconFilename);
+        imageLabel.setIcon(myPicture);
 
         CharBuffer charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getTarget());
         targetField.setText(charBuffer.toString());
@@ -47,6 +52,9 @@ public class EntryViewGUI extends JFrame {
         charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getNotes());
         notesArea.setText(charBuffer.toString());
 
+        // Wiping sensible data
+        Arrays.fill(charBuffer.array(), (char) 0);
+
         browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -57,6 +65,7 @@ public class EntryViewGUI extends JFrame {
                     String filename = chooser.getSelectedFile().getAbsolutePath();
 
                     ImageIcon myPicture = new ImageIcon(filename);
+                    setIconFilename(filename);
                     imageLabel.setIcon(myPicture);
                 }
             }
@@ -75,6 +84,17 @@ public class EntryViewGUI extends JFrame {
                 passwordField.setEchoChar('*');
             }
         });
+
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setUsername(usernameField.getText().toCharArray());
+                safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setClearPassword(passwordField.getPassword());
+                safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setTarget(targetField.getText().toCharArray());
+                safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setNotes(notesArea.getText().toCharArray());
+                safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setIcon(iconFilename);
+            }
+        });
     }
 
     private void createUIComponents() {
@@ -88,4 +108,7 @@ public class EntryViewGUI extends JFrame {
         return closeButton;
     }
 
+    public void setIconFilename(String iconFilename) {
+        this.iconFilename = iconFilename;
+    }
 }
