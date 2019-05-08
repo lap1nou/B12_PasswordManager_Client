@@ -65,7 +65,7 @@ public class LoginGUI extends JFrame {
                     RegisterGUI myRegisterGUI = new RegisterGUI();
 
                 } else if (offRadioButton.isSelected()) {
-                    HomePageGUI newHomePageUI = new HomePageGUI(safe);
+                    HomePageGUI newHomePageUI = new HomePageGUI(safe, "");
                 }
                 dispose();
             }
@@ -80,7 +80,7 @@ public class LoginGUI extends JFrame {
                 safe.setSafePassword(passwordField.getPassword());
 
                 if (safe.isPasswordCorrect()) {
-                    HomePageGUI myHomePageGUI = new HomePageGUI(safe);
+                    HomePageGUI myHomePageGUI = new HomePageGUI(safe, databaseTextField.getText());
                     dispose();
                 } else {
                     System.out.println("Error");
@@ -156,6 +156,12 @@ public class LoginGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
+            }
+        });
+
+        forgetPasswordButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
             }
         });
     }

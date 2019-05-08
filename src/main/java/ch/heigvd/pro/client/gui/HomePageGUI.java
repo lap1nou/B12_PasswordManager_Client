@@ -1,5 +1,6 @@
 package ch.heigvd.pro.client.gui;
 
+import ch.heigvd.pro.client.file.FileDriver;
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Folder;
 import ch.heigvd.pro.client.structure.Safe;
@@ -12,13 +13,16 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.lang.reflect.Array;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static javax.swing.JOptionPane.YES_OPTION;
 
 public class HomePageGUI extends JFrame {
     private JPanel mainPanel;
@@ -38,12 +42,17 @@ public class HomePageGUI extends JFrame {
     private JTable entryTable;
     private JMenuItem menuItemNewEntry;
     private JMenuItem menuItemNewGroup;
+    private JButton removeButton;
 
     private Safe safe;
     private int folderNumber;
+    private String selectedFolderName;
+    private String filename;
 
-    public HomePageGUI(Safe safe) {
+    // TODO Restore JTree state using this as an inspiration: https://community.oracle.com/thread/1479458
+    public HomePageGUI(Safe safe, String filename) {
         this.safe = safe;
+        this.filename = filename;
 
         try {
             safe.decryptPassword();
@@ -51,14 +60,11 @@ public class HomePageGUI extends JFrame {
             e.printStackTrace();
         }
 
-        // Frame initialisations
         setTitle("Home Page");
         add(mainPanel);
         InitGroupTree();
-        InitEntryTable();
         setLocationRelativeTo(null);
         setSize(650, 700);
-        //pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
 
@@ -75,7 +81,7 @@ public class HomePageGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        EntryGUI newEntry = new EntryGUI(safe, folderNumber);
+                        EntryGUI newEntry = new EntryGUI(safe, folderNumber, HomePageGUI.this);
                         newEntry.addWindowListener(new WindowAdapter() {
                             public void windowClosing(WindowEvent e) {
                                 HomePageGUI.this.setEnabled(true);
@@ -131,24 +137,93 @@ public class HomePageGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String groupName = JOptionPane.showInputDialog("Enter the new group name");
+                System.out.println(groupName);
+            }
+        });
+
+        menuItemSave.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                safe.encryptPassword();
+
+                FileDriver test = new FileDriver();
+                test.saveSafe(safe, new File(filename));
+
+                try {
+                    safe.decryptPassword();
+
+                    // TODO What about just adding a node instead of refreshing all the JTree ?
+                    // Refresh JTree
+                    InitGroupTree();
+
+                } catch (BadPaddingException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
 
         groupTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent treeSelectionEvent) {
-                // TODO : Fix bug if we press on the root node
-                String selectedFolder = treeSelectionEvent.getPath().getPathComponent(1).toString();
+                refreshTable();
+            }
+        });
 
-                int i = 0;
+        removeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                // Source : https://www.youtube.com/watch?v=c0gpJj-IAmE this video helped me a bit
+                // Removing from the JTree
+                selectedFolderName = groupTree.getSelectionPath().getPathComponent(1).toString();
 
-                for (Folder folder : safe.getFolderList()) {
-                    if (folder.getName().equals(selectedFolder)) {
-                        CustomTableModel myModel = new CustomTableModel(folder.getEntrylist(), new String[]{"Entry name", "User Name", "Target", "Date"});
-                        entryTable.setModel(myModel);
-                        folderNumber = i;
+                DefaultTreeModel treeModel = (DefaultTreeModel) groupTree.getModel();
+                String nodeToRemoveString = groupTree.getSelectionPath().getLastPathComponent().toString();
+
+                // Removing from the Safe
+                int indexOfEntryToRemove = 0;
+                for (Entry entry : safe.getFolderList().get(folderNumber).getEntrylist()) {
+                    if (Arrays.equals(entry.getTarget(), nodeToRemoveString.toCharArray())) {
+                        int answer = JOptionPane.showConfirmDialog(null, "Are you sure you want to remove that entry ?", "Remove entry", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                        if (answer == YES_OPTION) {
+                            treeModel.removeNodeFromParent((DefaultMutableTreeNode) groupTree.getSelectionPath().getLastPathComponent());
+                            safe.getFolderList().get(folderNumber).removeEntry(indexOfEntryToRemove);
+                            refreshTable();
+                            InitGroupTree();
+                        }
+                        break;
                     }
-                    i++;
+                    indexOfEntryToRemove++;
+                }
+
+            }
+        });
+
+        entryTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent mouseEvent) {
+                // Source : https://stackoverflow.com/questions/32574450/double-click-event-on-jlist-element
+                if (mouseEvent.getClickCount() >= 2) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            EntryViewGUI entryView = new EntryViewGUI(safe, folderNumber, entryTable.getSelectedRow(), "test.png");
+                            entryView.addWindowListener(new WindowAdapter() {
+                                public void windowClosing(WindowEvent e) {
+                                    HomePageGUI.this.setEnabled(true);
+                                }
+                            });
+
+                            entryView.getCloseButton().addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    HomePageGUI.this.setEnabled(true);
+                                    entryView.dispose();
+                                }
+                            });
+                        }
+                    });
+                    setEnabled(false);
                 }
             }
         });
@@ -169,13 +244,8 @@ public class HomePageGUI extends JFrame {
         }
 
         DefaultTreeModel treeModel = new DefaultTreeModel(root);
+
         groupTree.setModel(treeModel);
-    }
-
-
-    void InitEntryTable() {
-        //CustomTableModel myModel = new CustomTableModel(safe.getFolderList().get(0).getEntrylist(), new String[]{"User Name", "Target", "E-mail", "Date"});
-        //entryTable.setModel(myModel);
     }
 
     private class CustomTableModel extends AbstractTableModel {
@@ -216,5 +286,33 @@ public class HomePageGUI extends JFrame {
             return titres[col];
         }
 
+    }
+
+    private class customAction implements TreeSelectionListener {
+        @Override
+        public void valueChanged(TreeSelectionEvent treeSelectionEvent) {
+            refreshTable();
+        }
+    }
+
+    public void refreshTable() {
+        // TODO : Fix bug if we press on the root node
+        String selectedFolder = "";
+        try {
+            selectedFolder = groupTree.getSelectionPath().getPathComponent(1).toString();
+        } catch (NullPointerException e) {
+            selectedFolder = selectedFolderName;
+        }
+
+        int i = 0;
+
+        for (Folder folder : safe.getFolderList()) {
+            if (folder.getName().equals(selectedFolder)) {
+                CustomTableModel myModel = new CustomTableModel(folder.getEntrylist(), new String[]{"Entry name", "User Name", "Target", "Date"});
+                entryTable.setModel(myModel);
+                folderNumber = i;
+            }
+            i++;
+        }
     }
 }
