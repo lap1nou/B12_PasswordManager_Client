@@ -158,5 +158,11 @@ public class LoginGUI extends JFrame {
                 dispose();
             }
         });
+
+        forgetPasswordButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+            }
+        });
     }
 }

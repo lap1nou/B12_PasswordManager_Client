@@ -204,9 +204,26 @@ public class HomePageGUI extends JFrame {
             @Override
             public void mousePressed(MouseEvent mouseEvent) {
                 // Source : https://stackoverflow.com/questions/32574450/double-click-event-on-jlist-element
-                // TODO Going to open Entry details window with icon, password, etc...
                 if (mouseEvent.getClickCount() >= 2) {
-                    System.out.println("ffaa");
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            EntryViewGUI entryView = new EntryViewGUI(safe, folderNumber, entryTable.getSelectedRow(), "test.png");
+                            entryView.addWindowListener(new WindowAdapter() {
+                                public void windowClosing(WindowEvent e) {
+                                    HomePageGUI.this.setEnabled(true);
+                                }
+                            });
+
+                            entryView.getCloseButton().addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    HomePageGUI.this.setEnabled(true);
+                                    entryView.dispose();
+                                }
+                            });
+                        }
+                    });
+                    setEnabled(false);
                 }
             }
         });
