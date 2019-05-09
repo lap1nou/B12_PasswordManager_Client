@@ -21,6 +21,7 @@ public class Entry {
     private String icon;
     private char[] notes;
     private Date registerDate;
+    private int idPassword;
 
     public Entry(int id, char[] entryname, char[] username, char[] target, char[] clearPassword, char[] notes, Date registerDate) {
         this.entryName = entryname;
@@ -112,5 +113,13 @@ public class Entry {
         SecretKey aesKey = Crypto.generateKey(safePassword, this.salt, Crypto.KEY_LENGTH, Crypto.NUMBER_OF_ITERATIONS);
 
         Crypto.decryptAES(this, aesKey);
+    }
+
+    public int getIdPassword() {
+        return idPassword;
+    }
+
+    public void setIdPassword(int idPassword) {
+        this.idPassword = idPassword;
     }
 }

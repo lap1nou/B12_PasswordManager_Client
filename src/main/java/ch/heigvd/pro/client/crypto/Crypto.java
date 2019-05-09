@@ -165,6 +165,12 @@ public class Crypto {
         return aesKey;
     }
 
+    /**
+     * Generate a random salt
+     *
+     * @param numberOfByte the number of bytes of the salt
+     * @return a random salt
+     */
     public static byte[] generateSalt(int numberOfByte) {
         SecureRandom randomValue = new SecureRandom();
 

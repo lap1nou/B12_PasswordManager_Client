@@ -7,6 +7,7 @@ import java.util.List;
 public class Safe {
     private List<Folder> folderList;
     private transient char[] safePassword;
+    private int idUser;
 
     public Safe() {
         folderList = new ArrayList<Folder>();
@@ -68,4 +69,11 @@ public class Safe {
         return true;
     }
 
+    public int getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(int idUser) {
+        this.idUser = idUser;
+    }
 }
