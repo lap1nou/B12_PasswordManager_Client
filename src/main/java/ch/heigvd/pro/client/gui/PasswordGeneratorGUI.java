@@ -9,6 +9,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.nio.CharBuffer;
+import java.text.NumberFormat;
 
 public class PasswordGeneratorGUI extends JFrame {
     private JPanel mainPanel;
@@ -28,6 +29,7 @@ public class PasswordGeneratorGUI extends JFrame {
     private JButton cancelButton;
     private JButton okButton;
     private JButton generatePassword;
+    private JFrame frame;
 
     private String alphabetLowercase = "abcdefghijklmnopqrstuvwxyz";
     private String alphabetUppercase = "ABCDEFGHIJKLMNOPQRSTUVWXY";
@@ -49,26 +51,40 @@ public class PasswordGeneratorGUI extends JFrame {
         generatePassword.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String parameterPassword = "";
 
-                if(lowerCaseAZCheckBox.isSelected()){
-                    parameterPassword += alphabetLowercase;
-                }
-                if(upperCaseAZCheckBox.isSelected()){
-                    parameterPassword += alphabetUppercase;
-                }
-                if(numbers09CheckBox.isSelected()){
-                    parameterPassword += numeric;
-                }
-                if(specialCheckBox.isSelected()){
-                    parameterPassword += specialCharacter;
+                try{
+                    String parameterPassword = "";
+
+                    if(lowerCaseAZCheckBox.isSelected()){
+                        parameterPassword += alphabetLowercase;
+                    }
+                    if(upperCaseAZCheckBox.isSelected()){
+                        parameterPassword += alphabetUppercase;
+                    }
+                    if(numbers09CheckBox.isSelected()){
+                        parameterPassword += numeric;
+                    }
+                    if(specialCheckBox.isSelected()){
+                        parameterPassword += specialCharacter;
+                    }
+
+                    PasswordGenerator passwordGenerator = new PasswordGenerator(parameterPassword.toCharArray(),Integer.parseInt(length.getText()));
+
+                    CharBuffer charBuffer = CharBuffer.wrap(passwordGenerator.generatePassword());
+
+                    passwordField.setValue(charBuffer.toString());
+                } catch(NumberFormatException nfe){
+                    JOptionPane.showMessageDialog(frame,
+                            "The length value must be a positive number !",
+                            "Inane error",
+                            JOptionPane.ERROR_MESSAGE);
+                } catch(IllegalArgumentException iae){
+                    JOptionPane.showMessageDialog(frame,
+                            "You need to choose minimum 1 element",
+                            "Inane error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
 
-                PasswordGenerator passwordGenerator = new PasswordGenerator(parameterPassword.toCharArray(),Integer.parseInt(length.getText()));
-
-                CharBuffer charBuffer = CharBuffer.wrap(passwordGenerator.generatePassword());
-
-                passwordField.setValue(charBuffer.toString());
             }
         });
 
