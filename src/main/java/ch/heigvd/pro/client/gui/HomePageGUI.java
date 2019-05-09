@@ -10,13 +10,10 @@ import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.lang.reflect.Array;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -137,7 +134,10 @@ public class HomePageGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String groupName = JOptionPane.showInputDialog("Enter the new group name");
-                System.out.println(groupName);
+
+                safe.getFolderList().add(new Folder(groupName, new ArrayList<Entry>()));
+                InitGroupTree();
+                refreshTable();
             }
         });
 
@@ -207,7 +207,7 @@ public class HomePageGUI extends JFrame {
                 if (mouseEvent.getClickCount() >= 2) {
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
-                            EntryViewGUI entryView = new EntryViewGUI(safe, folderNumber, entryTable.getSelectedRow(), "test.png");
+                            EntryViewGUI entryView = new EntryViewGUI(safe, folderNumber, entryTable.getSelectedRow());
                             entryView.addWindowListener(new WindowAdapter() {
                                 public void windowClosing(WindowEvent e) {
                                     HomePageGUI.this.setEnabled(true);
