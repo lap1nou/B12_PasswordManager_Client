@@ -147,6 +147,8 @@ public class main {
             }
         }
 */
+        ServerDriver srv = new ServerDriver("test2", "1234");
+
         GUIManager newGUIMan = new GUIManager();
         newGUIMan.start();
 
