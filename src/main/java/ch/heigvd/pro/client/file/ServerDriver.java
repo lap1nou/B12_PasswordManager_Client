@@ -2,12 +2,6 @@ package ch.heigvd.pro.client.file;
 
 import ch.heigvd.pro.client.structure.Safe;
 
-import ch.heigvd.pro.client.structure.User;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
-
-import com.google.gson.Gson;
-import jdk.nashorn.api.scripting.JSObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -19,8 +13,6 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import javax.security.auth.login.LoginException;
-import javax.swing.*;
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -31,13 +23,13 @@ public class ServerDriver implements IStorePasswordDriver {
 
 
     @Override
-    public Safe loadSafe(File file) {
+    public Safe loadSafe() {
 
         return null;
     }
 
     @Override
-    public void saveSafe(Safe safe, File file) {
+    public void saveSafe() {
 
     }
 
@@ -48,14 +40,14 @@ public class ServerDriver implements IStorePasswordDriver {
      * @return return the User connected
      * @throws Exception return exception if the username and password is not good
      */
-    public User login(String username, String password) throws Exception {
+    public boolean login(String username, String password) throws Exception {
 
         HttpPost loginrequest = new HttpPost("http://127.0.0.1:8080/login");
         StringEntity informationToSend = new StringEntity("{\"username\": \"" + username + "\",\"password\": \"" + password + "\" }");
         JSONObject loginStatus = POSTrequest(informationToSend, loginrequest);
 
         if(loginStatus.get("errorCode").equals(0)){
-            return new User(loginStatus.get("token").toString());
+            return true;
         }else {
             throw new LoginException(loginStatus.get("message").toString());
         }

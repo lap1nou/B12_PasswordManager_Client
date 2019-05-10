@@ -88,10 +88,9 @@ public class LoginGUI extends JFrame {
                                 JOptionPane.ERROR_MESSAGE);
                     }
                 } else if (offRadioButton.isSelected()) {
-                    FileDriver test = new FileDriver();
                     File passwordDB = new File(databaseTextField.getText());
-
-                    safe = test.loadSafe(passwordDB);
+                    FileDriver test = new FileDriver(safe,passwordDB);
+                    safe = test.loadSafe();
                     safe.setSafePassword(passwordField.getPassword());
 
                     if (safe.isPasswordCorrect()) {
