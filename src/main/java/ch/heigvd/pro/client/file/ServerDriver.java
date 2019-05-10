@@ -2,6 +2,7 @@ package ch.heigvd.pro.client.file;
 
 import ch.heigvd.pro.client.structure.Safe;
 
+import ch.heigvd.pro.client.structure.User;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
@@ -17,23 +18,17 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import javax.security.auth.login.LoginException;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 public class ServerDriver implements IStorePasswordDriver {
-    private String token;
-    private int idUser;
 
     public ServerDriver(){
-        this.token = "";
-        this.idUser = 999999999;
     }
 
-    public ServerDriver(String username, String email, String password) {
-        //login(username, password);
-    }
 
     @Override
     public Safe loadSafe(File file) {
@@ -46,45 +41,24 @@ public class ServerDriver implements IStorePasswordDriver {
 
     }
 
-    // Source: https://stackoverflow.com/questions/5769717/how-can-i-get-an-http-response-body-as-a-string-in-java and https://stackoverflow.com/questions/7181534/http-post-using-json-in-java
-    public boolean login(String username, String password) throws Exception {
+    /**
+     *
+     * @param username username
+     * @param password password
+     * @return return the User connected
+     * @throws Exception return exception if the username and password is not good
+     */
+    public User login(String username, String password) throws Exception {
 
         HttpPost loginrequest = new HttpPost("http://127.0.0.1:8080/login");
         StringEntity informationToSend = new StringEntity("{\"username\": \"" + username + "\",\"password\": \"" + password + "\" }");
         JSONObject loginStatus = POSTrequest(informationToSend, loginrequest);
-        System.out.println(loginStatus);
 
-        if(loginStatus.get("success").equals("true")){
-
+        if(loginStatus.get("errorCode").equals(0)){
+            return new User(loginStatus.get("token").toString());
+        }else {
+            throw new LoginException(loginStatus.get("message").toString());
         }
-        return true;
-        /*
-        HttpPost loginRequest = new HttpPost("http://127.0.0.1:8080/login");
-            StringEntity loginJson = new StringEntity("{username: \"" + username + "\",password: \"" + password + "\" }");
-
-
-            String answerJSONString = EntityUtils.toString(test1, "UTF-8");
-            JSONObject answerJSON = new JSONObject(answerJSONString);
-
-            this.token = answerJSON.get("token").toString();
-
-            if (answerJSON.get("errorCode").equals("0")) {
-                DecodedJWT jwt = JWT.decode(this.token);
-                this.idUser = jwt.getClaim("id").asInt();
-
-                return true;
-            }
-
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return false;*/
-
     }
 
     /**
@@ -108,6 +82,8 @@ public class ServerDriver implements IStorePasswordDriver {
      * @param request request http to server
      * @return return the json from server
      * @throws Exception
+     * Source: https://stackoverflow.com/questions/5769717/how-can-i-get-an-http-response-body-as-a-string-in-java
+     *         https://stackoverflow.com/questions/7181534/http-post-using-json-in-java
      */
     private JSONObject POSTrequest(StringEntity informationToSend, HttpPost request) throws Exception {
         HttpClient httpClient = HttpClientBuilder.create().build();
@@ -116,6 +92,7 @@ public class ServerDriver implements IStorePasswordDriver {
             request.addHeader("content-type", "text/plain");
             request.setEntity(informationToSend);
 
+            // Send Post and Get http response
             HttpResponse loginAnswer = httpClient.execute(request);
             HttpEntity test1 = loginAnswer.getEntity();
 
