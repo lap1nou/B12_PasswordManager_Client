@@ -1,8 +1,12 @@
 package ch.heigvd.pro.client.gui;
 
+import ch.heigvd.pro.client.file.ServerDriver;
+import org.json.JSONObject;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.UnsupportedEncodingException;
 
 public class RegisterGUI extends JFrame {
     private JPanel mainPanel;
@@ -10,18 +14,15 @@ public class RegisterGUI extends JFrame {
     private JPanel southPanel;
     private JButton cancelButton;
     private JButton registerButton;
-    private JLabel label;
     private JPanel westPanel;
     private JPanel eastPanel;
     private JPanel centerPanel;
-    private JFormattedTextField formattedTextField1;
-    private JFormattedTextField formattedTextField2;
-    private JFormattedTextField formattedTextField3;
-    private JFormattedTextField formattedTextField4;
-    private JFormattedTextField formattedTextField5;
-    private JPasswordField passwordField1;
-    private JPasswordField passwordField2;
+    private JFormattedTextField usernameField;
+    private JPasswordField passwordField;
+    private JPasswordField passwordRepeatField;
+    private JFormattedTextField emailField;
     private Color oldForegroundLabel;
+    private JFrame frame;
 
     public RegisterGUI() {
 
@@ -29,33 +30,33 @@ public class RegisterGUI extends JFrame {
         setTitle("Register");
         add(mainPanel);
         setLocationRelativeTo(null);
-        setSize(300, 400);
+        setSize(300, 350);
         setResizable(false);
         //pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
 
         // Listeners
-        passwordField1.addFocusListener(new FocusAdapter() {
+        passwordField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
                 super.focusLost(e);
-                if(passwordField1.getPassword().length != 0) {
-                    passwordField2.setEditable(true);
+                if(passwordField.getPassword().length != 0) {
+                    passwordRepeatField.setEditable(true);
                 }
 
-                if(passwordField2.getPassword().length != 0) {
-                    passwordField2.setText("");
+                if(passwordRepeatField.getPassword().length != 0) {
+                    passwordRepeatField.setText("");
                 }
             }
         });
 
-        passwordField2.addFocusListener(new FocusAdapter() {
+        passwordRepeatField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
                 super.focusLost(e);
-                char[] pass1 = passwordField1.getPassword();
-                char[] pass2 = passwordField2.getPassword();
+                char[] pass1 = passwordField.getPassword();
+                char[] pass2 = passwordRepeatField.getPassword();
                 boolean different = false;
 
                 // Check same length
@@ -72,11 +73,11 @@ public class RegisterGUI extends JFrame {
 
                 if(different) {
                     JOptionPane.showMessageDialog(null, "Passwords must be the same");
-                    passwordField1.setText("");
-                    passwordField2.setText("");
+                    passwordField.setText("");
+                    passwordRepeatField.setText("");
 
                 }
-                passwordField2.setEditable(false);
+                passwordRepeatField.setEditable(false);
 
                 // Clean password arrays
                 for (int i = 0; i < pass1.length; i++) {
@@ -88,31 +89,36 @@ public class RegisterGUI extends JFrame {
             }
         });
 
-        label.addMouseListener(new MouseAdapter() {
+        /**
+         * On click on button register
+         */
+        registerButton.addActionListener(new ActionListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                LoginGUI myLoginGUI = new LoginGUI();
-                myLoginGUI.setVisible(true);
-                dispose();
-            }
-        });
-
-        label.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                super.mouseEntered(e);
-                oldForegroundLabel = label.getForeground();
-                label.setForeground(Color.BLUE);
-            }
-        });
-
-        label.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseExited(MouseEvent e) {
-                super.mouseExited(e);
-                label.setForeground(oldForegroundLabel);
-
+            public void actionPerformed(ActionEvent actionEvent) {
+                ServerDriver newUser = new ServerDriver();
+                try {
+                    JSONObject created = newUser.createUser(usernameField.getText(), emailField.getText(), passwordField.getText());
+                    if(created.get("errorCode").equals(0)){
+                        JOptionPane.showMessageDialog(frame,
+                                created.get("message"),
+                                "Succed",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        newUser = null;
+                        LoginGUI myLoginGUI = new LoginGUI();
+                        myLoginGUI.setVisible(true);
+                        dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(frame,
+                                created.get("message"),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(frame,
+                            e.toString(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
