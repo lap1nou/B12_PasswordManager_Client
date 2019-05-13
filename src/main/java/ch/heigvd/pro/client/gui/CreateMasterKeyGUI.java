@@ -41,9 +41,9 @@ public class CreateMasterKeyGUI extends JFrame {
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                FileDriver fileDrive = new FileDriver();
                 File passwordDB = new File("");
                 Safe safe = new Safe();
+                FileDriver fileDrive = new FileDriver(safe, passwordDB);
                 int scorePassword = PasswordChecker.checkStrong(passwordField.getPassword());
                 //scoreProgress.setValue(scorePassword);
 
@@ -51,7 +51,7 @@ public class CreateMasterKeyGUI extends JFrame {
                 try {
                     passwordDB.createNewFile();
                     safe.setSafePassword(passwordField.getPassword());
-                    fileDrive.saveSafe(safe, passwordDB);
+                    fileDrive.saveSafe();
                     HomePageGUI myHomePageGUI = new HomePageGUI(safe, fileNameField.getText());
                     dispose();
                 } catch (IOException e) {
