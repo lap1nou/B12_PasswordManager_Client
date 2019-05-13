@@ -68,7 +68,6 @@ public class LoginGUI extends JFrame {
 
                 } else if (offRadioButton.isSelected()) {
                     CreateMasterKeyGUI newMasterGUI = new CreateMasterKeyGUI();
-                    //HomePageGUI newHomePageUI = new HomePageGUI(safe, "");
                 }
                 dispose();
             }
