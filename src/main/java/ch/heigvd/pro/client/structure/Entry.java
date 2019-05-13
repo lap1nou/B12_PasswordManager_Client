@@ -3,9 +3,14 @@ package ch.heigvd.pro.client.structure;
 import ch.heigvd.pro.client.Utils;
 import ch.heigvd.pro.client.crypto.Crypto;
 import ch.heigvd.pro.client.password.PasswordChecker;
+import com.google.gson.JsonObject;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONObject;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.SecretKey;
+import java.nio.CharBuffer;
+import java.util.Arrays;
 import java.util.Date;
 
 public class Entry {
@@ -121,5 +126,18 @@ public class Entry {
 
     public void setIdPassword(int idPassword) {
         this.idPassword = idPassword;
+    }
+
+    public String JSONentry(){
+
+        System.out.println("{\"target\": \"" + CharBuffer.wrap(target) + "\",\"username\": \"" + CharBuffer.wrap(username) +
+                "\",\"passwords\": \"" + CharBuffer.wrap(clearPassword) + "\",\"iv\": \"" + iv +
+                "\",\"icon\": \"" + icon + "\",\"note\": \"" + CharBuffer.wrap(notes) +
+                "\",\"title\": \"" + CharBuffer.wrap(entryName) + "\",\"salt\": \"" + CharBuffer.wrap(salt)  + "\" }");
+
+        return "{\"target\": \"" + CharBuffer.wrap(target) + "\",\"username\": \"" + CharBuffer.wrap(username) +
+                "\",\"passwords\": \"" + CharBuffer.wrap(clearPassword) + "\",\"iv\": \"" + Arrays.toString(iv) +
+                "\",\"icon\": \"" + icon + "\",\"note\": \"" + CharBuffer.wrap(notes) +
+                "\",\"title\": \"" + CharBuffer.wrap(entryName) + "\",\"salt\": \"" + CharBuffer.wrap(salt)  + "\" }";
     }
 }
