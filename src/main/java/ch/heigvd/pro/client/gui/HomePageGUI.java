@@ -146,8 +146,8 @@ public class HomePageGUI extends JFrame {
             public void actionPerformed(ActionEvent actionEvent) {
                 safe.encryptPassword();
 
-                FileDriver test = new FileDriver();
-                test.saveSafe(safe, new File(filename));
+                FileDriver test = new FileDriver(safe, new File(filename));
+                test.saveSafe();
 
                 try {
                     safe.decryptPassword();

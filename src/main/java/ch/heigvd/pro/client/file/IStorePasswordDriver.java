@@ -7,8 +7,8 @@ import java.io.File;
 public interface IStorePasswordDriver {
     // Paramètres dans le constructeur
     // Virer file
-    Safe loadSafe(File file);
+    Safe loadSafe();
 
     // Virer file
-    void saveSafe(Safe safe, File file);
+    void saveSafe();
 }

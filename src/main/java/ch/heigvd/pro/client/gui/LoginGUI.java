@@ -1,6 +1,7 @@
 package ch.heigvd.pro.client.gui;
 
 import ch.heigvd.pro.client.file.FileDriver;
+import ch.heigvd.pro.client.file.ServerDriver;
 import ch.heigvd.pro.client.structure.Safe;
 
 import javax.swing.*;
@@ -33,6 +34,7 @@ public class LoginGUI extends JFrame {
     private JButton browseButton;
     private JPanel centerPanel;
     private Color oldForegroundLabelAccount;
+    private JFrame frame;
 
     private Safe safe = new Safe();
 
@@ -74,17 +76,30 @@ public class LoginGUI extends JFrame {
 
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                FileDriver test = new FileDriver();
-                File passwordDB = new File(databaseTextField.getText());
+                if(onlineRadioButton.isSelected()){
+                    ServerDriver serverConnection = new ServerDriver();
+                    try {
+                        serverConnection.login(usernameTextField.getText(), passwordField.getText());
+                        HomePageGUI myHomePageGUI = new HomePageGUI(safe, databaseTextField.getText());
+                        dispose();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(frame,
+                                ex.getMessage(),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } else if (offRadioButton.isSelected()) {
+                    File passwordDB = new File(databaseTextField.getText());
+                    FileDriver test = new FileDriver(safe,passwordDB);
+                    safe = test.loadSafe();
+                    safe.setSafePassword(passwordField.getPassword());
 
-                safe = test.loadSafe(passwordDB);
-                safe.setSafePassword(passwordField.getPassword());
-
-                if (safe.isPasswordCorrect()) {
-                    HomePageGUI myHomePageGUI = new HomePageGUI(safe, databaseTextField.getText());
-                    dispose();
-                } else {
-                    System.out.println("Error");
+                    if (safe.isPasswordCorrect()) {
+                        HomePageGUI myHomePageGUI = new HomePageGUI(safe, databaseTextField.getText());
+                        dispose();
+                    } else {
+                        System.out.println("Error");
+                    }
                 }
             }
         });
@@ -163,6 +178,10 @@ public class LoginGUI extends JFrame {
         forgetPasswordButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                JOptionPane.showMessageDialog(frame,
+                        "Please contact us to get a new password \n email: info@impass.ch \n phone: 078 123 45 67",
+                        "Forget password",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
         });
     }
