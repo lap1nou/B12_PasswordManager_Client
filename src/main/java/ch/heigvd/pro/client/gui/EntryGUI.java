@@ -6,6 +6,7 @@ import ch.heigvd.pro.client.structure.Safe;
 
 import javax.swing.*;
 import java.awt.event.*;
+import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -27,9 +28,41 @@ public class EntryGUI extends JFrame {
     private JButton showButton;
     private JButton autoGenerateButton;
     private JProgressBar progressBar1;
+    private JLabel imageLabel;
+    private JButton browseButton;
 
-    public EntryGUI(Safe safe, int folderNumber, HomePageGUI homepage) {
+    private String iconFilename;
 
+    public EntryGUI(Safe safe, int folderNumber, int entryNumber, HomePageGUI homepage) {
+
+        if (entryNumber != -1) {
+            this.iconFilename = safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getIcon();
+
+            // TODO Resize image
+            ImageIcon myPicture = new ImageIcon(iconFilename);
+            imageLabel.setIcon(myPicture);
+
+            CharBuffer charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getEntryName());
+            entryNameField.setText(charBuffer.toString());
+
+            charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getTarget());
+            targetField.setText(charBuffer.toString());
+
+            charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getUsername());
+            usernameField.setText(charBuffer.toString());
+
+            charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getClearPassword());
+            passwordField1.setText(charBuffer.toString());
+
+            charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getClearPassword());
+            passwordField2.setText(charBuffer.toString());
+
+            charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getNotes());
+            notesField.setText(charBuffer.toString());
+
+            // Wiping sensible data
+            Arrays.fill(charBuffer.array(), (char) 0);
+        }
         // Frame initialisations
         setTitle("Entry");
         add(mainPanel);
@@ -117,16 +150,24 @@ public class EntryGUI extends JFrame {
                         && passwordField1.getPassword().length != 0
                         && passwordField2.getPassword().length != 0
                         && !targetField.getText().isEmpty()
-                        && !entryNameField.getText().isEmpty()) {
+                        && !entryNameField.getText().isEmpty() && entryNumber == -1) {
 
                     Entry newEntry = new Entry(0, entryNameField.getText().toCharArray(),
                             usernameField.getText().toCharArray(), targetField.getText().toCharArray(),
                             passwordField1.getPassword(), notesField.getText().toCharArray(), new Date());
 
+                    newEntry.setIcon(iconFilename);
+
                     safe.getFolderList().get(folderNumber).addEntry(newEntry);
 
                     homepage.InitGroupTree();
                     homepage.refreshTable();
+                } else if (entryNumber != -1) {
+                    safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setUsername(usernameField.getText().toCharArray());
+                    safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setClearPassword(passwordField1.getPassword());
+                    safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setTarget(targetField.getText().toCharArray());
+                    safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setNotes(notesField.getText().toCharArray());
+                    safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setIcon(iconFilename);
                 }
             }
         });
@@ -141,10 +182,38 @@ public class EntryGUI extends JFrame {
                 Arrays.fill(generatedPassword, (char) 0);
             }
         });
+
+        browseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                JFileChooser chooser = new JFileChooser();
+                int ret = chooser.showOpenDialog(null);
+
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                    String filename = chooser.getSelectedFile().getAbsolutePath();
+
+                    ImageIcon myPicture = new ImageIcon(filename);
+                    setIconFilename(filename);
+                    imageLabel.setIcon(myPicture);
+                }
+            }
+        });
+    }
+
+    private void createUIComponents() {
+        // Source: https://stackoverflow.com/questions/10051638/updating-an-image-contained-in-a-jlabel-problems
+        ImageIcon myPicture = new ImageIcon(iconFilename);
+        imageLabel = new JLabel();
+        imageLabel.setIcon(myPicture);
     }
 
     // Getters
     public JButton getCancelButton() {
         return cancelButton;
     }
+
+    public void setIconFilename(String iconFilename) {
+        this.iconFilename = iconFilename;
+    }
+
 }
