@@ -28,8 +28,9 @@ public class EntryViewGUI extends JFrame {
     private String iconFilename;
 
     public EntryViewGUI(Safe safe, int folderNumber, int entryNumber) {
-        this.iconFilename = safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getIcon();
 
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
+        this.iconFilename = safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getIcon();
         setTitle("Entry edit/view");
         add(mainPanel);
         setLocationRelativeTo(null);

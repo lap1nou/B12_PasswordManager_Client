@@ -3,17 +3,24 @@ package ch.heigvd.pro.client.structure;
 import ch.heigvd.pro.client.Utils;
 import ch.heigvd.pro.client.crypto.Crypto;
 import ch.heigvd.pro.client.password.PasswordChecker;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.Since;
 import org.apache.http.entity.StringEntity;
 import org.json.JSONObject;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.SecretKey;
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.Date;
 
 public class Entry {
+
+
     private int id;
     private char[] entryName;
     private char[] username;
@@ -26,7 +33,6 @@ public class Entry {
     private String icon;
     private char[] notes;
     private Date registerDate;
-    private int idPassword;
 
     public Entry(int id, char[] entryname, char[] username, char[] target, char[] clearPassword, char[] notes, Date registerDate) {
         this.entryName = entryname;
@@ -38,6 +44,18 @@ public class Entry {
         this.registerDate = registerDate;
         this.salt = Utils.byteToCharArray(Crypto.generateSalt(Crypto.SALT_BYTE_LENGTH));
         this.notes = notes;
+    }
+
+    public Entry(char[] notes, char[] encryptedPassword, char[] salt , String icon, int id, char[] entryname, byte[] iv, char[] target, char[] username) {
+        this.entryName = entryname;
+        this.id = id;
+        this.username = username;
+        this.target = target;
+        this.encryptedPassword = encryptedPassword;
+        this.salt = salt;
+        this.icon = icon;
+        this.notes = notes;
+        this.iv = iv;
     }
 
     public char[] getUsername() {
@@ -121,23 +139,17 @@ public class Entry {
     }
 
     public int getIdPassword() {
-        return idPassword;
+        return id;
     }
 
-    public void setIdPassword(int idPassword) {
-        this.idPassword = idPassword;
+    public void setIdPassword(int id) {
+        this.id = id;
     }
 
     public String JSONentry(){
-
-        System.out.println("{\"target\": \"" + CharBuffer.wrap(target) + "\",\"username\": \"" + CharBuffer.wrap(username) +
-                "\",\"passwords\": \"" + CharBuffer.wrap(clearPassword) + "\",\"iv\": \"" + iv +
-                "\",\"icon\": \"" + icon + "\",\"note\": \"" + CharBuffer.wrap(notes) +
-                "\",\"title\": \"" + CharBuffer.wrap(entryName) + "\",\"salt\": \"" + CharBuffer.wrap(salt)  + "\" }");
-
         return "{\"target\": \"" + CharBuffer.wrap(target) + "\",\"username\": \"" + CharBuffer.wrap(username) +
-                "\",\"passwords\": \"" + CharBuffer.wrap(clearPassword) + "\",\"iv\": \"" + Arrays.toString(iv) +
-                "\",\"icon\": \"" + icon + "\",\"note\": \"" + CharBuffer.wrap(notes) +
+                "\",\"password\": \"" + CharBuffer.wrap(encryptedPassword) + "\",\"iv\": " + Arrays.toString(iv) +
+                ",\"icon\": \"" + icon + "\",\"note\": \"" + CharBuffer.wrap(notes) +
                 "\",\"title\": \"" + CharBuffer.wrap(entryName) + "\",\"salt\": \"" + CharBuffer.wrap(salt)  + "\" }";
     }
 }

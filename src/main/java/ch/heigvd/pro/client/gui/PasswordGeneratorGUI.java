@@ -39,6 +39,7 @@ public class PasswordGeneratorGUI extends JFrame {
     public PasswordGeneratorGUI() {
 
         // Frame initialisation
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
         setTitle("Password Generator");
         add(mainPanel);
         setLocationRelativeTo(null);
@@ -47,7 +48,9 @@ public class PasswordGeneratorGUI extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
 
-
+        /**
+         * generate password
+         */
         generatePassword.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -88,7 +91,8 @@ public class PasswordGeneratorGUI extends JFrame {
             }
         });
 
-        /*
+        /**
+         * Button that will copy the password
          * source : https://stackoverflow.com/questions/24702434/copy-text-to-clipboard-from-a-jtextfield-with-press-of-a-button
          */
         copyButton.addActionListener(new ActionListener() {

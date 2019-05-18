@@ -13,11 +13,6 @@ public class Safe {
         folderList = new ArrayList<Folder>();
     }
 
-    public Safe(Safe safe) {
-        this.folderList = safe.getFolderList();
-        this.safePassword = safe.getSafePassword();
-    }
-
     public void addFolder(Folder folder) {
         this.folderList.add(folder);
     }
