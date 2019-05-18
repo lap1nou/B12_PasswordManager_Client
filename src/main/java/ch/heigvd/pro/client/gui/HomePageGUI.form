@@ -28,18 +28,6 @@
                 </properties>
                 <border type="none" title=""/>
                 <children>
-                  <component id="18241" class="javax.swing.JMenuItem" binding="menuItemNewGroup">
-                    <constraints/>
-                    <properties>
-                      <text value="New Group"/>
-                    </properties>
-                  </component>
-                  <component id="aa768" class="javax.swing.JMenuItem" binding="menuItemNewEntry">
-                    <constraints/>
-                    <properties>
-                      <text value="New Entry"/>
-                    </properties>
-                  </component>
                   <component id="932b9" class="javax.swing.JMenuItem" binding="menuItemSave">
                     <constraints/>
                     <properties>
@@ -50,6 +38,12 @@
                     <constraints/>
                     <properties>
                       <text value="Exit"/>
+                    </properties>
+                  </component>
+                  <component id="18241" class="javax.swing.JMenuItem" binding="menuItemNewFolder">
+                    <constraints/>
+                    <properties>
+                      <text value="New Folder"/>
                     </properties>
                   </component>
                 </children>
@@ -65,6 +59,43 @@
                     <constraints/>
                     <properties>
                       <text value="Password Generator"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="64f98" class="javax.swing.JMenu" binding="profile" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+                <constraints/>
+                <properties>
+                  <text value="Profle"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="9dce0" class="javax.swing.JMenuItem" binding="menuItemProfile">
+                    <constraints/>
+                    <properties>
+                      <text value="My profile"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="b991c" class="javax.swing.JMenu" binding="Groups" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="0">
+                <constraints/>
+                <properties>
+                  <text value="Groups"/>
+                  <toolTipText value=""/>
+                </properties>
+                <border type="none" title=""/>
+                <children>
+                  <component id="6ee9c" class="javax.swing.JMenuItem" binding="menuItemShowGroups">
+                    <constraints/>
+                    <properties>
+                      <text value="Show groups"/>
+                    </properties>
+                  </component>
+                  <component id="b24fa" class="javax.swing.JMenuItem" binding="menuItemNewGroup">
+                    <constraints/>
+                    <properties>
+                      <text value="New Group"/>
                     </properties>
                   </component>
                 </children>
@@ -115,7 +146,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="d584" class="javax.swing.JTree" binding="groupTree">
+          <component id="d584" class="javax.swing.JTree" binding="UserTree">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false">
                 <preferred-size width="150" height="50"/>

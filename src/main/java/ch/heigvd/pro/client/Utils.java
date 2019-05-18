@@ -1,5 +1,7 @@
 package ch.heigvd.pro.client;
 
+import org.json.JSONArray;
+
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -48,5 +50,20 @@ public class Utils {
         }
 
         return result;
+    }
+
+    /**
+     * This function convert JSONArray to byte array
+     * @param toConvert JSON array
+     * @return byte array
+     */
+    public static byte[] JSONArrayTobyte(JSONArray toConvert){
+        byte[] value = new byte[toConvert.length()];
+
+        for(int i = 0; i < toConvert.length(); ++i){
+            value[i] = ( (Integer)toConvert.get(i)).byteValue();
+        }
+
+        return value;
     }
 }

@@ -1,10 +1,13 @@
 package ch.heigvd.pro.client.gui;
 
+import ch.heigvd.pro.client.file.ServerDriver;
 import ch.heigvd.pro.client.password.PasswordGenerator;
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Safe;
+import com.google.gson.annotations.Expose;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.nio.CharBuffer;
 import java.util.Arrays;
@@ -20,8 +23,8 @@ public class EntryGUI extends JFrame {
     private JTextArea notesField;
     private JFormattedTextField usernameField;
     private JFormattedTextField entryNameField;
-    private JPasswordField passwordField1;
-    private JPasswordField passwordField2;
+    private JPasswordField passwordField;
+    private JPasswordField RetypePasswordField;
     private JFormattedTextField targetField;
     private JButton saveButton;
     private JButton cancelButton;
@@ -30,11 +33,15 @@ public class EntryGUI extends JFrame {
     private JProgressBar progressBar1;
     private JLabel imageLabel;
     private JButton browseButton;
+    private JButton deleteButton;
 
     private String iconFilename;
 
-    public EntryGUI(Safe safe, int folderNumber, int entryNumber, HomePageGUI homepage) {
+    public EntryGUI(Safe safe, int folderNumber, int entryNumber, HomePageGUI homepage, ServerDriver serverDriver) {
 
+        /**
+         * TO SEE : regarder de -1 bizarre
+         */
         if (entryNumber != -1) {
             this.iconFilename = safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getIcon();
 
@@ -52,10 +59,10 @@ public class EntryGUI extends JFrame {
             usernameField.setText(charBuffer.toString());
 
             charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getClearPassword());
-            passwordField1.setText(charBuffer.toString());
+            passwordField.setText(charBuffer.toString());
 
             charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getClearPassword());
-            passwordField2.setText(charBuffer.toString());
+            RetypePasswordField.setText(charBuffer.toString());
 
             charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getNotes());
             notesField.setText(charBuffer.toString());
@@ -63,52 +70,86 @@ public class EntryGUI extends JFrame {
             // Wiping sensible data
             Arrays.fill(charBuffer.array(), (char) 0);
         }
-        // Frame initialisations
+
+        /**
+         * Initialize frame
+         */
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
         setTitle("Entry");
         add(mainPanel);
         setLocationRelativeTo(null);
         setSize(600, 450);
         setResizable(false);
         //pack();
+        SwingUtilities.getRootPane(saveButton).setDefaultButton(saveButton);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         progressBar1.setValue(50);
         setVisible(true);
 
-        // Listeners
+        /**
+         * On click on button show it will show the password
+         */
         showButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                passwordField1.setEchoChar((char) 0);
+                passwordField.setEchoChar((char) 0);
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
-                passwordField1.setEchoChar('*');
+                passwordField.setEchoChar('*');
             }
         });
 
-        passwordField1.addFocusListener(new FocusAdapter() {
+        deleteButton.addActionListener(new ActionListener(){
             @Override
-            public void focusLost(FocusEvent e) {
-                super.focusLost(e);
-                if (passwordField1.getPassword().length != 0) {
-                    passwordField2.setEditable(true);
-                }
-
-                if (passwordField2.getPassword().length != 0) {
-                    passwordField2.setText("");
+            public void actionPerformed(ActionEvent actionEvent) {
+                try {
+                    serverDriver.deleteEntry(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getIdPassword());
+                    safe.getFolderList().get(folderNumber).removeEntry(entryNumber);
+                    JOptionPane.showMessageDialog(null,
+                            "The entry has been deleted",
+                            "Delete password",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    homepage.setEnabled(true);
+                    dispose();
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null,
+                            e.getMessage(),
+                            "Error : Delete password",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        passwordField2.addFocusListener(new FocusAdapter() {
+        /**
+         * Show password
+         */
+        passwordField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
                 super.focusLost(e);
-                char[] pass1 = passwordField1.getPassword();
-                char[] pass2 = passwordField2.getPassword();
+                if (passwordField.getPassword().length != 0) {
+                    RetypePasswordField.setEditable(true);
+                }
+
+                if (RetypePasswordField.getPassword().length != 0) {
+                    RetypePasswordField.setText("");
+                }
+            }
+        });
+
+        /**
+         *
+         */
+        /*RetypePasswordField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                super.focusLost(e);
+                char[] pass1 = passwordField.getPassword();
+                char[] pass2 = RetypePasswordField.getPassword();
                 boolean different = false;
 
                 // Check same length
@@ -125,10 +166,10 @@ public class EntryGUI extends JFrame {
 
                 if (different) {
                     JOptionPane.showMessageDialog(null, "Passwords must be the same");
-                    passwordField1.setText("");
-                    passwordField2.setText("");
+                    passwordField.setText("");
+                    RetypePasswordField.setText("");
                 }
-                passwordField2.setEditable(false);
+                RetypePasswordField.setEditable(false);
 
                 // TODO : Clean with Array.fill()
                 // Clean password arrays
@@ -140,49 +181,79 @@ public class EntryGUI extends JFrame {
                     pass2[i] = '\0';
                 }
             }
-        });
+        });*/
 
+        /**
+         * Create the entry
+         */
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                // Verify that all fields are filled
-                if (!usernameField.getText().isEmpty()
-                        && passwordField1.getPassword().length != 0
-                        && passwordField2.getPassword().length != 0
-                        && !targetField.getText().isEmpty()
-                        && !entryNameField.getText().isEmpty() && entryNumber == -1) {
 
-                    Entry newEntry = new Entry(0, entryNameField.getText().toCharArray(),
-                            usernameField.getText().toCharArray(), targetField.getText().toCharArray(),
-                            passwordField1.getPassword(), notesField.getText().toCharArray(), new Date());
+                try{
+                    // Verify that all fields are filled
+                    if (!usernameField.getText().isEmpty()
+                            && passwordField.getPassword().length != 0
+                            && RetypePasswordField.getPassword().length != 0
+                            && !targetField.getText().isEmpty()
+                            && !entryNameField.getText().isEmpty() && entryNumber == -1) {
 
-                    newEntry.setIcon(iconFilename);
+                        // Create a new Entry
+                        Entry newEntry = new Entry(0, entryNameField.getText().toCharArray(),
+                                usernameField.getText().toCharArray(), targetField.getText().toCharArray(),
+                                passwordField.getPassword(), notesField.getText().toCharArray(), new Date());
 
-                    safe.getFolderList().get(folderNumber).addEntry(newEntry);
+                        newEntry.setIcon(iconFilename);
+                        safe.getFolderList().get(folderNumber).addEntry(newEntry);
 
-                    homepage.InitGroupTree();
-                    homepage.refreshTable();
-                } else if (entryNumber != -1) {
-                    safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setUsername(usernameField.getText().toCharArray());
-                    safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setClearPassword(passwordField1.getPassword());
-                    safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setTarget(targetField.getText().toCharArray());
-                    safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setNotes(notesField.getText().toCharArray());
-                    safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setIcon(iconFilename);
-                }
+                        // Add the entry to the server
+                        if(serverDriver != null){
+                            serverDriver.addEntry(newEntry, safe.getFolderList().get(folderNumber).getId(), safe);
+                        }
+
+                        JOptionPane.showMessageDialog(null,
+                                "The entry has been created",
+                                "Created entry",
+                                JOptionPane.INFORMATION_MESSAGE);
+
+                        homepage.InitGroupTree();
+                        homepage.refreshTable();
+                        homepage.setEnabled(true);
+
+                        dispose();
+
+                        } else if (entryNumber != -1) {
+                        safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setUsername(usernameField.getText().toCharArray());
+                        safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setClearPassword(passwordField.getPassword());
+                        safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setTarget(targetField.getText().toCharArray());
+                        safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setNotes(notesField.getText().toCharArray());
+                        safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setIcon(iconFilename);
+                    }
+
+                } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             }
         });
 
+        /**
+         * Generate password
+         */
         autoGenerateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 PasswordGenerator passwordGenerator = new PasswordGenerator("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!\"#$%&')(*+,-_./".toCharArray(), 15);
                 char[] generatedPassword = passwordGenerator.generatePassword();
-                passwordField1.setText(String.valueOf(generatedPassword));
-                passwordField2.setText(String.valueOf(generatedPassword));
+                passwordField.setText(String.valueOf(generatedPassword));
+                RetypePasswordField.setText(String.valueOf(generatedPassword));
                 Arrays.fill(generatedPassword, (char) 0);
             }
         });
 
+        /**
+         * Get icone picture
+         */
         browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {

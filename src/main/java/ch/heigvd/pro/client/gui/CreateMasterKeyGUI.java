@@ -5,10 +5,16 @@ import ch.heigvd.pro.client.password.PasswordChecker;
 import ch.heigvd.pro.client.structure.Safe;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 
 public class CreateMasterKeyGUI extends JFrame {
     private JPanel mainPanel;
@@ -25,10 +31,14 @@ public class CreateMasterKeyGUI extends JFrame {
     private JButton confirmButton;
     private JPanel centerPanel;
     private JFormattedTextField fileNameField;
+    private JProgressBar scoreProgress;
 
     public CreateMasterKeyGUI() {
 
-        // Frame initialisations
+        /**
+         * Initialize frame
+         */
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
         setTitle("Create Master Key");
         add(mainPanel);
         setLocationRelativeTo(null);
@@ -38,32 +48,67 @@ public class CreateMasterKeyGUI extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
 
+        /*
+         * A revoir
+
+        passwordField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent documentEvent) {
+                int scorePassword = PasswordChecker.checkStrong(passwordField.getPassword());
+                scoreProgress.setValue(scorePassword);
+                System.out.println(scorePassword);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent documentEvent) {
+                int scorePassword = PasswordChecker.checkStrong(passwordField.getPassword());
+                scoreProgress.setValue(scorePassword);
+                System.out.println(scorePassword);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent documentEvent) {
+                System.out.println("changedUpdate");
+            }
+        });
+        */
+
+        /**
+         * Action the confirmation button
+         */
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                File passwordDB = new File("");
-                Safe safe = new Safe();
-                FileDriver fileDrive = new FileDriver(safe, passwordDB);
-                int scorePassword = PasswordChecker.checkStrong(passwordField.getPassword());
-                //scoreProgress.setValue(scorePassword);
-
-                passwordDB = new File(fileNameField.getText() + ".json");
                 try {
+                    if(passwordField.getPassword().equals(passwordRepeatField.getPassword())){
+                        throw new Exception("The passwords is not identicaly");
+                    }
+                    // Initialize all value
+                    File passwordDB = new File("");
+                    Safe safe = new Safe();
+                    FileDriver fileDrive = new FileDriver(safe, passwordDB);
+
+                    // Create the file and open the home directory
+                    passwordDB = new File(fileNameField.getText() + ".json");
                     passwordDB.createNewFile();
                     safe.setSafePassword(passwordField.getPassword());
                     fileDrive.saveSafe();
                     HomePageGUI myHomePageGUI = new HomePageGUI(safe, fileNameField.getText());
                     dispose();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
 
-        // Listeners
+        /**
+         * Cancel the actuel page
+         */
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                LoginGUI myLoginGUI = new LoginGUI();
+                myLoginGUI.setVisible(true);
                 dispose();
             }
         });

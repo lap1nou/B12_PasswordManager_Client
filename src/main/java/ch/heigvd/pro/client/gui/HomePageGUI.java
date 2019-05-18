@@ -13,6 +13,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.nio.CharBuffer;
@@ -35,22 +36,31 @@ public class HomePageGUI extends JFrame {
     private JMenuItem menuItemPassGen;
     private JMenu menuHelp;
     private JMenuItem menuItemAbout;
-    private JTree groupTree;
+    private JTree UserTree;
     private JPanel centerPanel;
     private JTable entryTable;
-    private JMenuItem menuItemNewEntry;
-    private JMenuItem menuItemNewGroup;
+    private JMenuItem menuItemNewFolder;
     private JButton removeButton;
+    private JMenu profile;
+    private JMenuItem menuItemNewGroup;
+    private JMenuItem menuItemProfile;
+    private JMenu Groups;
+    private JMenuItem menuItemShowGroups;
+    private JTree groupsTree;
+    private JPopupMenu rightClick;
+    private JFrame frame;
 
     private Safe safe;
     private int folderNumber;
     private String selectedFolderName;
-    private String filename;
+    private Object paramterOnlineOffline;
 
     // TODO Restore JTree state using this as an inspiration: https://community.oracle.com/thread/1479458
-    public HomePageGUI(Safe safe, String filename) {
+    public HomePageGUI(Safe safe, Object paramterOnlineOffline) {
+
+        this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
         this.safe = safe;
-        this.filename = filename;
+        this.paramterOnlineOffline = paramterOnlineOffline;     // It's the filename or ServerDriver
 
         try {
             safe.decryptPassword();
@@ -58,6 +68,10 @@ public class HomePageGUI extends JFrame {
             e.printStackTrace();
         }
 
+
+        /**
+         * Initialize Frame
+         */
         setTitle("Home Page");
         add(mainPanel);
         InitGroupTree();
@@ -65,8 +79,24 @@ public class HomePageGUI extends JFrame {
         setSize(650, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+        FolderPopup folderPopup = new FolderPopup(UserTree);
 
-        // Listeners
+        /**
+         * Popup when we are doing a right click to folders
+         */
+        UserTree.addMouseListener(new MouseAdapter() {
+           @Override
+           public void mouseReleased(MouseEvent e) {
+               if (SwingUtilities.isRightMouseButton(e) && !UserTree.isSelectionEmpty()) {
+                   folderPopup.show(e.getComponent(), e.getX(), e.getY());
+               }
+           }
+       });
+
+
+        /**
+         * Exit the menu
+         */
         menuItemExit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -74,31 +104,12 @@ public class HomePageGUI extends JFrame {
             }
         });
 
-        menuItemNewEntry.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        EntryGUI newEntry = new EntryGUI(safe, folderNumber,-1, HomePageGUI.this);
-                        newEntry.addWindowListener(new WindowAdapter() {
-                            public void windowClosing(WindowEvent e) {
-                                HomePageGUI.this.setEnabled(true);
-                            }
-                        });
 
-                        newEntry.getCancelButton().addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                HomePageGUI.this.setEnabled(true);
-                                newEntry.dispose();
-                            }
-                        });
-                    }
-                });
-                setEnabled(false);
-            }
-        });
 
+
+        /**
+         * Menu that will generate the passsword
+         */
         menuItemPassGen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -124,6 +135,9 @@ public class HomePageGUI extends JFrame {
             }
         });
 
+        /**
+         * Menu about
+         */
         menuItemAbout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -131,14 +145,47 @@ public class HomePageGUI extends JFrame {
             }
         });
 
-        menuItemNewGroup.addActionListener(new ActionListener() {
+        /**
+         * Menu for creating new folder
+         */
+        menuItemNewFolder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String groupName = JOptionPane.showInputDialog("Enter the new group name");
+                try {
+                    String folderName = JOptionPane.showInputDialog("Enter the new Folder name");
+                    if(folderName != null){
+                        if (paramterOnlineOffline instanceof ServerDriver) {
+                            ((ServerDriver) paramterOnlineOffline).createFolder(folderName.toCharArray());
+                        }
 
-                safe.getFolderList().add(new Folder(groupName, new ArrayList<Entry>()));
-                InitGroupTree();
-                refreshTable();
+                        safe.getFolderList().add(new Folder(folderName, new ArrayList<Entry>()));
+                        InitGroupTree();
+                        refreshTable();
+                    }
+                }catch (Exception ex) {
+                    ex.printStackTrace();
+                    }
+                }
+        });
+
+        menuItemNewGroup.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                try {
+                    String groupName = JOptionPane.showInputDialog("Enter the group name");
+                    if(groupName != null){
+                        ((ServerDriver) paramterOnlineOffline).createGroupe(groupName.toCharArray());
+                        JOptionPane.showMessageDialog(frame,
+                                "The group was created",
+                                "New Group",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame,
+                            ex.getMessage(),
+                            "Error : New Group",
+                            JOptionPane.INFORMATION_MESSAGE);
+                }
             }
         });
 
@@ -147,7 +194,7 @@ public class HomePageGUI extends JFrame {
             public void actionPerformed(ActionEvent actionEvent) {
                 safe.encryptPassword();
 
-                FileDriver test = new FileDriver(safe, new File(filename));
+                FileDriver test = new FileDriver(safe, new File((String)paramterOnlineOffline));
                 test.saveSafe();
 
                 try {
@@ -164,7 +211,7 @@ public class HomePageGUI extends JFrame {
             }
         });
 
-        groupTree.addTreeSelectionListener(new TreeSelectionListener() {
+        UserTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent treeSelectionEvent) {
                 refreshTable();
@@ -176,10 +223,10 @@ public class HomePageGUI extends JFrame {
             public void actionPerformed(ActionEvent actionEvent) {
                 // Source : https://www.youtube.com/watch?v=c0gpJj-IAmE this video helped me a bit
                 // Removing from the JTree
-                selectedFolderName = groupTree.getSelectionPath().getPathComponent(1).toString();
+                selectedFolderName = UserTree.getSelectionPath().getPathComponent(1).toString();
 
-                DefaultTreeModel treeModel = (DefaultTreeModel) groupTree.getModel();
-                String nodeToRemoveString = groupTree.getSelectionPath().getLastPathComponent().toString();
+                DefaultTreeModel treeModel = (DefaultTreeModel) UserTree.getModel();
+                String nodeToRemoveString = UserTree.getSelectionPath().getLastPathComponent().toString();
 
                 // Removing from the Safe
                 int indexOfEntryToRemove = 0;
@@ -188,7 +235,7 @@ public class HomePageGUI extends JFrame {
                         int answer = JOptionPane.showConfirmDialog(null, "Are you sure you want to remove that entry ?", "Remove entry", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
                         if (answer == YES_OPTION) {
-                            treeModel.removeNodeFromParent((DefaultMutableTreeNode) groupTree.getSelectionPath().getLastPathComponent());
+                            treeModel.removeNodeFromParent((DefaultMutableTreeNode) UserTree.getSelectionPath().getLastPathComponent());
                             safe.getFolderList().get(folderNumber).removeEntry(indexOfEntryToRemove);
                             refreshTable();
                             InitGroupTree();
@@ -208,7 +255,7 @@ public class HomePageGUI extends JFrame {
                 if (mouseEvent.getClickCount() >= 2) {
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
-                            EntryGUI entryView = new EntryGUI(safe, folderNumber, entryTable.getSelectedRow(), HomePageGUI.this);
+                            EntryGUI entryView = new EntryGUI(safe, folderNumber, entryTable.getSelectedRow(), HomePageGUI.this, (ServerDriver)paramterOnlineOffline);
                             entryView.addWindowListener(new WindowAdapter() {
                                 public void windowClosing(WindowEvent e) {
                                     HomePageGUI.this.setEnabled(true);
@@ -246,7 +293,55 @@ public class HomePageGUI extends JFrame {
 
         DefaultTreeModel treeModel = new DefaultTreeModel(root);
 
-        groupTree.setModel(treeModel);
+        UserTree.setModel(treeModel);
+
+    }
+
+    /**
+     * source: http://esus.com/displaying-a-popup-menu-when-right-clicking-on-a-jtree-node/
+     */
+    private class FolderPopup extends JPopupMenu{
+        public FolderPopup(JTree tree) {
+            JMenuItem addPassword = new JMenuItem("Add password");
+            JMenuItem deleteFolder = new JMenuItem("Delete folder");
+            addPassword.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ae) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            EntryGUI newEntry;
+                            if(paramterOnlineOffline instanceof ServerDriver){
+                                newEntry = new EntryGUI(safe, folderNumber,-1, HomePageGUI.this, (ServerDriver)paramterOnlineOffline);
+                            } else {
+                                newEntry = new EntryGUI(safe, folderNumber,-1, HomePageGUI.this, null);
+                            }
+                            newEntry.addWindowListener(new WindowAdapter() {
+                                public void windowClosing(WindowEvent e) {
+                                    HomePageGUI.this.setEnabled(true);
+                                }
+                            });
+
+                            newEntry.getCancelButton().addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    HomePageGUI.this.setEnabled(true);
+                                    newEntry.dispose();
+                                }
+                            });
+                        }
+                    });
+                    setEnabled(false);
+                }
+            });
+            deleteFolder.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ae) {
+
+                }
+            });
+
+            add(addPassword);
+            add(new JSeparator());
+            add(deleteFolder);
+        }
     }
 
     private class CustomTableModel extends AbstractTableModel {
@@ -300,7 +395,7 @@ public class HomePageGUI extends JFrame {
         // TODO : Fix bug if we press on the root node
         String selectedFolder = "";
         try {
-            selectedFolder = groupTree.getSelectionPath().getPathComponent(1).toString();
+            selectedFolder = UserTree.getSelectionPath().getPathComponent(1).toString();
         } catch (NullPointerException e) {
             selectedFolder = selectedFolderName;
         }
