@@ -146,6 +146,10 @@ public class Entry {
         this.id = id;
     }
 
+    public int getId() {
+        return id;
+    }
+
     public String JSONentry(){
         return "{\"target\": \"" + CharBuffer.wrap(target) + "\",\"username\": \"" + CharBuffer.wrap(username) +
                 "\",\"password\": \"" + CharBuffer.wrap(encryptedPassword) + "\",\"iv\": " + Arrays.toString(iv) +

@@ -1,5 +1,6 @@
 package ch.heigvd.pro.client.gui;
 
+import ch.heigvd.pro.client.file.IStorePasswordDriver;
 import ch.heigvd.pro.client.file.ServerDriver;
 import ch.heigvd.pro.client.password.PasswordGenerator;
 import ch.heigvd.pro.client.structure.Entry;
@@ -37,41 +38,43 @@ public class EntryGUI extends JFrame {
 
     private String iconFilename;
 
-    public EntryGUI(Safe safe, int folderNumber, int entryNumber, HomePageGUI homepage, ServerDriver serverDriver) {
+    // TODO: The OK button is useless, remove it or remove cancel button
+    public EntryGUI(Safe safe, int selectedFolderNumber, int entryNumber, HomePageGUI homepage, IStorePasswordDriver serverDriver) {
 
-        /**
-         * TO SEE : regarder de -1 bizarre
+        /*
+         * Edit entry
          */
         if (entryNumber != -1) {
-            this.iconFilename = safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getIcon();
+            this.iconFilename = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getIcon();
 
             // TODO Resize image
             ImageIcon myPicture = new ImageIcon(iconFilename);
             imageLabel.setIcon(myPicture);
 
-            CharBuffer charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getEntryName());
+            CharBuffer charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getEntryName());
             entryNameField.setText(charBuffer.toString());
 
-            charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getTarget());
+            charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getTarget());
             targetField.setText(charBuffer.toString());
 
-            charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getUsername());
+            charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getUsername());
             usernameField.setText(charBuffer.toString());
 
-            charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getClearPassword());
+            charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getClearPassword());
             passwordField.setText(charBuffer.toString());
 
-            charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getClearPassword());
+            charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getClearPassword());
             RetypePasswordField.setText(charBuffer.toString());
 
-            charBuffer = CharBuffer.wrap(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getNotes());
+            charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getNotes());
             notesField.setText(charBuffer.toString());
 
+            // TODO Fix bug where notes is disappearing because of that line
             // Wiping sensible data
-            Arrays.fill(charBuffer.array(), (char) 0);
+            //Arrays.fill(charBuffer.array(), (char) 0);
         }
 
-        /**
+        /*
          * Initialize frame
          */
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
@@ -86,7 +89,7 @@ public class EntryGUI extends JFrame {
         progressBar1.setValue(50);
         setVisible(true);
 
-        /**
+        /*
          * On click on button show it will show the password
          */
         showButton.addMouseListener(new MouseAdapter() {
@@ -103,12 +106,12 @@ public class EntryGUI extends JFrame {
             }
         });
 
-        deleteButton.addActionListener(new ActionListener(){
+        deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    serverDriver.deleteEntry(safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).getIdPassword());
-                    safe.getFolderList().get(folderNumber).removeEntry(entryNumber);
+                    //serverDriver.deleteEntry(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getIdPassword());
+                    safe.getFolderList().get(selectedFolderNumber).removeEntry(entryNumber);
                     JOptionPane.showMessageDialog(null,
                             "The entry has been deleted",
                             "Delete password",
@@ -124,7 +127,7 @@ public class EntryGUI extends JFrame {
             }
         });
 
-        /**
+        /*
          * Show password
          */
         passwordField.addFocusListener(new FocusAdapter() {
@@ -141,7 +144,7 @@ public class EntryGUI extends JFrame {
             }
         });
 
-        /**
+        /*
          *
          */
         /*RetypePasswordField.addFocusListener(new FocusAdapter() {
@@ -183,20 +186,20 @@ public class EntryGUI extends JFrame {
             }
         });*/
 
-        /**
-         * Create the entry
+        /*
+         * Create/Edit the entry
          */
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
 
-                try{
+                try {
                     // Verify that all fields are filled
                     if (!usernameField.getText().isEmpty()
                             && passwordField.getPassword().length != 0
                             && RetypePasswordField.getPassword().length != 0
                             && !targetField.getText().isEmpty()
-                            && !entryNameField.getText().isEmpty() && entryNumber == -1) {
+                            && !entryNameField.getText().isEmpty() && entryNumber == -1) { // Create
 
                         // Create a new Entry
                         Entry newEntry = new Entry(0, entryNameField.getText().toCharArray(),
@@ -204,40 +207,41 @@ public class EntryGUI extends JFrame {
                                 passwordField.getPassword(), notesField.getText().toCharArray(), new Date());
 
                         newEntry.setIcon(iconFilename);
-                        safe.getFolderList().get(folderNumber).addEntry(newEntry);
 
-                        // Add the entry to the server
-                        if(serverDriver != null){
-                            serverDriver.addEntry(newEntry, safe.getFolderList().get(folderNumber).getId(), safe);
-                        }
+                        // Add the entry
+                        serverDriver.addEntry(newEntry, selectedFolderNumber);
 
                         JOptionPane.showMessageDialog(null,
                                 "The entry has been created",
                                 "Created entry",
                                 JOptionPane.INFORMATION_MESSAGE);
 
-                        homepage.InitGroupTree();
-                        homepage.refreshTable();
-                        homepage.setEnabled(true);
-
-                        dispose();
-
-                        } else if (entryNumber != -1) {
-                        safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setUsername(usernameField.getText().toCharArray());
-                        safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setClearPassword(passwordField.getPassword());
-                        safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setTarget(targetField.getText().toCharArray());
-                        safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setNotes(notesField.getText().toCharArray());
-                        safe.getFolderList().get(folderNumber).getEntrylist().get(entryNumber).setIcon(iconFilename);
+                    } else if (entryNumber != -1) { // Edit
+                        safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).setUsername(usernameField.getText().toCharArray());
+                        safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).setEntryName(entryNameField.getText().toCharArray());
+                        safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).setClearPassword(passwordField.getPassword());
+                        safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).setTarget(targetField.getText().toCharArray());
+                        safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).setNotes(notesField.getText().toCharArray());
+                        safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).setIcon(iconFilename);
                     }
 
+                    serverDriver.saveSafe();
+
+                    // Refreshing JTree and JTable
+                    homepage.InitGroupTree();
+                    homepage.refreshTable();
+                    homepage.setEnabled(true);
+
+                    dispose();
+
                 } catch (Exception e) {
-                e.printStackTrace();
-            }
+                    e.printStackTrace();
+                }
 
             }
         });
 
-        /**
+        /*
          * Generate password
          */
         autoGenerateButton.addActionListener(new ActionListener() {
@@ -251,7 +255,7 @@ public class EntryGUI extends JFrame {
             }
         });
 
-        /**
+        /*l
          * Get icone picture
          */
         browseButton.addActionListener(new ActionListener() {
