@@ -68,11 +68,6 @@ public class HomePageGUI extends JFrame {
             e.printStackTrace();
         }
 
-        if(paramterOnlineOffline instanceof  ServerDriver){
-            groupsTree.setRootVisible(false);
-        } else {
-            groupsTree.setRootVisible(true);
-        }
 
         /**
          * Initialize Frame
@@ -285,7 +280,6 @@ public class HomePageGUI extends JFrame {
     public void InitGroupTree() {
         // Source : https://docs.oracle.com/javase/tutorial/uiswing/components/tree.html
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Passwords");
-        DefaultMutableTreeNode rootGroup = new DefaultMutableTreeNode("Groups");
 
         for (Folder folder : safe.getFolderList()) {
             DefaultMutableTreeNode folderRoot = new DefaultMutableTreeNode(folder.getName());
@@ -298,10 +292,8 @@ public class HomePageGUI extends JFrame {
         }
 
         DefaultTreeModel treeModel = new DefaultTreeModel(root);
-        DefaultTreeModel treeModelGroup = new DefaultTreeModel(rootGroup);
 
         UserTree.setModel(treeModel);
-        groupsTree.setModel(treeModelGroup);
 
     }
 

@@ -43,7 +43,7 @@ public class LoginGUI extends JFrame {
         // Frame initialisation
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
         setTitle("Login");
-        
+
         Icon icon = new ImageIcon(getClass().getClassLoader().getResource("Logo.png"));
         imageLabel.setIcon(icon);
         add(mainPanel);

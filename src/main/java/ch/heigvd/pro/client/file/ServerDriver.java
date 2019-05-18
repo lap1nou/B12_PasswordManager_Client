@@ -149,6 +149,7 @@ public class ServerDriver implements IStorePasswordDriver {
         createFolderrequest.addHeader("token", this.token);
         JSONObject createFolderStatus = POSTrequest(informationToSend, createFolderrequest);
 
+        System.out.println(createFolderStatus);
         if(!createFolderStatus.get("errorCode").equals(0)){
             throw new Exception(createFolderStatus.get("message").toString());
         }
