@@ -13,13 +13,13 @@ public interface IStorePasswordDriver {
 
     void createUser(char[] username, char[] email, char[] password) throws Exception;
 
-    void createFolder(char[] folderName) throws Exception;
+    void createFolder(String folderName) throws Exception;
 
     void addEntry(Entry newEntry, int idFolder) throws Exception;
 
     void editEntry(Entry entry) throws Exception;
 
-    void deleteEntry(int idPassword) throws Exception;
+    void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove) throws Exception;
 
     void createGroupe(char[] groupName) throws Exception;
 

@@ -1,6 +1,7 @@
 package ch.heigvd.pro.client.file;
 
 import ch.heigvd.pro.client.structure.Entry;
+import ch.heigvd.pro.client.structure.Folder;
 import ch.heigvd.pro.client.structure.Safe;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,6 +11,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 // Source : https://www.tutorialspoint.com/gson/gson_object_serialization.htm
 public class FileDriver implements IStorePasswordDriver {
@@ -73,8 +75,8 @@ public class FileDriver implements IStorePasswordDriver {
     }
 
     @Override
-    public void createFolder(char[] folderName) throws Exception {
-
+    public void createFolder(String folderName) throws Exception {
+        safe.getFolderList().add(new Folder(folderName, new ArrayList<Entry>()));
     }
 
     @Override
@@ -88,8 +90,8 @@ public class FileDriver implements IStorePasswordDriver {
     }
 
     @Override
-    public void deleteEntry(int idPassword) throws Exception {
-
+    public void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove) throws Exception {
+        safe.getFolderList().get(selectedFolderNumber).removeEntry(indexOfEntryToRemove);
     }
 
     @Override

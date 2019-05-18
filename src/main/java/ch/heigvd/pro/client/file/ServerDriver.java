@@ -136,7 +136,11 @@ public class ServerDriver implements IStorePasswordDriver {
      * @param folderName folder name
      * @throws Exception
      */
-    public void createFolder(char[] folderName) throws Exception {
+    public void createFolder(String folderName) throws Exception {
+        // Create in the Safe
+        safe.getFolderList().add(new Folder(folderName, new ArrayList<Entry>()));
+
+        // Create on the Server
         HttpPost createFolderrequest = new HttpPost(SERVER_ADDRESS + "/folder");
         StringEntity informationToSend = new StringEntity("{\"userId\": \"" + idUser + "\",\"name\": \"" + CharBuffer.wrap(folderName).toString() + "\",\"passwords\": [{}] }");
         createFolderrequest.addHeader("token", this.token);
@@ -203,10 +207,17 @@ public class ServerDriver implements IStorePasswordDriver {
     /**
      * Delete an entry
      *
-     * @param idPassword id password
+     * @param selectedFolderNumber the index of the selected entry
+     * @param indexOfEntryToRemove the index of the entry to remove
      * @throws Exception
      */
-    public void deleteEntry(int idPassword) throws Exception {
+    public void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove) throws Exception {
+        int idPassword = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(indexOfEntryToRemove).getId();
+
+        // Delete from Safe
+        safe.getFolderList().get(selectedFolderNumber).removeEntry(indexOfEntryToRemove);
+
+        // Delete on Server
         HttpDelete deleteEntryRequete = new HttpDelete(SERVER_ADDRESS + "/password/" + idPassword);
         deleteEntryRequete.addHeader("token", this.token);
 
@@ -243,7 +254,6 @@ public class ServerDriver implements IStorePasswordDriver {
             httpget.addHeader("token", this.token);
             CloseableHttpResponse response = httpclient.execute(httpget);
 
-
             result = EntityUtils.toString(response.getEntity());
             JSONObject answerJSON = new JSONObject(result);
             JSONArray folders = answerJSON.getJSONArray("folders");
@@ -253,7 +263,6 @@ public class ServerDriver implements IStorePasswordDriver {
             for (int i = 0; i < folders.length(); ++i) {
                 List<Entry> folderEntry = new ArrayList<Entry>();
                 for (int j = 0; j < folders.getJSONObject(i).getJSONArray("passwords").length(); ++j) {
-
                     folderEntry.add(new Entry((folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("note")).toString().toCharArray(),
                             folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("password").toString().toCharArray(),
                             folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("salt").toString().toCharArray(),
