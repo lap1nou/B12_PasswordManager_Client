@@ -7,6 +7,7 @@ import ch.heigvd.pro.client.structure.Safe;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -19,16 +20,21 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
+
 import javax.security.auth.login.LoginException;
+
 import java.nio.CharBuffer;
+
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -184,24 +190,36 @@ public class ServerDriver implements IStorePasswordDriver {
     /**
      * Edit an entry in the server
      *
-     * @param entry The entry to edit
+     * @param actualEntry The actual entry
+     * @param editedEntry The entry to edit
      * @throws Exception
      */
-    public void editEntry(Entry entry) throws Exception {
-        HttpPut editEntryrequest = new HttpPut(SERVER_ADDRESS + "/password/" + entry.getId());
-        entry.encryptEntry(safe.getSafePassword());
+    public void editEntry(Entry actualEntry, Entry editedEntry) throws Exception {
+        // Update in the Safe
+        actualEntry.setUsername(editedEntry.getUsername());
+        actualEntry.setEntryName(editedEntry.getEntryName());
+        actualEntry.setClearPassword(editedEntry.getClearPassword());
+        actualEntry.setTarget(editedEntry.getTarget());
+        actualEntry.setNotes(editedEntry.getNotes());
+        actualEntry.setIcon(editedEntry.getIcon());
 
-        StringEntity informationToSend = new StringEntity(entry.JSONentry());
+        // Update on Server
+        HttpPut editEntryrequest = new HttpPut(SERVER_ADDRESS + "/password/" + actualEntry.getId());
+        actualEntry.encryptEntry(safe.getSafePassword());
+
+        StringEntity informationToSend = new StringEntity(actualEntry.JSONentry());
+
+        // TODO: Do I have to put token here ?
         //editEntryrequest.addHeader("token", this.token);
 
         JSONObject addEntryStatus = POSTrequest(informationToSend, editEntryrequest);
-        entry.decryptEntry(safe.getSafePassword());
-
-        System.out.println(addEntryStatus);
+        actualEntry.decryptEntry(safe.getSafePassword());
 
         if (!addEntryStatus.get("errorCode").equals(0)) {
             throw new Exception(addEntryStatus.get("message").toString());
         }
+
+        System.out.println(addEntryStatus);
     }
 
     /**

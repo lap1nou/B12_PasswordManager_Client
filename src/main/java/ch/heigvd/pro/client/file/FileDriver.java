@@ -85,8 +85,13 @@ public class FileDriver implements IStorePasswordDriver {
     }
 
     @Override
-    public void editEntry(Entry entry) throws Exception {
-
+    public void editEntry(Entry actualEntry, Entry editedEntry) throws Exception {
+        actualEntry.setUsername(editedEntry.getUsername());
+        actualEntry.setEntryName(editedEntry.getEntryName());
+        actualEntry.setClearPassword(editedEntry.getClearPassword());
+        actualEntry.setTarget(editedEntry.getTarget());
+        actualEntry.setNotes(editedEntry.getNotes());
+        actualEntry.setIcon(editedEntry.getIcon());
     }
 
     @Override

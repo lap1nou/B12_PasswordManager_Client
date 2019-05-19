@@ -217,12 +217,11 @@ public class EntryGUI extends JFrame {
                                 JOptionPane.INFORMATION_MESSAGE);
 
                     } else if (entryNumber != -1) { // Edit
-                        safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).setUsername(usernameField.getText().toCharArray());
-                        safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).setEntryName(entryNameField.getText().toCharArray());
-                        safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).setClearPassword(passwordField.getPassword());
-                        safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).setTarget(targetField.getText().toCharArray());
-                        safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).setNotes(notesField.getText().toCharArray());
-                        safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).setIcon(iconFilename);
+                        Entry actualEntry = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber);
+                        Entry editedEntry = new Entry(notesField.getText().toCharArray(), actualEntry.getPassword(), actualEntry.getSalt(), iconFilename, actualEntry.getId(), entryNameField.getText().toCharArray(), actualEntry.getIv(), targetField.getText().toCharArray(), usernameField.getText().toCharArray());
+                        editedEntry.setClearPassword(passwordField.getPassword());
+
+                        serverDriver.editEntry(actualEntry, editedEntry);
                     }
 
                     serverDriver.saveSafe();

@@ -17,7 +17,7 @@ public interface IStorePasswordDriver {
 
     void addEntry(Entry newEntry, int idFolder) throws Exception;
 
-    void editEntry(Entry entry) throws Exception;
+    void editEntry(Entry actualEntry, Entry editedEntry) throws Exception;
 
     void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove) throws Exception;
 

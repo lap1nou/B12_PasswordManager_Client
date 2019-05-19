@@ -7,6 +7,7 @@ import ch.heigvd.pro.client.structure.Folder;
 import ch.heigvd.pro.client.structure.Safe;
 
 import javax.crypto.BadPaddingException;
+
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -16,7 +17,9 @@ import javax.swing.tree.DefaultTreeModel;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import java.nio.CharBuffer;
+
 import java.util.List;
 
 import static javax.swing.JOptionPane.YES_OPTION;
