@@ -3,18 +3,12 @@ package ch.heigvd.pro.client.structure;
 import ch.heigvd.pro.client.Utils;
 import ch.heigvd.pro.client.crypto.Crypto;
 import ch.heigvd.pro.client.password.PasswordChecker;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.annotations.Since;
-import org.apache.http.entity.StringEntity;
-import org.json.JSONObject;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.SecretKey;
-import java.nio.ByteBuffer;
+
 import java.nio.CharBuffer;
+
 import java.util.Arrays;
 import java.util.Date;
 
@@ -46,7 +40,7 @@ public class Entry {
         this.notes = notes;
     }
 
-    public Entry(char[] notes, char[] encryptedPassword, char[] salt , String icon, int id, char[] entryname, byte[] iv, char[] target, char[] username) {
+    public Entry(char[] notes, char[] encryptedPassword, char[] salt, String icon, int id, char[] entryname, byte[] iv, char[] target, char[] username) {
         this.entryName = entryname;
         this.id = id;
         this.username = username;
@@ -126,6 +120,10 @@ public class Entry {
         this.icon = icon;
     }
 
+    public char[] getSalt() {
+        return salt;
+    }
+
     public void encryptEntry(char[] safePassword) {
         SecretKey aesKey = Crypto.generateKey(safePassword, this.salt, Crypto.KEY_LENGTH, Crypto.NUMBER_OF_ITERATIONS);
 
@@ -146,10 +144,14 @@ public class Entry {
         this.id = id;
     }
 
-    public String JSONentry(){
+    public int getId() {
+        return id;
+    }
+
+    public String JSONentry() {
         return "{\"target\": \"" + CharBuffer.wrap(target) + "\",\"username\": \"" + CharBuffer.wrap(username) +
                 "\",\"password\": \"" + CharBuffer.wrap(encryptedPassword) + "\",\"iv\": " + Arrays.toString(iv) +
                 ",\"icon\": \"" + icon + "\",\"note\": \"" + CharBuffer.wrap(notes) +
-                "\",\"title\": \"" + CharBuffer.wrap(entryName) + "\",\"salt\": \"" + CharBuffer.wrap(salt)  + "\" }";
+                "\",\"title\": \"" + CharBuffer.wrap(entryName) + "\",\"salt\": \"" + CharBuffer.wrap(salt) + "\" }";
     }
 }

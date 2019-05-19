@@ -30,7 +30,7 @@ public class Folder {
         this.entrylist.add(newEntry);
     }
 
-    public int getId(){
+    public int getId() {
         return idFolder;
     }
 

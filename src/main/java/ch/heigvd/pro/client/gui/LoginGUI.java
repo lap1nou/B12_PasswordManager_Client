@@ -40,20 +40,22 @@ public class LoginGUI extends JFrame {
 
     public LoginGUI() {
 
-        // Frame initialisation
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
-        setTitle("Login");
 
+        /*
+         * Initialize Frame
+         */
+        setTitle("Login");
         Icon icon = new ImageIcon(getClass().getClassLoader().getResource("Logo.png"));
         imageLabel.setIcon(icon);
         add(mainPanel);
         setLocationRelativeTo(null);
         setSize(550, 400);
         setResizable(false);
-        //pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         SwingUtilities.getRootPane(loginButton).setDefaultButton(loginButton);
+
         // Initialisation mode online/offline
         ButtonGroup group = new ButtonGroup();
         group.add(offRadioButton);
@@ -62,52 +64,60 @@ public class LoginGUI extends JFrame {
         databaseTextField.setVisible(false);
         browseButton.setVisible(false);
 
-
-        /**
+        /*
          * On click on create account / create file
          */
         labelAccount.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
+
                 if (onlineRadioButton.isSelected()) {
                     RegisterGUI myRegisterGUI = new RegisterGUI();
 
                 } else if (offRadioButton.isSelected()) {
                     CreateMasterKeyGUI newMasterGUI = new CreateMasterKeyGUI();
                 }
+
                 dispose();
             }
         });
 
-        /**
+        /*
          * Action on login button
          */
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try{
-                    if(onlineRadioButton.isSelected()){
+                try {
+                    if (onlineRadioButton.isSelected()) {
 
                         ServerDriver serverConnection = new ServerDriver();
-                        Safe safe = serverConnection.login(usernameTextField.getText().toCharArray(), passwordField.getText().toCharArray());
+                        safe = serverConnection.login(usernameTextField.getText().toCharArray(), passwordField.getText().toCharArray());
                         safe.setSafePassword(passwordField.getPassword());
-                        HomePageGUI myHomePageGUI = new HomePageGUI(safe, serverConnection);
-                        dispose();
+
+                        serverConnection.setSafe(safe);
+
+                        HomePageGUI myHomePageGUI = new HomePageGUI(serverConnection);
 
                     } else if (offRadioButton.isSelected()) {
 
                         File passwordDB = new File(databaseTextField.getText());
-                        FileDriver test = new FileDriver(safe,passwordDB);
+                        FileDriver test = new FileDriver(safe, passwordDB);
+
                         safe = test.loadSafe();
                         safe.setSafePassword(passwordField.getPassword());
+
+                        test.setSafe(safe);
+
                         if (safe.isPasswordCorrect()) {
-                            HomePageGUI myHomePageGUI = new HomePageGUI(safe, databaseTextField.getText());
-                            dispose();
+                            HomePageGUI myHomePageGUI = new HomePageGUI(test);
                         } else {
                             throw new Exception("The password is not correct");
                         }
 
                     }
+
+                    dispose();
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(frame,
                             ex.getMessage(),
@@ -119,7 +129,7 @@ public class LoginGUI extends JFrame {
             }
         });
 
-        /**
+        /*
          * Change value on click on radio button (online)
          */
         onlineRadioButton.addActionListener(new ActionListener() {
@@ -140,7 +150,7 @@ public class LoginGUI extends JFrame {
             }
         });
 
-        /**
+        /*
          * Change value on click on radio button (offline)
          */
         offRadioButton.addActionListener(new ActionListener() {
@@ -160,7 +170,7 @@ public class LoginGUI extends JFrame {
             }
         });
 
-        /**
+        /*
          * Get the password file
          */
         browseButton.addActionListener(new ActionListener() {
@@ -176,7 +186,7 @@ public class LoginGUI extends JFrame {
             }
         });
 
-        /**
+        /*
          *  TO ADD COMMENT
          */
         labelAccount.addMouseListener(new MouseAdapter() {
@@ -188,7 +198,7 @@ public class LoginGUI extends JFrame {
             }
         });
 
-        /**
+        /*
          *  Set color on labelAccount when the mouse is on it
          */
         labelAccount.addMouseListener(new MouseAdapter() {
@@ -200,7 +210,7 @@ public class LoginGUI extends JFrame {
             }
         });
 
-        /**
+        /*
          * Button forget password
          */
         forgetPasswordButton.addActionListener(new ActionListener() {

@@ -14,7 +14,9 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.security.InvalidParameterException;
+import java.util.Arrays;
 
 public class CreateMasterKeyGUI extends JFrame {
     private JPanel mainPanel;
@@ -32,10 +34,11 @@ public class CreateMasterKeyGUI extends JFrame {
     private JPanel centerPanel;
     private JFormattedTextField fileNameField;
     private JProgressBar scoreProgress;
+    private JFrame frame;
 
     public CreateMasterKeyGUI() {
 
-        /**
+        /*
          * Initialize frame
          */
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
@@ -73,35 +76,42 @@ public class CreateMasterKeyGUI extends JFrame {
         });
         */
 
-        /**
+        /*
          * Action the confirmation button
          */
         confirmButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    if(passwordField.getPassword().equals(passwordRepeatField.getPassword())){
-                        throw new Exception("The passwords is not identicaly");
-                    }
-                    // Initialize all value
-                    File passwordDB = new File("");
-                    Safe safe = new Safe();
-                    FileDriver fileDrive = new FileDriver(safe, passwordDB);
+                    if (!Arrays.equals(passwordField.getPassword(), passwordRepeatField.getPassword())) {
+                        passwordField.setText("");
+                        passwordRepeatField.setText("");
 
-                    // Create the file and open the home directory
-                    passwordDB = new File(fileNameField.getText() + ".json");
+                        throw new Exception("Passwords are not identical");
+                    }
+
+                    // Create the File and the Safe
+                    File passwordDB = new File(fileNameField.getText() + ".json");
                     passwordDB.createNewFile();
+                    Safe safe = new Safe();
+
+                    FileDriver fileDrive = new FileDriver(safe, passwordDB);
                     safe.setSafePassword(passwordField.getPassword());
-                    fileDrive.saveSafe();
-                    HomePageGUI myHomePageGUI = new HomePageGUI(safe, fileNameField.getText());
+                    fileDrive.setSafe(safe);
+
+                    HomePageGUI myHomePageGUI = new HomePageGUI(fileDrive);
+
                     dispose();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(frame,
+                            e.getMessage(),
+                            "Creation error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        /**
+        /*
          * Cancel the actuel page
          */
         cancelButton.addActionListener(new ActionListener() {
