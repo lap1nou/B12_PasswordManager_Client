@@ -122,5 +122,17 @@ public class CreateMasterKeyGUI extends JFrame {
                 dispose();
             }
         });
+
+        /**
+         * Help button display some extra informations about the importance of a good masterpassword
+         */
+        helpButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(frame, "If you are not sure about what is a good master password\n"+
+                                               "you could visit this web site https://medium.com/edgefund/choosing-a-master-password-5d585b2ba568\n" +
+                                               "or searching on the web");
+            }
+        });
     }
 }
