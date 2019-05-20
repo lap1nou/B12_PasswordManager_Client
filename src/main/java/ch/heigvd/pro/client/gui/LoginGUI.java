@@ -101,6 +101,10 @@ public class LoginGUI extends JFrame {
 
                     } else if (offRadioButton.isSelected()) {
 
+                        if(databaseTextField.getText().isEmpty() || passwordField.getPassword().length == 0) {
+                            JOptionPane.showMessageDialog(frame, "All fields must be filled");
+                            return;
+                        }
                         File passwordDB = new File(databaseTextField.getText());
                         FileDriver test = new FileDriver(safe, passwordDB);
 
