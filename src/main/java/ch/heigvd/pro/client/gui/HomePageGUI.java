@@ -316,7 +316,31 @@ public class HomePageGUI extends JFrame {
 
             deleteFolder.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ae) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
 
+                            DefaultTreeModel treeModel = (DefaultTreeModel) userTree.getModel();
+                            int answer = JOptionPane.showConfirmDialog(null, "Are you sure you want to remove that folder ?", "Remove folder", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                            if (answer == YES_OPTION) {
+                                try {
+                                    parameterOnlineOffline.deleteFolder(selectedFolderNumber);
+
+                                    // Removing from the JTree
+                                    treeModel.removeNodeFromParent((DefaultMutableTreeNode) userTree.getSelectionPath().getLastPathComponent());
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+                                parameterOnlineOffline.saveSafe();
+
+                                refreshTable();
+                                InitGroupTree();
+                            }
+
+
+                        }
+                    });
                 }
             });
 

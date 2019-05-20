@@ -30,4 +30,6 @@ public interface IStorePasswordDriver {
 
     User getUserInformation() throws Exception;
 
+    void deleteFolder(int idFolder) throws Exception;
+
 }

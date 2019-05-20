@@ -71,4 +71,12 @@ public class Safe {
     public void setIdUser(int idUser) {
         this.idUser = idUser;
     }
+
+    public void deleteFolder(int idFolder){
+        for(int i = 0; i < folderList.size(); ++i){
+            if(this.folderList.get(i).getId() == idFolder){
+                this.folderList.remove(i);
+            }
+        }
+    }
 }

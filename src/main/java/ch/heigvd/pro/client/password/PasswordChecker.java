@@ -38,9 +38,12 @@ public class PasswordChecker {
         int specialCharPoint = 0;
 
         // Check if the password length is bigger than 8 and that the password is not leaked
-        //if(password.length < MIN_LENGTH || pwnChecker.isLeaked(password)){
         if (password.length < MIN_LENGTH || pwnChecker.isLeaked(password)) {
-            return lengthPoint;
+            if (pwnChecker.isLeaked(password)) {
+                return -1;
+            } else if (password.length < MIN_LENGTH) {
+                return 0;
+            }
         }
 
         /*

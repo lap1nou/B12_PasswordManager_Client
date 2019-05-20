@@ -44,8 +44,8 @@ public class ServerDriver implements IStorePasswordDriver {
     private User user;
 
     // TODO: Create .properties file
-    //private static String SERVER_ADDRESS = "https://impass.bigcube.ch";
-    private static String SERVER_ADDRESS = "http://127.0.0.1:8080";
+    private static String SERVER_ADDRESS = "https://impass.bigcube.ch";
+    //private static String SERVER_ADDRESS = "http://127.0.0.1:8080";
 
     /**
      * Check every 15 minutes to change the token
@@ -55,6 +55,7 @@ public class ServerDriver implements IStorePasswordDriver {
             try {
                 while (true) {
                     System.out.println(token);
+                    Thread.sleep(15 * 60 * 1000);
                     Thread.sleep(15 * 60 * 1000);
 
                     HttpPost tokenrequest = new HttpPost(SERVER_ADDRESS + "/renew");
@@ -170,8 +171,6 @@ public class ServerDriver implements IStorePasswordDriver {
      * @throws Exception
      */
     public void createFolder(String folderName) throws Exception {
-        // Create in the Safe
-        safe.getFolderList().add(new Folder(folderName, new ArrayList<Entry>()));
 
         // Create on the Server
         HttpPost createFolderrequest = new HttpPost(SERVER_ADDRESS + "/folder");
@@ -180,8 +179,38 @@ public class ServerDriver implements IStorePasswordDriver {
         JSONObject createFolderStatus = POSTrequest(informationToSend, createFolderrequest);
 
         System.out.println(createFolderStatus);
+        // TODO: Add id when server will be implemented
+        safe.getFolderList().add(new Folder(folderName, new ArrayList<Entry>()));
+
+        System.out.println(createFolderStatus);
         if (!createFolderStatus.get("errorCode").equals(0)) {
             throw new Exception(createFolderStatus.get("message").toString());
+        }
+    }
+
+
+    public void deleteFolder(int selectedFolderNumber) throws Exception {
+        int idFolder = this.safe.getFolderList().get(selectedFolderNumber).getId();
+
+        // Delete from Safe
+        safe.deleteFolder(idFolder);
+
+        // Delete on Server
+        HttpDelete deleteEntryRequete = new HttpDelete(SERVER_ADDRESS + "/folder/" + idFolder);
+        deleteEntryRequete.addHeader("token", this.token);
+
+        deleteEntryRequete.addHeader("content-type", "text/plain");
+
+        // Send DELETE Request
+        HttpClient httpClient = HttpClients.custom().build();
+        HttpResponse loginAnswer = httpClient.execute(deleteEntryRequete);
+        HttpEntity httpEntitiy = loginAnswer.getEntity();
+        JSONObject answerJSON = new JSONObject(EntityUtils.toString(httpEntitiy));
+
+        System.out.println(answerJSON);
+
+        if (!answerJSON.get("errorCode").equals(0)) {
+            throw new Exception(answerJSON.get("message").toString());
         }
     }
 
@@ -279,7 +308,6 @@ public class ServerDriver implements IStorePasswordDriver {
         if (!answerJSON.get("errorCode").equals(0)) {
             throw new Exception(answerJSON.get("message").toString());
         }
-
     }
 
     /**

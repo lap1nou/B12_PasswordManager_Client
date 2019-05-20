@@ -106,6 +106,11 @@ public class FileDriver implements IStorePasswordDriver {
     }
 
     @Override
+    public void deleteFolder(int idFolder) throws Exception{
+        safe.deleteFolder(idFolder);
+    }
+
+    @Override
     public void createGroupe(char[] groupName) throws Exception {
 
     }

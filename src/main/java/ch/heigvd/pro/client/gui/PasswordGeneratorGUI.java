@@ -1,5 +1,6 @@
 package ch.heigvd.pro.client.gui;
 
+import ch.heigvd.pro.client.password.PasswordChecker;
 import ch.heigvd.pro.client.password.PasswordGenerator;
 
 import javax.swing.*;
@@ -29,6 +30,8 @@ public class PasswordGeneratorGUI extends JFrame {
     private JButton cancelButton;
     private JButton okButton;
     private JButton generatePassword;
+    private JProgressBar passwordProgressBar;
+    private JLabel leakedLabel;
     private JFrame frame;
 
     private String alphabetLowercase = "abcdefghijklmnopqrstuvwxyz";
@@ -76,6 +79,29 @@ public class PasswordGeneratorGUI extends JFrame {
                     CharBuffer charBuffer = CharBuffer.wrap(passwordGenerator.generatePassword());
 
                     passwordField.setValue(charBuffer.toString());
+
+                    passwordField.setValue(charBuffer.toString());
+
+                    int passwordStrength = PasswordChecker.checkStrong(charBuffer.array());
+                    passwordProgressBar.setValue(passwordStrength);
+                    passwordProgressBar.setString(passwordProgressBar.getValue() + "%");
+
+                    if(passwordStrength == -1){
+                        leakedLabel.setVisible(true);
+                    }else{
+                        leakedLabel.setVisible(false);
+                    }
+
+                    if (passwordProgressBar.getValue() < 25) {
+                        passwordProgressBar.setForeground(Color.RED);
+                    } else if (passwordProgressBar.getValue() <= 50) {
+                        passwordProgressBar.setForeground(Color.MAGENTA);
+                    } else if (passwordProgressBar.getValue() <= 75) {
+                        passwordProgressBar.setForeground(Color.ORANGE);
+                    } else {
+                        passwordProgressBar.setForeground(Color.GREEN);
+                    }
+
                 } catch(NumberFormatException nfe){
                     JOptionPane.showMessageDialog(frame,
                             "The length value must be a positive number !",
