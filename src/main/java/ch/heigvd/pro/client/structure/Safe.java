@@ -1,6 +1,7 @@
 package ch.heigvd.pro.client.structure;
 
 import javax.crypto.*;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,11 +73,15 @@ public class Safe {
         this.idUser = idUser;
     }
 
-    public void deleteFolder(int idFolder){
-        for(int i = 0; i < folderList.size(); ++i){
-            if(this.folderList.get(i).getId() == idFolder){
-                this.folderList.remove(i);
-            }
-        }
+    public void deleteFolder(int index) {
+        this.folderList.remove(index);
+    }
+
+    public void addFolder(char[] folderName) {
+        this.folderList.add(new Folder(CharBuffer.wrap(folderName).toString(), new ArrayList<Entry>()));
+    }
+
+    public void editFolder(char[] folderName, int index){
+        folderList.get(index).setName(CharBuffer.wrap(folderName).toString());
     }
 }

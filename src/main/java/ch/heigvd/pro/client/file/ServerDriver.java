@@ -44,8 +44,8 @@ public class ServerDriver implements IStorePasswordDriver {
     private User user;
 
     // TODO: Create .properties file
-    private static String SERVER_ADDRESS = "https://impass.bigcube.ch";
-    //private static String SERVER_ADDRESS = "http://127.0.0.1:8080";
+    //private static String SERVER_ADDRESS = "https://impass.bigcube.ch";
+    private static String SERVER_ADDRESS = "http://127.0.0.1:8080";
 
     /**
      * Check every 15 minutes to change the token
@@ -88,10 +88,12 @@ public class ServerDriver implements IStorePasswordDriver {
     public void saveSafe() {
     }
 
+    @Override
     public Safe getSafe() {
         return safe;
     }
 
+    @Override
     public void setSafe(Safe safe) {
         this.safe = safe;
     }
@@ -102,6 +104,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @return return the User connected
      * @throws Exception return exception if the username and password is not good
      */
+    @Override
     public Safe login(char[] username, char[] password) throws Exception {
 
         // Request for login
@@ -131,6 +134,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @return return the json get server value
      * @throws Exception
      */
+    @Override
     public void createUser(char[] username, char[] email, char[] password) throws Exception {
         HttpPost createUserrequest = new HttpPost(SERVER_ADDRESS + "/user");
         StringEntity informationToSend = new StringEntity("{\"username\": \"" + CharBuffer.wrap(username) + "\",\"email\": \"" + CharBuffer.wrap(email) + "\",\"password\": \"" + CharBuffer.wrap(password) + "\" }");
@@ -150,16 +154,16 @@ public class ServerDriver implements IStorePasswordDriver {
         String result = EntityUtils.toString(response.getEntity());
         JSONObject answerJSON = new JSONObject(result);
         System.out.println(answerJSON);
-        JSONObject JSONtest = (JSONObject)answerJSON.get("user");
+        JSONObject JSONtest = (JSONObject) answerJSON.get("user");
 
         System.out.println("groups: " + JSONtest.getJSONArray("groups"));
         List<Group> groups = new ArrayList<Group>();
-        for(Object test : JSONtest.getJSONArray("groups")){
-            System.out.println(((JSONObject)test).get("name"));
-            groups.add(new Group((String)((JSONObject)test).get("name"), (String)((JSONObject)test).get("right")));
+        for (Object test : JSONtest.getJSONArray("groups")) {
+            System.out.println(((JSONObject) test).get("name"));
+            groups.add(new Group((String) ((JSONObject) test).get("name"), (String) ((JSONObject) test).get("right")));
         }
 
-        User userProfile = new User((Integer)JSONtest.get("id"), (String)JSONtest.get("username"), (String)JSONtest.get("email"), groups);
+        User userProfile = new User((Integer) JSONtest.get("id"), (String) JSONtest.get("username"), (String) JSONtest.get("email"), groups);
 
         return userProfile;
     }
@@ -170,6 +174,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @param folderName folder name
      * @throws Exception
      */
+    @Override
     public void createFolder(String folderName) throws Exception {
 
         // Create on the Server
@@ -178,17 +183,24 @@ public class ServerDriver implements IStorePasswordDriver {
         createFolderrequest.addHeader("token", this.token);
         JSONObject createFolderStatus = POSTrequest(informationToSend, createFolderrequest);
 
-        System.out.println(createFolderStatus);
         // TODO: Add id when server will be implemented
-        safe.getFolderList().add(new Folder(folderName, new ArrayList<Entry>()));
+        safe.addFolder(folderName.toCharArray());
 
-        System.out.println(createFolderStatus);
-        if (!createFolderStatus.get("errorCode").equals(0)) {
-            throw new Exception(createFolderStatus.get("message").toString());
-        }
+        //safe.getFolderList().add(new Folder(folderName, new ArrayList<Entry>()));
+        //System.out.println(createFolderStatus);
+
+        //if (!createFolderStatus.get("errorCode").equals(0)) {
+            //throw new Exception(createFolderStatus.get("message").toString());
+        //}
     }
 
-
+    /**
+     * Delete a folder
+     *
+     * @param selectedFolderNumber the selected folder position
+     * @throws Exception
+     */
+    @Override
     public void deleteFolder(int selectedFolderNumber) throws Exception {
         int idFolder = this.safe.getFolderList().get(selectedFolderNumber).getId();
 
@@ -215,12 +227,27 @@ public class ServerDriver implements IStorePasswordDriver {
     }
 
     /**
+     * Edit a folder name
+     *
+     * @param folderName the new name of the folder
+     * @param index      the index of the folder to change name of
+     * @throws Exception
+     */
+    @Override
+    public void editFolder(char[] folderName, int index) throws Exception {
+        safe.editFolder(folderName, index);
+
+        // TODO: Edit in server side
+    }
+
+    /**
      * Create an entry in the server
      *
      * @param newEntry             Entry created
      * @param selectedFolderNumber the selected folder number
      * @throws Exception
      */
+    @Override
     public void addEntry(Entry newEntry, int selectedFolderNumber) throws Exception {
         int idFolder = this.safe.getFolderList().get(selectedFolderNumber).getId();
 
@@ -250,6 +277,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @param editedEntry The entry to edit
      * @throws Exception
      */
+    @Override
     public void editEntry(Entry actualEntry, Entry editedEntry) throws Exception {
         // Update in the Safe
         actualEntry.setUsername(editedEntry.getUsername());
@@ -285,6 +313,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @param indexOfEntryToRemove the index of the entry to remove
      * @throws Exception
      */
+    @Override
     public void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove) throws Exception {
         int idPassword = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(indexOfEntryToRemove).getId();
 
@@ -360,6 +389,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @param groupName
      * @throws Exception
      */
+    @Override
     public void createGroupe(char[] groupName) throws Exception {
         // Add group on the server
         HttpPost addEntryrequest = new HttpPost(SERVER_ADDRESS + "/group");

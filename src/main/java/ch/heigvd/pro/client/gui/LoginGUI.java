@@ -109,6 +109,7 @@ public class LoginGUI extends JFrame {
 
                         test.setSafe(safe);
 
+                        // TODO: Compare password hash
                         if (safe.isPasswordCorrect()) {
                             HomePageGUI myHomePageGUI = new HomePageGUI(test);
                         } else {

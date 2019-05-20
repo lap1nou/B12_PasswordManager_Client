@@ -152,7 +152,9 @@
                 <preferred-size width="150" height="50"/>
               </grid>
             </constraints>
-            <properties/>
+            <properties>
+              <editable value="false"/>
+            </properties>
           </component>
         </children>
       </grid>
@@ -172,6 +174,8 @@
               <component id="712d3" class="javax.swing.JTable" binding="entryTable">
                 <constraints/>
                 <properties>
+                  <preferredScrollableViewportSize width="450" height="400"/>
+                  <rowHeight value="150"/>
                   <toolTipText value=""/>
                   <updateSelectionOnSort value="true"/>
                 </properties>

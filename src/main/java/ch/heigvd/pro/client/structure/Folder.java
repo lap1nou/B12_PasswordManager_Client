@@ -26,6 +26,10 @@ public class Folder {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void addEntry(Entry newEntry) {
         this.entrylist.add(newEntry);
     }
