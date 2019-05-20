@@ -3,6 +3,7 @@ package ch.heigvd.pro.client.file;
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Folder;
 import ch.heigvd.pro.client.structure.Safe;
+import ch.heigvd.pro.client.structure.User;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -75,6 +76,11 @@ public class FileDriver implements IStorePasswordDriver {
     }
 
     @Override
+    public User getUserInformation()  throws Exception{
+        return null;
+    }
+
+    @Override
     public void createFolder(String folderName) throws Exception {
         safe.getFolderList().add(new Folder(folderName, new ArrayList<Entry>()));
     }
@@ -97,6 +103,11 @@ public class FileDriver implements IStorePasswordDriver {
     @Override
     public void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove) throws Exception {
         safe.getFolderList().get(selectedFolderNumber).removeEntry(indexOfEntryToRemove);
+    }
+
+    @Override
+    public void deleteFolder(int idFolder) throws Exception{
+        safe.deleteFolder(idFolder);
     }
 
     @Override

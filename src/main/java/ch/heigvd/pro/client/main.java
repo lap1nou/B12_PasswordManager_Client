@@ -2,8 +2,12 @@ package ch.heigvd.pro.client;
 
 import ch.heigvd.pro.client.gui.GUIManager;
 
+
 import javax.swing.*;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 
 public class main {
 
