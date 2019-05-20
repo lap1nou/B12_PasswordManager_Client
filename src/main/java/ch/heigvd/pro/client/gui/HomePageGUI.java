@@ -132,6 +132,8 @@ public class HomePageGUI extends JFrame {
             }
         });
 
+
+
         /*
          * Menu about
          */
@@ -139,6 +141,25 @@ public class HomePageGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(null, "ImPass 1.0\n" + "This program is open source and not certified\n");
+            }
+        });
+
+        menuItemProfile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        UserProfile profile = new UserProfile(parameterOnlineOffline);
+                        profile.addWindowListener(new WindowAdapter() {
+                            public void windowClosing(WindowEvent e) {
+                                HomePageGUI.this.setEnabled(true);
+                            }
+                        });
+
+
+                    }
+                });
+                setEnabled(false);
             }
         });
 
@@ -163,27 +184,6 @@ public class HomePageGUI extends JFrame {
                     refreshTable();
 
                     ex.printStackTrace();
-                }
-            }
-        });
-
-        menuItemNewGroup.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                try {
-                    String groupName = JOptionPane.showInputDialog("Enter the group name");
-                    if (groupName != null) {
-                        ((ServerDriver) parameterOnlineOffline).createGroupe(groupName.toCharArray());
-                        JOptionPane.showMessageDialog(frame,
-                                "The group was created",
-                                "New Group",
-                                JOptionPane.INFORMATION_MESSAGE);
-                    }
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(frame,
-                            ex.getMessage(),
-                            "Error : New Group",
-                            JOptionPane.INFORMATION_MESSAGE);
                 }
             }
         });

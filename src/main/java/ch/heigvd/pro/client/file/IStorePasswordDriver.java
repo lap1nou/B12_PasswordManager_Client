@@ -2,6 +2,7 @@ package ch.heigvd.pro.client.file;
 
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Safe;
+import ch.heigvd.pro.client.structure.User;
 
 public interface IStorePasswordDriver {
 
@@ -26,5 +27,7 @@ public interface IStorePasswordDriver {
     Safe getSafe();
 
     void setSafe(Safe safe);
+
+    User getUserInformation() throws Exception;
 
 }

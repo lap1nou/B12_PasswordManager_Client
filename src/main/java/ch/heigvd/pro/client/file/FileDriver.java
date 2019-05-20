@@ -3,6 +3,7 @@ package ch.heigvd.pro.client.file;
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Folder;
 import ch.heigvd.pro.client.structure.Safe;
+import ch.heigvd.pro.client.structure.User;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -72,6 +73,11 @@ public class FileDriver implements IStorePasswordDriver {
     @Override
     public void createUser(char[] username, char[] email, char[] password) throws Exception {
 
+    }
+
+    @Override
+    public User getUserInformation()  throws Exception{
+        return null;
     }
 
     @Override
