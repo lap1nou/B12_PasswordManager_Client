@@ -36,7 +36,7 @@ public class EntryGUI extends JFrame {
     private JButton browseButton;
     private JButton deleteButton;
 
-    private String iconFilename;
+    private String iconFilename = "default.png";
 
     // TODO: The OK button is useless, remove it or remove cancel button
     public EntryGUI(Safe safe, int selectedFolderNumber, int entryNumber, HomePageGUI homepage, IStorePasswordDriver serverDriver) {
@@ -47,9 +47,8 @@ public class EntryGUI extends JFrame {
             if (selectedFolderNumber != -1) {
                 this.iconFilename = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getIcon();
 
-                // TODO Resize image
                 ImageIcon myPicture = new ImageIcon(iconFilename);
-                imageLabel.setIcon(myPicture);
+                imageLabel.setIcon(new ImageIcon(myPicture.getImage().getScaledInstance(24, 24, Image.SCALE_FAST)));
 
                 CharBuffer charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getEntryName());
                 entryNameField.setText(charBuffer.toString());
@@ -143,21 +142,9 @@ public class EntryGUI extends JFrame {
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                try {
-                    //serverDriver.deleteEntry(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getIdPassword());
-                    safe.getFolderList().get(selectedFolderNumber).removeEntry(entryNumber);
-                    JOptionPane.showMessageDialog(null,
-                            "The entry has been deleted",
-                            "Delete password",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    homepage.setEnabled(true);
-                    dispose();
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(null,
-                            e.getMessage(),
-                            "Error : Delete password",
-                            JOptionPane.ERROR_MESSAGE);
-                }
+                homepage.deleteSelectedEntry();
+                homepage.setEnabled(true);
+                dispose();
             }
         });
 
@@ -293,7 +280,7 @@ public class EntryGUI extends JFrame {
         });
 
         /*
-         * Get icone picture
+         * Get icon picture
          */
         browseButton.addActionListener(new ActionListener() {
             @Override
@@ -306,7 +293,8 @@ public class EntryGUI extends JFrame {
 
                     ImageIcon myPicture = new ImageIcon(filename);
                     setIconFilename(filename);
-                    imageLabel.setIcon(myPicture);
+                    imageLabel.setIcon(new ImageIcon(myPicture.getImage().getScaledInstance(24, 24, Image.SCALE_FAST)));
+
                 }
             }
         });
@@ -316,7 +304,7 @@ public class EntryGUI extends JFrame {
         // Source: https://stackoverflow.com/questions/10051638/updating-an-image-contained-in-a-jlabel-problems
         ImageIcon myPicture = new ImageIcon(iconFilename);
         imageLabel = new JLabel();
-        imageLabel.setIcon(myPicture);
+        imageLabel.setIcon(new ImageIcon(myPicture.getImage().getScaledInstance(24, 24, Image.SCALE_FAST)));
     }
 
     // Getters

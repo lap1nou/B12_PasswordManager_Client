@@ -416,7 +416,8 @@ public class HomePageGUI extends JFrame {
         public Object getValueAt(int parm1, int parm2) {
             switch (parm2) {
                 case 0:
-                    return new ImageIcon(donnees.get(parm1).getIcon());
+                    ImageIcon myPicture = new ImageIcon(donnees.get(parm1).getIcon());
+                    return new ImageIcon(myPicture.getImage().getScaledInstance(24, 24, Image.SCALE_FAST));
                 case 1:
                     return CharBuffer.wrap(donnees.get(parm1).getEntryName());
                 case 2:

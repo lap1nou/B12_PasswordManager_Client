@@ -155,7 +155,7 @@
                 <constraints/>
                 <properties>
                   <preferredScrollableViewportSize width="450" height="400"/>
-                  <rowHeight value="150"/>
+                  <rowHeight value="30"/>
                   <toolTipText value=""/>
                   <updateSelectionOnSort value="true"/>
                 </properties>
