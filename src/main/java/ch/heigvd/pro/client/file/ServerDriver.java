@@ -42,7 +42,6 @@ public class ServerDriver implements IStorePasswordDriver {
     private Safe safe;
     private User user;
 
-    // TODO: Create .properties file
     //private static String SERVER_ADDRESS = "https://impass.bigcube.ch";
     private static String SERVER_ADDRESS = "http://127.0.0.1:8080";
 
@@ -120,8 +119,9 @@ public class ServerDriver implements IStorePasswordDriver {
             renewToken.start();
             DecodedJWT jwt = JWT.decode(this.token);
             this.idUser = jwt.getClaim("id").asInt();
-            Safe safe = getUserData(password);
             this.user = getUserInformation();
+            Safe safe = getUserData(password);
+
             return safe;
         } else {
             throw new LoginException(loginStatus.get("message").toString());
@@ -169,7 +169,7 @@ public class ServerDriver implements IStorePasswordDriver {
     }
 
     /**
-     * Create folder that will contains passswords
+     * Create a folder that will contains passswords
      *
      * @param folderName folder name
      * @throws Exception
@@ -181,6 +181,31 @@ public class ServerDriver implements IStorePasswordDriver {
         HttpPost createFolderrequest = new HttpPost(SERVER_ADDRESS + "/folder");
         StringEntity informationToSend = new StringEntity("{\"userId\": \"" + idUser + "\",\"name\": \"" + CharBuffer.wrap(folderName).toString() + "\",\"passwords\": [{}] }");
         createFolderrequest.addHeader("token", this.token);
+        JSONObject createFolderStatus = POSTrequest(informationToSend, createFolderrequest);
+
+        // TODO: Add id when server will be implemented
+        safe.addFolder(folderName.toCharArray());
+
+        System.out.println(createFolderStatus);
+
+        //if (!createFolderStatus.get("errorCode").equals(0)) {
+        //throw new Exception(createFolderStatus.get("message").toString());
+        //}
+    }
+
+    /**
+     * Create a group folder that will contains passswords shared by all group members
+     *
+     * @param folderName folder name
+     * @throws Exception
+     */
+    public void createGroupFolder(String folderName, int groupId) throws Exception {
+
+        // Create on the Server
+        HttpPost createFolderrequest = new HttpPost(SERVER_ADDRESS + "/folder");
+        StringEntity informationToSend = new StringEntity("{\"groupId\": \"" + groupId + "\",\"name\": \"" + CharBuffer.wrap(folderName).toString() + "\",\"passwords\": [{}] }");
+        createFolderrequest.addHeader("token", this.token);
+
         JSONObject createFolderStatus = POSTrequest(informationToSend, createFolderrequest);
 
         // TODO: Add id when server will be implemented
@@ -372,6 +397,37 @@ public class ServerDriver implements IStorePasswordDriver {
                 safe.addFolder(new Folder((String) folders.getJSONObject(i).get("name"), folderEntry, (Integer) folders.getJSONObject(i).get("id")));
             }
 
+            /*
+            // Group password
+            for (Group group : user.getGroups()) {
+                httpget = new HttpGet(SERVER_ADDRESS + "/group/" + group.getIdGroup() + "/folders");
+                httpget.addHeader("token", this.token);
+                response = httpclient.execute(httpget);
+
+                result = EntityUtils.toString(response.getEntity());
+
+                answerJSON = new JSONObject(result);
+                folders = answerJSON.getJSONArray("folders");
+
+                for (int i = 0; i < folders.length(); ++i) {
+                    List<Entry> folderEntry = new ArrayList<Entry>();
+                    for (int j = 0; j < folders.getJSONObject(i).getJSONArray("passwords").length(); ++j) {
+                        folderEntry.add(new Entry((folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("note")).toString().toCharArray(),
+                                folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("password").toString().toCharArray(),
+                                folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("salt").toString().toCharArray(),
+                                folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("icon").toString(),
+                                (Integer) folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("id"),
+                                folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("title").toString().toCharArray(),
+                                Utils.JSONArrayTobyte(folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).getJSONArray("iv")),
+                                folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("target").toString().toCharArray(),
+                                folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("username").toString().toCharArray()
+                        ));
+                    }
+
+                    safe.addFolder(new Folder((String) folders.getJSONObject(i).get("name"), folderEntry, (Integer) folders.getJSONObject(i).get("id")));
+                }
+            }*/
+
             return safe;
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -393,13 +449,13 @@ public class ServerDriver implements IStorePasswordDriver {
         addEntryrequest.addHeader("token", this.token);
         JSONObject addEntryStatus = POSTrequest(informationToSend, addEntryrequest);
 
-        // TODO: Add Random Id Group
-        // Add group locally
-        this.user.addGroup(new Group(CharBuffer.wrap(groupName).toString(), "ADMIN", 0));
-
         if (!addEntryStatus.get("errorCode").equals(0)) {
             throw new Exception(addEntryStatus.get("message").toString());
         }
+
+        // TODO: Add Random Id Group
+        // Add group locally
+        this.user.addGroup(new Group(CharBuffer.wrap(groupName).toString(), "ADMIN", 0));
     }
 
     /**

@@ -56,6 +56,9 @@ public class HomePageGUI extends JFrame {
     private Safe safe;
     private IStorePasswordDriver parameterOnlineOffline;
 
+    private String folderName;
+    private boolean folderType;
+
     private int selectedFolderNumber;
     private int selectedEntryNumber;
 
@@ -370,23 +373,23 @@ public class HomePageGUI extends JFrame {
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             try {
-                                String folderName = JOptionPane.showInputDialog("Enter the new Folder name");
-                                if (!folderName.equals("")) {
-                                    parameterOnlineOffline.createFolder(folderName);
+                                FolderCreation folderCreation = new FolderCreation(HomePageGUI.this, parameterOnlineOffline);
+                                HomePageGUI.this.setEnabled(false);
 
-                                    // Adding into the JTree, source: https://stackoverflow.com/questions/7928839/adding-and-removing-nodes-from-a-jtree
-                                    // + https://stackoverflow.com/questions/30245837/jtree-wont-update
-                                    DefaultTreeModel treeModel = (DefaultTreeModel) userTree.getModel();
-                                    DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
-                                    treeModel.insertNodeInto(new DefaultMutableTreeNode(folderName), root, root.getChildCount());
-                                }
+                                String folderName = "";
+                                //String folderName = JOptionPane.showInputDialog("Enter the new Folder name");
+
+                                System.out.println(HomePageGUI.this.folderName);
+                                System.out.println(HomePageGUI.this.folderType);
+
+
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
 
-                            parameterOnlineOffline.saveSafe();
+                            //parameterOnlineOffline.saveSafe();
 
-                            refreshTable();
+                            //
                         }
                     });
                 }
@@ -643,4 +646,34 @@ public class HomePageGUI extends JFrame {
         });
     }
 
+    public void createFolder(String folderName, boolean folderType, int groupId) {
+        if (!folderName.equals("")) {
+            try {
+                if (!folderType) {
+                    parameterOnlineOffline.createFolder(folderName);
+                } else {
+                    ((ServerDriver) parameterOnlineOffline).createGroupFolder(folderName, groupId);
+                }
+
+                // Adding into the JTree, source: https://stackoverflow.com/questions/7928839/adding-and-removing-nodes-from-a-jtree
+                // + https://stackoverflow.com/questions/30245837/jtree-wont-update
+                DefaultTreeModel treeModel = (DefaultTreeModel) userTree.getModel();
+                DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
+                treeModel.insertNodeInto(new DefaultMutableTreeNode(folderName), root, root.getChildCount());
+
+                parameterOnlineOffline.saveSafe();
+                refreshTable();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void setFolderName(String folderName) {
+        this.folderName = folderName;
+    }
+
+    public void setFolderType(boolean folderType) {
+        this.folderType = folderType;
+    }
 }
