@@ -232,7 +232,6 @@ public class EntryGUI extends JFrame {
                     if (!usernameField.getText().isEmpty()
                             && passwordField.getPassword().length != 0
                             && RetypePasswordField.getPassword().length != 0
-                            && !targetField.getText().isEmpty()
                             && !entryNameField.getText().isEmpty() && entryNumber == -1) { // Create
 
                         // Create a new Entry
