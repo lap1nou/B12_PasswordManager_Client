@@ -50,6 +50,7 @@ public class PasswordGeneratorGUI extends JFrame {
         setResizable(false);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
+        passwordProgressBar.setStringPainted(true);
 
         /**
          * generate password
@@ -58,23 +59,23 @@ public class PasswordGeneratorGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                try{
+                try {
                     String parameterPassword = "";
 
-                    if(lowerCaseAZCheckBox.isSelected()){
+                    if (lowerCaseAZCheckBox.isSelected()) {
                         parameterPassword += alphabetLowercase;
                     }
-                    if(upperCaseAZCheckBox.isSelected()){
+                    if (upperCaseAZCheckBox.isSelected()) {
                         parameterPassword += alphabetUppercase;
                     }
-                    if(numbers09CheckBox.isSelected()){
+                    if (numbers09CheckBox.isSelected()) {
                         parameterPassword += numeric;
                     }
-                    if(specialCheckBox.isSelected()){
+                    if (specialCheckBox.isSelected()) {
                         parameterPassword += specialCharacter;
                     }
 
-                    PasswordGenerator passwordGenerator = new PasswordGenerator(parameterPassword.toCharArray(),Integer.parseInt(length.getText()));
+                    PasswordGenerator passwordGenerator = new PasswordGenerator(parameterPassword.toCharArray(), Integer.parseInt(length.getText()));
 
                     CharBuffer charBuffer = CharBuffer.wrap(passwordGenerator.generatePassword());
 
@@ -86,9 +87,9 @@ public class PasswordGeneratorGUI extends JFrame {
                     passwordProgressBar.setValue(passwordStrength);
                     passwordProgressBar.setString(passwordProgressBar.getValue() + "%");
 
-                    if(passwordStrength == -1){
+                    if (passwordStrength == -1) {
                         leakedLabel.setVisible(true);
-                    }else{
+                    } else {
                         leakedLabel.setVisible(false);
                     }
 
@@ -102,12 +103,12 @@ public class PasswordGeneratorGUI extends JFrame {
                         passwordProgressBar.setForeground(Color.GREEN);
                     }
 
-                } catch(NumberFormatException nfe){
+                } catch (NumberFormatException nfe) {
                     JOptionPane.showMessageDialog(frame,
                             "The length value must be a positive number !",
                             "Inane error",
                             JOptionPane.ERROR_MESSAGE);
-                } catch(IllegalArgumentException iae){
+                } catch (IllegalArgumentException iae) {
                     JOptionPane.showMessageDialog(frame,
                             "You need to choose minimum 1 element",
                             "Inane error",
@@ -124,9 +125,9 @@ public class PasswordGeneratorGUI extends JFrame {
         copyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                StringSelection stringSelection = new StringSelection (passwordField.getText());
-                Clipboard clpbrd = Toolkit.getDefaultToolkit ().getSystemClipboard ();
-                clpbrd.setContents (stringSelection, null);
+                StringSelection stringSelection = new StringSelection(passwordField.getText());
+                Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
+                clpbrd.setContents(stringSelection, null);
             }
         });
     }

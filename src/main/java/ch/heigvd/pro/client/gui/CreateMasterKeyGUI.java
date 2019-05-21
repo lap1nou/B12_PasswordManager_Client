@@ -5,18 +5,15 @@ import ch.heigvd.pro.client.password.PasswordChecker;
 import ch.heigvd.pro.client.structure.Safe;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.security.InvalidParameterException;
+
 import java.util.Arrays;
+import java.util.concurrent.Executors;
 
 public class CreateMasterKeyGUI extends JFrame {
     private JPanel mainPanel;
@@ -34,10 +31,13 @@ public class CreateMasterKeyGUI extends JFrame {
     private JPanel centerPanel;
     private JFormattedTextField fileNameField;
     private JProgressBar scoreProgress;
+    private JButton browseButton;
+    private JLabel leakedLabel;
     private JFrame frame;
 
-    public CreateMasterKeyGUI() {
+    private String databasePath = "";
 
+    public CreateMasterKeyGUI() {
         /*
          * Initialize frame
          */
@@ -47,34 +47,41 @@ public class CreateMasterKeyGUI extends JFrame {
         setLocationRelativeTo(null);
         setSize(500, 350);
         setResizable(false);
-        //pack();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
+        scoreProgress.setStringPainted(true);
+        scoreProgress.setForeground(Color.RED);
 
-        /*
-         * A revoir
-
-        passwordField.getDocument().addDocumentListener(new DocumentListener() {
+        // Source: https://stackoverflow.com/questions/19538040/java-progressbar-opened-after-calculating
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
-            public void insertUpdate(DocumentEvent documentEvent) {
-                int scorePassword = PasswordChecker.checkStrong(passwordField.getPassword());
-                scoreProgress.setValue(scorePassword);
-                System.out.println(scorePassword);
-            }
+            public void run() {
+                while (true) {
+                    int scorePassword = PasswordChecker.checkStrong(passwordField.getPassword());
 
-            @Override
-            public void removeUpdate(DocumentEvent documentEvent) {
-                int scorePassword = PasswordChecker.checkStrong(passwordField.getPassword());
-                scoreProgress.setValue(scorePassword);
-                System.out.println(scorePassword);
-            }
+                    if (scorePassword != scoreProgress.getValue()) {
+                        if (scorePassword == -1) {
+                            leakedLabel.setVisible(true);
+                        } else {
+                            leakedLabel.setVisible(false);
+                        }
 
-            @Override
-            public void changedUpdate(DocumentEvent documentEvent) {
-                System.out.println("changedUpdate");
+                        scoreProgress.setValue(scorePassword);
+                        scoreProgress.setString(scoreProgress.getValue() + "%");
+
+                        if (scoreProgress.getValue() < 25) {
+                            scoreProgress.setForeground(Color.RED);
+                        } else if (scoreProgress.getValue() <= 50) {
+                            scoreProgress.setForeground(Color.MAGENTA);
+                        } else if (scoreProgress.getValue() <= 75) {
+                            scoreProgress.setForeground(Color.ORANGE);
+                        } else {
+                            scoreProgress.setForeground(Color.GREEN);
+                        }
+                    }
+                }
             }
         });
-        */
 
         /*
          * Action the confirmation button
@@ -91,7 +98,9 @@ public class CreateMasterKeyGUI extends JFrame {
                     }
 
                     // Create the File and the Safe
-                    File passwordDB = new File(fileNameField.getText() + ".json");
+                    File passwordDB = new File(databasePath + fileNameField.getText() + ".json");
+                    System.out.println(passwordDB.getPath());
+
                     passwordDB.createNewFile();
                     Safe safe = new Safe();
 
@@ -129,9 +138,27 @@ public class CreateMasterKeyGUI extends JFrame {
         helpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(frame, "If you are not sure about what is a good master password\n"+
-                                               "you could visit this web site https://medium.com/edgefund/choosing-a-master-password-5d585b2ba568\n" +
-                                               "or searching on the web");
+                JOptionPane.showMessageDialog(frame, "If you are not sure about what is a good master password\n" +
+                        "you could visit this web site https://medium.com/edgefund/choosing-a-master-password-5d585b2ba568\n" +
+                        "or searching on the web");
+            }
+        });
+
+        /**
+         * Browse a path where to create the database
+         */
+        browseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                JFileChooser databaseFolderChooser = new JFileChooser();
+                databaseFolderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                databaseFolderChooser.setAcceptAllFileFilterUsed(false);
+
+                int ret = databaseFolderChooser.showOpenDialog(null);
+
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                    CreateMasterKeyGUI.this.databasePath = databaseFolderChooser.getSelectedFile().getAbsolutePath() + "/";
+                }
             }
         });
     }
