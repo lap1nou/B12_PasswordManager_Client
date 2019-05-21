@@ -45,33 +45,36 @@ public class EntryGUI extends JFrame {
          * Edit entry
          */
         if (entryNumber != -1) {
-            this.iconFilename = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getIcon();
+            if (selectedFolderNumber != -1) {
+                this.iconFilename = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getIcon();
 
-            // TODO Resize image
-            ImageIcon myPicture = new ImageIcon(iconFilename);
-            imageLabel.setIcon(myPicture);
 
-            CharBuffer charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getEntryName());
-            entryNameField.setText(charBuffer.toString());
+                // TODO Resize image
+                ImageIcon myPicture = new ImageIcon(iconFilename);
+                imageLabel.setIcon(myPicture);
 
-            charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getTarget());
-            targetField.setText(charBuffer.toString());
+                CharBuffer charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getEntryName());
+                entryNameField.setText(charBuffer.toString());
 
-            charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getUsername());
-            usernameField.setText(charBuffer.toString());
+                charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getTarget());
+                targetField.setText(charBuffer.toString());
 
-            charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getClearPassword());
-            passwordField.setText(charBuffer.toString());
+                charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getUsername());
+                usernameField.setText(charBuffer.toString());
 
-            charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getClearPassword());
-            RetypePasswordField.setText(charBuffer.toString());
+                charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getClearPassword());
+                passwordField.setText(charBuffer.toString());
 
-            charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getNotes());
-            notesField.setText(charBuffer.toString());
+                charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getClearPassword());
+                RetypePasswordField.setText(charBuffer.toString());
 
-            // TODO Fix bug where notes is disappearing because of that line
-            // Wiping sensible data
-            //Arrays.fill(charBuffer.array(), (char) 0);
+                charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getNotes());
+                notesField.setText(charBuffer.toString());
+
+                // TODO Fix bug where notes is disappearing because of that line
+                // Wiping sensible data
+                //Arrays.fill(charBuffer.array(), (char) 0);
+            }
         }
 
         /*
@@ -226,10 +229,14 @@ public class EntryGUI extends JFrame {
 
                     serverDriver.saveSafe();
 
+                    // Saving current selected folder
+                    int tmp = selectedFolderNumber;
+
                     // Refreshing JTree and JTable
                     homepage.InitGroupTree();
                     homepage.refreshTable();
                     homepage.setEnabled(true);
+                    homepage.userTree.setSelectionRow(tmp + 1);
 
                     dispose();
 

@@ -1,7 +1,6 @@
 package ch.heigvd.pro.client.gui;
 
 import ch.heigvd.pro.client.file.IStorePasswordDriver;
-import ch.heigvd.pro.client.file.ServerDriver;
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Folder;
 import ch.heigvd.pro.client.structure.Safe;
@@ -9,6 +8,8 @@ import ch.heigvd.pro.client.structure.Safe;
 import javax.crypto.BadPaddingException;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -37,7 +38,7 @@ public class HomePageGUI extends JFrame {
     private JMenuItem menuItemPassGen;
     private JMenu menuHelp;
     private JMenuItem menuItemAbout;
-    private JTree userTree;
+    public JTree userTree;
     private JPanel centerPanel;
     private JTable entryTable;
     private JMenuItem menuItemNewFolder;
@@ -57,9 +58,7 @@ public class HomePageGUI extends JFrame {
     private int selectedFolderNumber;
     private int selectedEntryNumber;
 
-    // TODO Restore JTree state using this as an inspiration: https://community.oracle.com/thread/1479458
     public HomePageGUI(IStorePasswordDriver parameterOnlineOffline) {
-
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
         this.safe = parameterOnlineOffline.getSafe();
         this.parameterOnlineOffline = parameterOnlineOffline;
@@ -81,6 +80,7 @@ public class HomePageGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         FolderPopup folderPopup = new FolderPopup(userTree);
+        EntryPopup entryPopup = new EntryPopup(entryTable);
 
         /*
          * Popup when we are doing a right click to folders
@@ -95,7 +95,19 @@ public class HomePageGUI extends JFrame {
         });
 
         /*
-         * Exit the menu
+         * Popup when we are doing a right click in entries
+         */
+        entryTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e) && !userTree.isSelectionEmpty()) {
+                    entryPopup.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
+
+        /*
+         * Exit the program
          */
         menuItemExit.addActionListener(new ActionListener() {
             @Override
@@ -105,7 +117,7 @@ public class HomePageGUI extends JFrame {
         });
 
         /*
-         * Menu that will generate the passsword
+         * Menu that generate passsword
          */
         menuItemPassGen.addActionListener(new ActionListener() {
             @Override
@@ -132,8 +144,6 @@ public class HomePageGUI extends JFrame {
             }
         });
 
-
-
         /*
          * Menu about
          */
@@ -144,6 +154,9 @@ public class HomePageGUI extends JFrame {
             }
         });
 
+        /*
+         * User profile
+         */
         menuItemProfile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -256,6 +269,16 @@ public class HomePageGUI extends JFrame {
                 }
             }
         });
+
+        // TODO: Replace by anonymous class ?
+        entryTable.getSelectionModel().addListSelectionListener(new ListAction());
+    }
+
+    public class ListAction implements ListSelectionListener {
+        @Override
+        public void valueChanged(ListSelectionEvent listSelectionEvent) {
+            selectedEntryNumber = entryTable.getSelectedRow();
+        }
     }
 
     /**
@@ -268,11 +291,6 @@ public class HomePageGUI extends JFrame {
         for (Folder folder : safe.getFolderList()) {
             DefaultMutableTreeNode folderRoot = new DefaultMutableTreeNode(folder.getName());
             root.add(folderRoot);
-
-            for (Entry entry : folder.getEntrylist()) {
-                CharBuffer tmpBuffer = CharBuffer.wrap(entry.getTarget());
-                folderRoot.add(new DefaultMutableTreeNode(tmpBuffer));
-            }
         }
 
         DefaultTreeModel treeModel = new DefaultTreeModel(root);
@@ -281,36 +299,80 @@ public class HomePageGUI extends JFrame {
     }
 
     /**
+     * This class is used to define function for the contextual menu of the JTree
      * Source: http://esus.com/displaying-a-popup-menu-when-right-clicking-on-a-jtree-node/
      */
     private class FolderPopup extends JPopupMenu {
         public FolderPopup(JTree tree) {
             JMenuItem addPassword = new JMenuItem("Add password");
             JMenuItem deleteFolder = new JMenuItem("Delete folder");
-            JMenuItem deleteEntry = new JMenuItem("Delete entry");
+            JMenuItem addFolder = new JMenuItem("Add folder");
+            JMenuItem editFolder = new JMenuItem("Edit folder name");
 
             addPassword.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ae) {
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
-                            EntryGUI newEntry = new EntryGUI(safe, selectedFolderNumber, -1, HomePageGUI.this, parameterOnlineOffline);
-
-                            newEntry.addWindowListener(new WindowAdapter() {
-                                public void windowClosing(WindowEvent e) {
-                                    HomePageGUI.this.setEnabled(true);
-                                }
-                            });
-
-                            newEntry.getCancelButton().addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    HomePageGUI.this.setEnabled(true);
-                                    newEntry.dispose();
-                                }
-                            });
+                            addPassword();
                         }
                     });
                     setEnabled(false);
+                }
+            });
+
+            addFolder.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ae) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            try {
+                                String folderName = JOptionPane.showInputDialog("Enter the new Folder name");
+                                if (!folderName.equals("")) {
+                                    parameterOnlineOffline.createFolder(folderName);
+
+                                    // Adding into the JTree, source: https://stackoverflow.com/questions/7928839/adding-and-removing-nodes-from-a-jtree
+                                    // + https://stackoverflow.com/questions/30245837/jtree-wont-update
+                                    DefaultTreeModel treeModel = (DefaultTreeModel) userTree.getModel();
+                                    DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
+                                    treeModel.insertNodeInto(new DefaultMutableTreeNode(folderName), root, root.getChildCount());
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            parameterOnlineOffline.saveSafe();
+
+                            refreshTable();
+                        }
+                    });
+                }
+            });
+
+            editFolder.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ae) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            try {
+                                String folderName = JOptionPane.showInputDialog("Enter the new Folder name");
+
+                                if (!folderName.equals("")) {
+                                    parameterOnlineOffline.editFolder(folderName.toCharArray(), selectedFolderNumber);
+
+                                    // Editing into the JTree, source: https://stackoverflow.com/questions/6663358/renaming-the-jtree-node-manually-in-java
+                                    DefaultTreeModel treeModel = (DefaultTreeModel) userTree.getModel();
+                                    DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
+                                    DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(selectedFolderNumber);
+                                    child.setUserObject(folderName);
+                                    treeModel.nodeChanged(child);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            parameterOnlineOffline.saveSafe();
+
+                            refreshTable();
+                        }
+                    });
                 }
             });
 
@@ -335,12 +397,39 @@ public class HomePageGUI extends JFrame {
                                 parameterOnlineOffline.saveSafe();
 
                                 refreshTable();
-                                InitGroupTree();
                             }
-
 
                         }
                     });
+                }
+            });
+
+            add(addPassword);
+            add(new JSeparator());
+            add(addFolder);
+            add(editFolder);
+            add(deleteFolder);
+
+        }
+    }
+
+    /**
+     * This class is used to define function for the contextual menu of the JTable
+     * Source: http://esus.com/displaying-a-popup-menu-when-right-clicking-on-a-jtree-node/
+     */
+    private class EntryPopup extends JPopupMenu {
+        public EntryPopup(JTable table) {
+            JMenuItem addPassword = new JMenuItem("Add password");
+            JMenuItem deleteEntry = new JMenuItem("Delete entry");
+
+            addPassword.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ae) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            addPassword();
+                        }
+                    });
+                    setEnabled(false);
                 }
             });
 
@@ -356,7 +445,6 @@ public class HomePageGUI extends JFrame {
 
             add(addPassword);
             add(new JSeparator());
-            add(deleteFolder);
             add(deleteEntry);
 
         }
@@ -377,18 +465,20 @@ public class HomePageGUI extends JFrame {
         }
 
         public int getColumnCount() {
-            return 4;
+            return 5;
         }
 
         public Object getValueAt(int parm1, int parm2) {
             switch (parm2) {
                 case 0:
-                    return CharBuffer.wrap(donnees.get(parm1).getEntryName());
+                    return new ImageIcon(donnees.get(parm1).getIcon());
                 case 1:
-                    return CharBuffer.wrap(donnees.get(parm1).getUsername());
+                    return CharBuffer.wrap(donnees.get(parm1).getEntryName());
                 case 2:
-                    return CharBuffer.wrap(donnees.get(parm1).getTarget());
+                    return CharBuffer.wrap(donnees.get(parm1).getUsername());
                 case 3:
+                    return CharBuffer.wrap(donnees.get(parm1).getTarget());
+                case 4:
                     return donnees.get(parm1).getRegisterDate();
                 default:
                     break;
@@ -404,8 +494,27 @@ public class HomePageGUI extends JFrame {
             return titres[col];
         }
 
+        @Override
+        public Class<?> getColumnClass(int i) {
+            switch (i) {
+                case 0:
+                    return ImageIcon.class;
+                case 1:
+                    return String.class;
+                case 2:
+                    return String.class;
+                case 3:
+                    return String.class;
+                case 4:
+                    return String.class;
+                default:
+                    break;
+            }
+            return null;
+        }
     }
 
+    // Source: https://coderanch.com/t/513754/java/JTable-selection-listener-doesn-listen
     private class customAction implements TreeSelectionListener {
         @Override
         public void valueChanged(TreeSelectionEvent treeSelectionEvent) {
@@ -420,12 +529,10 @@ public class HomePageGUI extends JFrame {
         // Source: https://www.youtube.com/watch?v=e7tr2VG2rag
         DefaultMutableTreeNode root = new DefaultMutableTreeNode();
         DefaultMutableTreeNode selectedFolder = new DefaultMutableTreeNode();
-        DefaultMutableTreeNode selectedEntry = new DefaultMutableTreeNode();
 
         try {
             root = (DefaultMutableTreeNode) userTree.getSelectionPath().getPathComponent(0);
             selectedFolder = (DefaultMutableTreeNode) userTree.getSelectionPath().getPathComponent(1);
-            selectedEntry = (DefaultMutableTreeNode) userTree.getSelectionPath().getPathComponent(2);
         } catch (Exception e) {
 
         }
@@ -434,14 +541,9 @@ public class HomePageGUI extends JFrame {
             selectedFolderNumber = root.getIndex(selectedFolder);
 
             if (selectedFolderNumber != -1) {
-                CustomTableModel myModel = new CustomTableModel(safe.getFolderList().get(selectedFolderNumber).getEntrylist(), new String[]{"Entry name", "User Name", "Target", "Date"});
+                CustomTableModel myModel = new CustomTableModel(safe.getFolderList().get(selectedFolderNumber).getEntrylist(), new String[]{"", "Entry name", "User Name", "Target", "Date"});
                 entryTable.setModel(myModel);
             }
-        }
-
-        if (selectedEntry != null) {
-            selectedEntryNumber = selectedFolder.getIndex(selectedEntry);
-
         }
     }
 
@@ -452,11 +554,16 @@ public class HomePageGUI extends JFrame {
         // Source : https://www.youtube.com/watch?v=c0gpJj-IAmE this video helped me a bit
         DefaultTreeModel treeModel = (DefaultTreeModel) userTree.getModel();
 
+        int tmpEntryNumber = selectedEntryNumber;
+        int tmpFolderNumber = selectedFolderNumber;
+
         int answer = JOptionPane.showConfirmDialog(null, "Are you sure you want to remove that entry ?", "Remove entry", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
         if (answer == YES_OPTION) {
             try {
-                parameterOnlineOffline.deleteEntry(selectedFolderNumber, selectedEntryNumber);
+                parameterOnlineOffline.deleteEntry(tmpFolderNumber, tmpEntryNumber);
+
+                refreshTable();
 
                 // Removing from the JTree
                 treeModel.removeNodeFromParent((DefaultMutableTreeNode) userTree.getSelectionPath().getLastPathComponent());
@@ -465,9 +572,29 @@ public class HomePageGUI extends JFrame {
             }
 
             parameterOnlineOffline.saveSafe();
-
-            refreshTable();
             InitGroupTree();
+
+            // Restoring selected folder postion
+            userTree.setSelectionRow(tmpFolderNumber + 1);
         }
     }
+
+    public void addPassword() {
+        EntryGUI newEntry = new EntryGUI(safe, selectedFolderNumber, -1, HomePageGUI.this, parameterOnlineOffline);
+
+        newEntry.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                HomePageGUI.this.setEnabled(true);
+            }
+        });
+
+        newEntry.getCancelButton().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                HomePageGUI.this.setEnabled(true);
+                newEntry.dispose();
+            }
+        });
+    }
+
 }

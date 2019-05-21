@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 
 // Source : https://www.tutorialspoint.com/gson/gson_object_serialization.htm
@@ -76,13 +77,23 @@ public class FileDriver implements IStorePasswordDriver {
     }
 
     @Override
-    public User getUserInformation()  throws Exception{
+    public User getUserInformation() throws Exception {
         return null;
     }
 
     @Override
     public void createFolder(String folderName) throws Exception {
-        safe.getFolderList().add(new Folder(folderName, new ArrayList<Entry>()));
+        safe.addFolder(folderName.toCharArray());
+    }
+
+    @Override
+    public void deleteFolder(int idFolder) throws Exception {
+        safe.deleteFolder(idFolder);
+    }
+
+    @Override
+    public void editFolder(char[] folderName, int index) throws Exception {
+        safe.editFolder(folderName, index);
     }
 
     @Override
@@ -103,11 +114,6 @@ public class FileDriver implements IStorePasswordDriver {
     @Override
     public void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove) throws Exception {
         safe.getFolderList().get(selectedFolderNumber).removeEntry(indexOfEntryToRemove);
-    }
-
-    @Override
-    public void deleteFolder(int idFolder) throws Exception{
-        safe.deleteFolder(idFolder);
     }
 
     @Override

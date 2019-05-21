@@ -16,6 +16,10 @@ public interface IStorePasswordDriver {
 
     void createFolder(String folderName) throws Exception;
 
+    void deleteFolder(int index) throws Exception;
+
+    void editFolder(char[] folderName, int index) throws Exception;
+
     void addEntry(Entry newEntry, int idFolder) throws Exception;
 
     void editEntry(Entry actualEntry, Entry editedEntry) throws Exception;
@@ -29,7 +33,5 @@ public interface IStorePasswordDriver {
     void setSafe(Safe safe);
 
     User getUserInformation() throws Exception;
-
-    void deleteFolder(int idFolder) throws Exception;
 
 }

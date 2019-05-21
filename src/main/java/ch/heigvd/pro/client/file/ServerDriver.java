@@ -27,7 +27,6 @@ import javax.net.ssl.SSLContext;
 
 import javax.security.auth.login.LoginException;
 
-import java.io.IOException;
 import java.nio.CharBuffer;
 
 import java.security.KeyManagementException;
@@ -44,13 +43,13 @@ public class ServerDriver implements IStorePasswordDriver {
     private User user;
 
     // TODO: Create .properties file
-    private static String SERVER_ADDRESS = "https://impass.bigcube.ch";
-    //private static String SERVER_ADDRESS = "http://127.0.0.1:8080";
+    //private static String SERVER_ADDRESS = "https://impass.bigcube.ch";
+    private static String SERVER_ADDRESS = "http://127.0.0.1:8080";
 
     /**
      * Check every 15 minutes to change the token
      */
-    Thread renewToken = new Thread() {
+    public Thread renewToken = new Thread() {
         public void run() {
             try {
                 while (true) {
@@ -88,12 +87,18 @@ public class ServerDriver implements IStorePasswordDriver {
     public void saveSafe() {
     }
 
+    @Override
     public Safe getSafe() {
         return safe;
     }
 
+    @Override
     public void setSafe(Safe safe) {
         this.safe = safe;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     /**
@@ -102,6 +107,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @return return the User connected
      * @throws Exception return exception if the username and password is not good
      */
+    @Override
     public Safe login(char[] username, char[] password) throws Exception {
 
         // Request for login
@@ -131,6 +137,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @return return the json get server value
      * @throws Exception
      */
+    @Override
     public void createUser(char[] username, char[] email, char[] password) throws Exception {
         HttpPost createUserrequest = new HttpPost(SERVER_ADDRESS + "/user");
         StringEntity informationToSend = new StringEntity("{\"username\": \"" + CharBuffer.wrap(username) + "\",\"email\": \"" + CharBuffer.wrap(email) + "\",\"password\": \"" + CharBuffer.wrap(password) + "\" }");
@@ -149,17 +156,14 @@ public class ServerDriver implements IStorePasswordDriver {
 
         String result = EntityUtils.toString(response.getEntity());
         JSONObject answerJSON = new JSONObject(result);
-        System.out.println(answerJSON);
-        JSONObject JSONtest = (JSONObject)answerJSON.get("user");
+        JSONObject JSONtest = (JSONObject) answerJSON.get("user");
 
-        System.out.println("groups: " + JSONtest.getJSONArray("groups"));
         List<Group> groups = new ArrayList<Group>();
-        for(Object test : JSONtest.getJSONArray("groups")){
-            System.out.println(((JSONObject)test).get("name"));
-            groups.add(new Group((String)((JSONObject)test).get("name"), (String)((JSONObject)test).get("right")));
+        for (Object test : JSONtest.getJSONArray("groups")) {
+            groups.add(new Group((String) ((JSONObject) test).get("name"), (String) ((JSONObject) test).get("right"), (Integer) ((JSONObject) test).get("id")));
         }
 
-        User userProfile = new User((Integer)JSONtest.get("id"), (String)JSONtest.get("username"), (String)JSONtest.get("email"), groups);
+        User userProfile = new User((Integer) JSONtest.get("id"), (String) JSONtest.get("username"), (String) JSONtest.get("email"), groups);
 
         return userProfile;
     }
@@ -170,6 +174,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @param folderName folder name
      * @throws Exception
      */
+    @Override
     public void createFolder(String folderName) throws Exception {
 
         // Create on the Server
@@ -178,22 +183,28 @@ public class ServerDriver implements IStorePasswordDriver {
         createFolderrequest.addHeader("token", this.token);
         JSONObject createFolderStatus = POSTrequest(informationToSend, createFolderrequest);
 
-        System.out.println(createFolderStatus);
         // TODO: Add id when server will be implemented
-        safe.getFolderList().add(new Folder(folderName, new ArrayList<Entry>()));
+        safe.addFolder(folderName.toCharArray());
 
         System.out.println(createFolderStatus);
-        if (!createFolderStatus.get("errorCode").equals(0)) {
-            throw new Exception(createFolderStatus.get("message").toString());
-        }
+
+        //if (!createFolderStatus.get("errorCode").equals(0)) {
+        //throw new Exception(createFolderStatus.get("message").toString());
+        //}
     }
 
-
+    /**
+     * Delete a folder
+     *
+     * @param selectedFolderNumber the selected folder position
+     * @throws Exception
+     */
+    @Override
     public void deleteFolder(int selectedFolderNumber) throws Exception {
         int idFolder = this.safe.getFolderList().get(selectedFolderNumber).getId();
 
         // Delete from Safe
-        safe.deleteFolder(idFolder);
+        safe.deleteFolder(selectedFolderNumber);
 
         // Delete on Server
         HttpDelete deleteEntryRequete = new HttpDelete(SERVER_ADDRESS + "/folder/" + idFolder);
@@ -207,11 +218,24 @@ public class ServerDriver implements IStorePasswordDriver {
         HttpEntity httpEntitiy = loginAnswer.getEntity();
         JSONObject answerJSON = new JSONObject(EntityUtils.toString(httpEntitiy));
 
-        System.out.println(answerJSON);
-
         if (!answerJSON.get("errorCode").equals(0)) {
             throw new Exception(answerJSON.get("message").toString());
         }
+    }
+
+    /**
+     * Edit a folder name
+     *
+     * @param folderName the new name of the folder
+     * @param index      the index of the folder to change name of
+     * @throws Exception
+     */
+    @Override
+    public void editFolder(char[] folderName, int index) throws Exception {
+        safe.editFolder(folderName, index);
+
+        // TODO: Edit in server side
+
     }
 
     /**
@@ -221,6 +245,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @param selectedFolderNumber the selected folder number
      * @throws Exception
      */
+    @Override
     public void addEntry(Entry newEntry, int selectedFolderNumber) throws Exception {
         int idFolder = this.safe.getFolderList().get(selectedFolderNumber).getId();
 
@@ -236,8 +261,6 @@ public class ServerDriver implements IStorePasswordDriver {
         JSONObject addEntryStatus = POSTrequest(informationToSend, addEntryrequest);
         newEntry.decryptEntry(safe.getSafePassword());
 
-        System.out.println(addEntryStatus);
-
         if (!addEntryStatus.get("errorCode").equals(0)) {
             throw new Exception(addEntryStatus.get("message").toString());
         }
@@ -250,6 +273,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @param editedEntry The entry to edit
      * @throws Exception
      */
+    @Override
     public void editEntry(Entry actualEntry, Entry editedEntry) throws Exception {
         // Update in the Safe
         actualEntry.setUsername(editedEntry.getUsername());
@@ -274,8 +298,6 @@ public class ServerDriver implements IStorePasswordDriver {
         if (!addEntryStatus.get("errorCode").equals(0)) {
             throw new Exception(addEntryStatus.get("message").toString());
         }
-
-        System.out.println(addEntryStatus);
     }
 
     /**
@@ -285,6 +307,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @param indexOfEntryToRemove the index of the entry to remove
      * @throws Exception
      */
+    @Override
     public void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove) throws Exception {
         int idPassword = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(indexOfEntryToRemove).getId();
 
@@ -302,8 +325,6 @@ public class ServerDriver implements IStorePasswordDriver {
         HttpResponse loginAnswer = httpClient.execute(deleteEntryRequete);
         HttpEntity httpEntitiy = loginAnswer.getEntity();
         JSONObject answerJSON = new JSONObject(EntityUtils.toString(httpEntitiy));
-
-        System.out.println(answerJSON);
 
         if (!answerJSON.get("errorCode").equals(0)) {
             throw new Exception(answerJSON.get("message").toString());
@@ -328,6 +349,7 @@ public class ServerDriver implements IStorePasswordDriver {
             CloseableHttpResponse response = httpclient.execute(httpget);
 
             result = EntityUtils.toString(response.getEntity());
+
             JSONObject answerJSON = new JSONObject(result);
             JSONArray folders = answerJSON.getJSONArray("folders");
 
@@ -357,9 +379,12 @@ public class ServerDriver implements IStorePasswordDriver {
     }
 
     /**
-     * @param groupName
+     * Create a group
+     *
+     * @param groupName the name of the group to create
      * @throws Exception
      */
+    @Override
     public void createGroupe(char[] groupName) throws Exception {
         // Add group on the server
         HttpPost addEntryrequest = new HttpPost(SERVER_ADDRESS + "/group");
@@ -368,13 +393,63 @@ public class ServerDriver implements IStorePasswordDriver {
         addEntryrequest.addHeader("token", this.token);
         JSONObject addEntryStatus = POSTrequest(informationToSend, addEntryrequest);
 
+        // TODO: Add Random Id Group
         // Add group locally
-        this.user.addGroup(new Group(CharBuffer.wrap(groupName).toString(), "ADMIN"));
-
-        System.out.println(addEntryStatus);
+        this.user.addGroup(new Group(CharBuffer.wrap(groupName).toString(), "ADMIN", 0));
 
         if (!addEntryStatus.get("errorCode").equals(0)) {
             throw new Exception(addEntryStatus.get("message").toString());
+        }
+    }
+
+    /**
+     * Delete a group
+     *
+     * @param selectedGroupNumber the position of the group to delete
+     * @throws Exception
+     */
+    public void deleteGroup(int selectedGroupNumber) throws Exception {
+        int idGroup = user.getGroups().get(selectedGroupNumber).getIdGroup();
+
+        // Delete locally
+        user.deleteGroup(selectedGroupNumber);
+
+        // Delete on the server
+        HttpDelete deleteEntryRequete = new HttpDelete(SERVER_ADDRESS + "/group/" + idGroup);
+        deleteEntryRequete.addHeader("token", this.token);
+
+        System.out.println(token);
+
+        // TODO: Renvoie une erreur même si le token est valide
+        
+        // Send DELETE Request
+        HttpClient httpClient = HttpClients.custom().build();
+        HttpResponse loginAnswer = httpClient.execute(deleteEntryRequete);
+        HttpEntity httpEntitiy = loginAnswer.getEntity();
+        JSONObject answerJSON = new JSONObject(EntityUtils.toString(httpEntitiy));
+
+        if (!answerJSON.get("errorCode").equals(0)) {
+            throw new Exception(answerJSON.get("message").toString());
+        }
+    }
+
+    /**
+     * Renew the token
+     *
+     * @throws Exception
+     */
+    public void renewToken() throws Exception {
+        HttpPost tokenrequest = new HttpPost(SERVER_ADDRESS + "/renew");
+        tokenrequest.addHeader("token", this.token);
+        JSONObject tokenStatus = POSTrequest(null, tokenrequest);
+
+        System.out.println("Old Token: " + token);
+
+        if (!tokenStatus.get("errorCode").equals(0)) {
+            throw new Exception(tokenStatus.get("message").toString());
+        } else {
+            this.token = (String) tokenStatus.get("token");
+            System.out.println("New Token: " + token);
         }
     }
 
