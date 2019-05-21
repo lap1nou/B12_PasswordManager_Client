@@ -1,6 +1,7 @@
 package ch.heigvd.pro.client.gui;
 
 import ch.heigvd.pro.client.file.IStorePasswordDriver;
+import ch.heigvd.pro.client.file.ServerDriver;
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Folder;
 import ch.heigvd.pro.client.structure.Safe;
@@ -32,7 +33,6 @@ public class HomePageGUI extends JFrame {
     private JPanel westPanel;
     private JMenuBar menuBar;
     private JMenu menuFile;
-    private JMenuItem menuItemSave;
     private JMenuItem menuItemExit;
     private JMenu menuTools;
     private JMenuItem menuItemPassGen;
@@ -41,8 +41,6 @@ public class HomePageGUI extends JFrame {
     public JTree userTree;
     private JPanel centerPanel;
     private JTable entryTable;
-    private JMenuItem menuItemNewFolder;
-    private JButton removeButton;
     private JMenu profile;
     private JMenuItem menuItemNewGroup;
     private JMenuItem menuItemProfile;
@@ -81,6 +79,12 @@ public class HomePageGUI extends JFrame {
         setVisible(true);
         FolderPopup folderPopup = new FolderPopup(userTree);
         EntryPopup entryPopup = new EntryPopup(entryTable);
+
+        if (parameterOnlineOffline instanceof ServerDriver) {
+
+        } else {
+            profile.setVisible(false);
+        }
 
         /*
          * Popup when we are doing a right click to folders
@@ -176,69 +180,10 @@ public class HomePageGUI extends JFrame {
             }
         });
 
-        /*
-         * Menu for creating new folder
-         */
-        menuItemNewFolder.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    String folderName = JOptionPane.showInputDialog("Enter the new Folder name");
-                    if (!folderName.equals("")) {
-                        parameterOnlineOffline.createFolder(folderName);
-
-                        InitGroupTree();
-                        refreshTable();
-                    }
-                } catch (Exception ex) {
-                    // TODO: Remove this
-                    // Temporary while Julien is fixing folder requests
-                    InitGroupTree();
-                    refreshTable();
-
-                    ex.printStackTrace();
-                }
-            }
-        });
-
-        /*
-        menuItemSave.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                safe.encryptPassword();
-
-                FileDriver test = new FileDriver(safe, new File((String) parameterOnlineOffline));
-                test.saveSafe();
-
-                try {
-                    safe.decryptPassword();
-
-                    // TODO What about just adding a node instead of refreshing all the JTree ?
-                    // Refresh JTree
-                    InitGroupTree();
-
-                } catch (BadPaddingException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
-*/
-
         userTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent treeSelectionEvent) {
                 refreshTable();
-            }
-        });
-
-        /*
-         * Remove an entry
-         */
-        removeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                deleteSelectedEntry();
             }
         });
 
