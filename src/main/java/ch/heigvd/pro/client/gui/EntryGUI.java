@@ -1,11 +1,10 @@
 package ch.heigvd.pro.client.gui;
 
 import ch.heigvd.pro.client.file.IStorePasswordDriver;
-import ch.heigvd.pro.client.file.ServerDriver;
+import ch.heigvd.pro.client.password.PasswordChecker;
 import ch.heigvd.pro.client.password.PasswordGenerator;
 import ch.heigvd.pro.client.structure.Entry;
 import ch.heigvd.pro.client.structure.Safe;
-import com.google.gson.annotations.Expose;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,6 +12,7 @@ import java.awt.event.*;
 import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.concurrent.Executors;
 
 public class EntryGUI extends JFrame {
     private JPanel mainPanel;
@@ -31,7 +31,7 @@ public class EntryGUI extends JFrame {
     private JButton cancelButton;
     private JButton showButton;
     private JButton autoGenerateButton;
-    private JProgressBar progressBar1;
+    private JProgressBar scoreProgress;
     private JLabel imageLabel;
     private JButton browseButton;
     private JButton deleteButton;
@@ -40,7 +40,6 @@ public class EntryGUI extends JFrame {
 
     // TODO: The OK button is useless, remove it or remove cancel button
     public EntryGUI(Safe safe, int selectedFolderNumber, int entryNumber, HomePageGUI homepage, IStorePasswordDriver serverDriver) {
-
         /*
          * Edit entry
          */
@@ -88,8 +87,41 @@ public class EntryGUI extends JFrame {
         //pack();
         SwingUtilities.getRootPane(saveButton).setDefaultButton(saveButton);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        progressBar1.setValue(50);
+        scoreProgress.setValue(0);
+        scoreProgress.setStringPainted(true);
         setVisible(true);
+
+        // Source: https://stackoverflow.com/questions/19538040/java-progressbar-opened-after-calculating
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    int scorePassword = PasswordChecker.checkStrong(passwordField.getPassword());
+
+                    if (scorePassword != scoreProgress.getValue()) {
+                        /*
+                        if (scorePassword == -1) {
+                            leakedLabel.setVisible(true);
+                        } else {
+                            leakedLabel.setVisible(false);
+                        }*/
+
+                        scoreProgress.setValue(scorePassword);
+                        scoreProgress.setString(scoreProgress.getValue() + "%");
+
+                        if (scoreProgress.getValue() < 25) {
+                            scoreProgress.setForeground(Color.RED);
+                        } else if (scoreProgress.getValue() <= 50) {
+                            scoreProgress.setForeground(Color.MAGENTA);
+                        } else if (scoreProgress.getValue() <= 75) {
+                            scoreProgress.setForeground(Color.ORANGE);
+                        } else {
+                            scoreProgress.setForeground(Color.GREEN);
+                        }
+                    }
+                }
+            }
+        });
 
         /*
          * On click on button show it will show the password
