@@ -9,7 +9,7 @@ public class User {
     String email;
     List<Group> groups;
 
-    public User(int id, String username, String email, List<Group> groups){
+    public User(int id, String username, String email, List<Group> groups) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -32,7 +32,11 @@ public class User {
         return groups;
     }
 
-    public void addGroup(Group group){
+    public void addGroup(Group group) {
         this.groups.add(group);
+    }
+
+    public void deleteGroup(int index) {
+        this.groups.remove(index);
     }
 }

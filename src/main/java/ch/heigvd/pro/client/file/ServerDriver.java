@@ -27,7 +27,6 @@ import javax.net.ssl.SSLContext;
 
 import javax.security.auth.login.LoginException;
 
-import java.io.IOException;
 import java.nio.CharBuffer;
 
 import java.security.KeyManagementException;
@@ -50,7 +49,7 @@ public class ServerDriver implements IStorePasswordDriver {
     /**
      * Check every 15 minutes to change the token
      */
-    Thread renewToken = new Thread() {
+    public Thread renewToken = new Thread() {
         public void run() {
             try {
                 while (true) {
@@ -96,6 +95,10 @@ public class ServerDriver implements IStorePasswordDriver {
     @Override
     public void setSafe(Safe safe) {
         this.safe = safe;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     /**
@@ -153,14 +156,11 @@ public class ServerDriver implements IStorePasswordDriver {
 
         String result = EntityUtils.toString(response.getEntity());
         JSONObject answerJSON = new JSONObject(result);
-        System.out.println(answerJSON);
         JSONObject JSONtest = (JSONObject) answerJSON.get("user");
 
-        System.out.println("groups: " + JSONtest.getJSONArray("groups"));
         List<Group> groups = new ArrayList<Group>();
         for (Object test : JSONtest.getJSONArray("groups")) {
-            System.out.println(((JSONObject) test).get("name"));
-            groups.add(new Group((String) ((JSONObject) test).get("name"), (String) ((JSONObject) test).get("right")));
+            groups.add(new Group((String) ((JSONObject) test).get("name"), (String) ((JSONObject) test).get("right"), (Integer) ((JSONObject) test).get("id")));
         }
 
         User userProfile = new User((Integer) JSONtest.get("id"), (String) JSONtest.get("username"), (String) JSONtest.get("email"), groups);
@@ -186,11 +186,10 @@ public class ServerDriver implements IStorePasswordDriver {
         // TODO: Add id when server will be implemented
         safe.addFolder(folderName.toCharArray());
 
-        //safe.getFolderList().add(new Folder(folderName, new ArrayList<Entry>()));
-        //System.out.println(createFolderStatus);
+        System.out.println(createFolderStatus);
 
         //if (!createFolderStatus.get("errorCode").equals(0)) {
-            //throw new Exception(createFolderStatus.get("message").toString());
+        //throw new Exception(createFolderStatus.get("message").toString());
         //}
     }
 
@@ -205,7 +204,7 @@ public class ServerDriver implements IStorePasswordDriver {
         int idFolder = this.safe.getFolderList().get(selectedFolderNumber).getId();
 
         // Delete from Safe
-        safe.deleteFolder(idFolder);
+        safe.deleteFolder(selectedFolderNumber);
 
         // Delete on Server
         HttpDelete deleteEntryRequete = new HttpDelete(SERVER_ADDRESS + "/folder/" + idFolder);
@@ -218,8 +217,6 @@ public class ServerDriver implements IStorePasswordDriver {
         HttpResponse loginAnswer = httpClient.execute(deleteEntryRequete);
         HttpEntity httpEntitiy = loginAnswer.getEntity();
         JSONObject answerJSON = new JSONObject(EntityUtils.toString(httpEntitiy));
-
-        System.out.println(answerJSON);
 
         if (!answerJSON.get("errorCode").equals(0)) {
             throw new Exception(answerJSON.get("message").toString());
@@ -238,6 +235,7 @@ public class ServerDriver implements IStorePasswordDriver {
         safe.editFolder(folderName, index);
 
         // TODO: Edit in server side
+
     }
 
     /**
@@ -262,8 +260,6 @@ public class ServerDriver implements IStorePasswordDriver {
         addEntryrequest.addHeader("token", this.token);
         JSONObject addEntryStatus = POSTrequest(informationToSend, addEntryrequest);
         newEntry.decryptEntry(safe.getSafePassword());
-
-        System.out.println(addEntryStatus);
 
         if (!addEntryStatus.get("errorCode").equals(0)) {
             throw new Exception(addEntryStatus.get("message").toString());
@@ -302,8 +298,6 @@ public class ServerDriver implements IStorePasswordDriver {
         if (!addEntryStatus.get("errorCode").equals(0)) {
             throw new Exception(addEntryStatus.get("message").toString());
         }
-
-        System.out.println(addEntryStatus);
     }
 
     /**
@@ -332,8 +326,6 @@ public class ServerDriver implements IStorePasswordDriver {
         HttpEntity httpEntitiy = loginAnswer.getEntity();
         JSONObject answerJSON = new JSONObject(EntityUtils.toString(httpEntitiy));
 
-        System.out.println(answerJSON);
-
         if (!answerJSON.get("errorCode").equals(0)) {
             throw new Exception(answerJSON.get("message").toString());
         }
@@ -357,6 +349,7 @@ public class ServerDriver implements IStorePasswordDriver {
             CloseableHttpResponse response = httpclient.execute(httpget);
 
             result = EntityUtils.toString(response.getEntity());
+
             JSONObject answerJSON = new JSONObject(result);
             JSONArray folders = answerJSON.getJSONArray("folders");
 
@@ -386,7 +379,9 @@ public class ServerDriver implements IStorePasswordDriver {
     }
 
     /**
-     * @param groupName
+     * Create a group
+     *
+     * @param groupName the name of the group to create
      * @throws Exception
      */
     @Override
@@ -398,13 +393,63 @@ public class ServerDriver implements IStorePasswordDriver {
         addEntryrequest.addHeader("token", this.token);
         JSONObject addEntryStatus = POSTrequest(informationToSend, addEntryrequest);
 
+        // TODO: Add Random Id Group
         // Add group locally
-        this.user.addGroup(new Group(CharBuffer.wrap(groupName).toString(), "ADMIN"));
-
-        System.out.println(addEntryStatus);
+        this.user.addGroup(new Group(CharBuffer.wrap(groupName).toString(), "ADMIN", 0));
 
         if (!addEntryStatus.get("errorCode").equals(0)) {
             throw new Exception(addEntryStatus.get("message").toString());
+        }
+    }
+
+    /**
+     * Delete a group
+     *
+     * @param selectedGroupNumber the position of the group to delete
+     * @throws Exception
+     */
+    public void deleteGroup(int selectedGroupNumber) throws Exception {
+        int idGroup = user.getGroups().get(selectedGroupNumber).getIdGroup();
+
+        // Delete locally
+        user.deleteGroup(selectedGroupNumber);
+
+        // Delete on the server
+        HttpDelete deleteEntryRequete = new HttpDelete(SERVER_ADDRESS + "/group/" + idGroup);
+        deleteEntryRequete.addHeader("token", this.token);
+
+        System.out.println(token);
+
+        // TODO: Renvoie une erreur même si le token est valide
+        
+        // Send DELETE Request
+        HttpClient httpClient = HttpClients.custom().build();
+        HttpResponse loginAnswer = httpClient.execute(deleteEntryRequete);
+        HttpEntity httpEntitiy = loginAnswer.getEntity();
+        JSONObject answerJSON = new JSONObject(EntityUtils.toString(httpEntitiy));
+
+        if (!answerJSON.get("errorCode").equals(0)) {
+            throw new Exception(answerJSON.get("message").toString());
+        }
+    }
+
+    /**
+     * Renew the token
+     *
+     * @throws Exception
+     */
+    public void renewToken() throws Exception {
+        HttpPost tokenrequest = new HttpPost(SERVER_ADDRESS + "/renew");
+        tokenrequest.addHeader("token", this.token);
+        JSONObject tokenStatus = POSTrequest(null, tokenrequest);
+
+        System.out.println("Old Token: " + token);
+
+        if (!tokenStatus.get("errorCode").equals(0)) {
+            throw new Exception(tokenStatus.get("message").toString());
+        } else {
+            this.token = (String) tokenStatus.get("token");
+            System.out.println("New Token: " + token);
         }
     }
 

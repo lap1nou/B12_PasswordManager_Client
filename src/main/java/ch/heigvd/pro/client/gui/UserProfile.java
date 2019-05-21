@@ -1,8 +1,10 @@
 package ch.heigvd.pro.client.gui;
 
 import ch.heigvd.pro.client.file.IStorePasswordDriver;
+import ch.heigvd.pro.client.file.ServerDriver;
 import ch.heigvd.pro.client.structure.Group;
 import ch.heigvd.pro.client.structure.User;
+import com.sun.security.ntlm.Server;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -12,7 +14,7 @@ import java.awt.event.*;
 
 import java.util.List;
 
-public class UserProfile extends JFrame{
+public class UserProfile extends JFrame {
     private JPanel main;
     private JTextField usernameField;
     private JTextField emailField;
@@ -21,9 +23,11 @@ public class UserProfile extends JFrame{
     private JButton addGroupButton;
     private JButton deleteGroupButton;
 
-    private User user;
+    private IStorePasswordDriver serverDriver;
 
     public UserProfile(IStorePasswordDriver serverDriver) {
+        this.serverDriver = serverDriver;
+
         // Frame initialisation
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
         setTitle("Profile");
@@ -35,6 +39,8 @@ public class UserProfile extends JFrame{
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
         GroupPopup groupPopup = new GroupPopup(scrollPane, serverDriver);
+
+        refreshGroupTable();
 
         addGroupButton.addActionListener(new ActionListener() {
             @Override
@@ -48,6 +54,7 @@ public class UserProfile extends JFrame{
                                 "The group was created",
                                 "New Group",
                                 JOptionPane.INFORMATION_MESSAGE);
+                        refreshGroupTable();
                     } catch (Exception e) {
                         JOptionPane.showMessageDialog(null,
                                 e.getMessage(),
@@ -71,17 +78,27 @@ public class UserProfile extends JFrame{
         });
 
         try {
-            this.user = serverDriver.getUserInformation();
+            //this.user = serverDriver.getUserInformation();
 
-            usernameField.setText(user.getUsername());
-            emailField.setText(user.getEmail());
+            usernameField.setText(((ServerDriver) serverDriver).getUser().getUsername());
+            emailField.setText(((ServerDriver) serverDriver).getUser().getEmail());
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-
-
+        deleteGroupButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                try {
+                    ((ServerDriver) serverDriver).renewToken();
+                    ((ServerDriver) serverDriver).deleteGroup(groupTable.getSelectedRow());
+                    refreshGroupTable();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     /**
@@ -185,10 +202,11 @@ public class UserProfile extends JFrame{
         }
     }
 
-private void refreshGroupTable(){
-//    System.out.println(user.getGroups().size());
-    CustomTableModelGroup myModel = new UserProfile.CustomTableModelGroup(user.getGroups(), new String[]{"Group name", "Right"});
-    groupTable.setModel(myModel);
-}
+    private void refreshGroupTable() {
+        //System.out.println(serverDriver.getGroups().size());
+        CustomTableModelGroup myModel = new UserProfile.CustomTableModelGroup(((ServerDriver) serverDriver).getUser().getGroups(),
+                new String[]{"Group name", "Right"});
+        groupTable.setModel(myModel);
+    }
 
 }
