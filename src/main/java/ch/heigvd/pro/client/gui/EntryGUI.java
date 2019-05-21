@@ -48,7 +48,6 @@ public class EntryGUI extends JFrame {
             if (selectedFolderNumber != -1) {
                 this.iconFilename = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getIcon();
 
-
                 // TODO Resize image
                 ImageIcon myPicture = new ImageIcon(iconFilename);
                 imageLabel.setIcon(myPicture);
@@ -261,7 +260,7 @@ public class EntryGUI extends JFrame {
             }
         });
 
-        /*l
+        /*
          * Get icone picture
          */
         browseButton.addActionListener(new ActionListener() {

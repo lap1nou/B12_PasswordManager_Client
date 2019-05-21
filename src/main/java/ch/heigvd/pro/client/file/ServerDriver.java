@@ -49,7 +49,7 @@ public class ServerDriver implements IStorePasswordDriver {
     /**
      * Check every 15 minutes to change the token
      */
-    public Thread renewToken = new Thread() {
+    Thread renewToken = new Thread() {
         public void run() {
             try {
                 while (true) {
@@ -421,7 +421,7 @@ public class ServerDriver implements IStorePasswordDriver {
         System.out.println(token);
 
         // TODO: Renvoie une erreur même si le token est valide
-        
+
         // Send DELETE Request
         HttpClient httpClient = HttpClients.custom().build();
         HttpResponse loginAnswer = httpClient.execute(deleteEntryRequete);
