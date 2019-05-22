@@ -41,7 +41,12 @@ public class FolderCreation extends JDialog {
         OKButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                homepage.createFolder(groupNameField.getText(), groupFolderCheckBox.isSelected(), ((ServerDriver) serverDriver).getUser().getGroups().get(groupComboBox.getSelectedIndex()).getIdGroup());
+                int selectedGroupIndex = 0;
+
+                if (groupComboBox.getItemCount() != 0) {
+                    selectedGroupIndex = ((ServerDriver) serverDriver).getUser().getGroups().get(groupComboBox.getSelectedIndex()).getIdGroup();
+                }
+                homepage.createFolder(groupNameField.getText(), groupFolderCheckBox.isSelected(), selectedGroupIndex);
 
                 homepage.setEnabled(true);
                 dispose();

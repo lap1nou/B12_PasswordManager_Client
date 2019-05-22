@@ -77,11 +77,11 @@ public class Safe {
         this.folderList.remove(index);
     }
 
-    public void addFolder(char[] folderName) {
-        this.folderList.add(new Folder(CharBuffer.wrap(folderName).toString(), new ArrayList<Entry>()));
+    public void addFolder(char[] folderName, int folderId) {
+        this.folderList.add(new Folder(CharBuffer.wrap(folderName).toString(), new ArrayList<Entry>(), folderId));
     }
 
-    public void editFolder(char[] folderName, int index){
+    public void editFolder(char[] folderName, int index) {
         folderList.get(index).setName(CharBuffer.wrap(folderName).toString());
     }
 }

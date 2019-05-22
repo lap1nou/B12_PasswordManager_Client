@@ -402,7 +402,7 @@ public class HomePageGUI extends JFrame {
                             try {
                                 String folderName = JOptionPane.showInputDialog("Enter the new Folder name");
 
-                                if (!folderName.equals("")) {
+                                if (folderName != null && !folderName.equals("") && selectedFolderNumber >= 0) {
                                     parameterOnlineOffline.editFolder(folderName.toCharArray(), selectedFolderNumber);
 
                                     // Editing into the JTree, source: https://stackoverflow.com/questions/6663358/renaming-the-jtree-node-manually-in-java
@@ -432,7 +432,7 @@ public class HomePageGUI extends JFrame {
                             DefaultTreeModel treeModel = (DefaultTreeModel) userTree.getModel();
                             int answer = JOptionPane.showConfirmDialog(null, "Are you sure you want to remove that folder ?", "Remove folder", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
-                            if (answer == YES_OPTION) {
+                            if (answer == YES_OPTION && selectedFolderNumber >= 0) {
                                 try {
                                     parameterOnlineOffline.deleteFolder(selectedFolderNumber);
 
@@ -629,21 +629,23 @@ public class HomePageGUI extends JFrame {
     }
 
     public void addPassword() {
-        EntryGUI newEntry = new EntryGUI(safe, selectedFolderNumber, -1, HomePageGUI.this, parameterOnlineOffline);
+        if (selectedFolderNumber >= 0) {
+            EntryGUI newEntry = new EntryGUI(safe, selectedFolderNumber, -1, HomePageGUI.this, parameterOnlineOffline);
 
-        newEntry.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                HomePageGUI.this.setEnabled(true);
-            }
-        });
+            newEntry.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {
+                    HomePageGUI.this.setEnabled(true);
+                }
+            });
 
-        newEntry.getCancelButton().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                HomePageGUI.this.setEnabled(true);
-                newEntry.dispose();
-            }
-        });
+            newEntry.getCancelButton().addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    HomePageGUI.this.setEnabled(true);
+                    newEntry.dispose();
+                }
+            });
+        }
     }
 
     public void createFolder(String folderName, boolean folderType, int groupId) {
@@ -664,8 +666,12 @@ public class HomePageGUI extends JFrame {
                 parameterOnlineOffline.saveSafe();
                 refreshTable();
             } catch (Exception e) {
+
+                parameterOnlineOffline.saveSafe();
+                refreshTable();
                 e.printStackTrace();
             }
+
         }
     }
 

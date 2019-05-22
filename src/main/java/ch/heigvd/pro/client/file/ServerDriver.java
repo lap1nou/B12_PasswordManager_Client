@@ -25,8 +25,6 @@ import org.json.JSONObject;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 
-import javax.security.auth.login.LoginException;
-
 import java.nio.CharBuffer;
 
 import java.security.KeyManagementException;
@@ -41,6 +39,7 @@ public class ServerDriver implements IStorePasswordDriver {
     private int idUser;
     private Safe safe;
     private User user;
+    private HttpClient httpClient;
 
     //private static String SERVER_ADDRESS = "https://impass.bigcube.ch";
     private static String SERVER_ADDRESS = "http://127.0.0.1:8080";
@@ -58,7 +57,7 @@ public class ServerDriver implements IStorePasswordDriver {
 
                     HttpPost tokenrequest = new HttpPost(SERVER_ADDRESS + "/renew");
                     tokenrequest.addHeader("token", token);
-                    JSONObject tokenStatus = POSTrequest(null, tokenrequest);
+                    JSONObject tokenStatus = sendRequest(null, tokenrequest);
 
                     System.out.println(tokenStatus);
                     if (tokenStatus.get("errorCode").equals(0)) {
@@ -75,6 +74,14 @@ public class ServerDriver implements IStorePasswordDriver {
     };
 
     public ServerDriver() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
+        HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
+        SSLContext sslContext = SSLContextBuilder
+                .create()
+                .loadTrustMaterial(new TrustSelfSignedStrategy())
+                .build();
+        SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, allowAllHosts);
+
+        this.httpClient = HttpClients.custom().setSSLSocketFactory(connectionFactory).setHostnameVerifier(SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER).build();
     }
 
     @Override
@@ -110,9 +117,9 @@ public class ServerDriver implements IStorePasswordDriver {
     public Safe login(char[] username, char[] password) throws Exception {
 
         // Request for login
-        HttpPost loginrequest = new HttpPost(SERVER_ADDRESS + "/login");
+        HttpPost loginRequest = new HttpPost(SERVER_ADDRESS + "/login");
         StringEntity informationToSend = new StringEntity("{\"username\": \"" + CharBuffer.wrap(username) + "\",\"password\": \"" + CharBuffer.wrap(password) + "\" }");
-        JSONObject loginStatus = POSTrequest(informationToSend, loginrequest);
+        JSONObject loginStatus = sendRequest(informationToSend, loginRequest);
 
         if (loginStatus.get("errorCode").equals(0)) {
             this.token = (String) loginStatus.get("token");
@@ -123,29 +130,24 @@ public class ServerDriver implements IStorePasswordDriver {
             Safe safe = getUserData(password);
 
             return safe;
-        } else {
-            throw new LoginException(loginStatus.get("message").toString());
         }
+
+        return null;
     }
 
     /**
-     * Create a new user in server
+     * Create a new user
      *
      * @param username username
      * @param email    email address
      * @param password password
-     * @return return the json get server value
      * @throws Exception
      */
     @Override
     public void createUser(char[] username, char[] email, char[] password) throws Exception {
         HttpPost createUserrequest = new HttpPost(SERVER_ADDRESS + "/user");
         StringEntity informationToSend = new StringEntity("{\"username\": \"" + CharBuffer.wrap(username) + "\",\"email\": \"" + CharBuffer.wrap(email) + "\",\"password\": \"" + CharBuffer.wrap(password) + "\" }");
-        JSONObject createUserStatus = POSTrequest(informationToSend, createUserrequest);
-
-        if (!createUserStatus.get("errorCode").equals(0)) {
-            throw new Exception(createUserStatus.get("message").toString());
-        }
+        sendRequest(informationToSend, createUserrequest);
     }
 
     public User getUserInformation() throws Exception {
@@ -169,53 +171,42 @@ public class ServerDriver implements IStorePasswordDriver {
     }
 
     /**
-     * Create a folder that will contains passswords
+     * Create a folder that will contains passwords
      *
      * @param folderName folder name
      * @throws Exception
      */
     @Override
     public void createFolder(String folderName) throws Exception {
+        // Server side
+        HttpPost createFolderRequest = new HttpPost(SERVER_ADDRESS + "/folder");
+        StringEntity informationToSend = new StringEntity("{\"userId\": \"" + idUser + "\",\"name\": \"" + CharBuffer.wrap(folderName).toString() + "\",\"passwords\": [] }");
+        createFolderRequest.addHeader("token", this.token);
+        System.out.println(informationToSend);
+        JSONObject answerJSON = sendRequest(informationToSend, createFolderRequest);
 
-        // Create on the Server
-        HttpPost createFolderrequest = new HttpPost(SERVER_ADDRESS + "/folder");
-        StringEntity informationToSend = new StringEntity("{\"userId\": \"" + idUser + "\",\"name\": \"" + CharBuffer.wrap(folderName).toString() + "\",\"passwords\": [{}] }");
-        createFolderrequest.addHeader("token", this.token);
-        JSONObject createFolderStatus = POSTrequest(informationToSend, createFolderrequest);
-
+        // Client side
         // TODO: Add id when server will be implemented
-        safe.addFolder(folderName.toCharArray());
-
-        System.out.println(createFolderStatus);
-
-        //if (!createFolderStatus.get("errorCode").equals(0)) {
-        //throw new Exception(createFolderStatus.get("message").toString());
-        //}
+        safe.addFolder(folderName.toCharArray(), (Integer) answerJSON.get("createdId"));
     }
 
     /**
-     * Create a group folder that will contains passswords shared by all group members
+     * Create a group folder that will contains passwords shared by all group members
      *
      * @param folderName folder name
      * @throws Exception
      */
     public void createGroupFolder(String folderName, int groupId) throws Exception {
 
-        // Create on the Server
-        HttpPost createFolderrequest = new HttpPost(SERVER_ADDRESS + "/folder");
-        StringEntity informationToSend = new StringEntity("{\"groupId\": \"" + groupId + "\",\"name\": \"" + CharBuffer.wrap(folderName).toString() + "\",\"passwords\": [{}] }");
-        createFolderrequest.addHeader("token", this.token);
+        // Server side
+        HttpPost createFolderRequest = new HttpPost(SERVER_ADDRESS + "/folder");
+        StringEntity informationToSend = new StringEntity("{\"groupId\": \"" + groupId + "\",\"name\": \"" + CharBuffer.wrap(folderName).toString() + "\",\"passwords\": [] }");
+        createFolderRequest.addHeader("token", this.token);
+        JSONObject answerJSON = sendRequest(informationToSend, createFolderRequest);
 
-        JSONObject createFolderStatus = POSTrequest(informationToSend, createFolderrequest);
-
+        // Client side
         // TODO: Add id when server will be implemented
-        safe.addFolder(folderName.toCharArray());
-
-        System.out.println(createFolderStatus);
-
-        //if (!createFolderStatus.get("errorCode").equals(0)) {
-        //throw new Exception(createFolderStatus.get("message").toString());
-        //}
+        safe.addFolder(folderName.toCharArray(), (Integer) answerJSON.get("createdId"));
     }
 
     /**
@@ -228,74 +219,68 @@ public class ServerDriver implements IStorePasswordDriver {
     public void deleteFolder(int selectedFolderNumber) throws Exception {
         int idFolder = this.safe.getFolderList().get(selectedFolderNumber).getId();
 
-        // Delete from Safe
+        // Server side
+        HttpDelete deleteEntryRequest = new HttpDelete(SERVER_ADDRESS + "/folder/" + idFolder);
+        deleteEntryRequest.addHeader("token", this.token);
+
+        // The entity is not needed since it's a DELETE request
+        sendRequest(null, deleteEntryRequest);
+
+        // Client side
         safe.deleteFolder(selectedFolderNumber);
-
-        // Delete on Server
-        HttpDelete deleteEntryRequete = new HttpDelete(SERVER_ADDRESS + "/folder/" + idFolder);
-        deleteEntryRequete.addHeader("token", this.token);
-
-        deleteEntryRequete.addHeader("content-type", "text/plain");
-
-        // Send DELETE Request
-        HttpClient httpClient = HttpClients.custom().build();
-        HttpResponse loginAnswer = httpClient.execute(deleteEntryRequete);
-        HttpEntity httpEntitiy = loginAnswer.getEntity();
-        JSONObject answerJSON = new JSONObject(EntityUtils.toString(httpEntitiy));
-
-        if (!answerJSON.get("errorCode").equals(0)) {
-            throw new Exception(answerJSON.get("message").toString());
-        }
     }
 
     /**
      * Edit a folder name
      *
      * @param folderName the new name of the folder
-     * @param index      the index of the folder to change name of
+     * @param index      the index of the folder to change the name of
      * @throws Exception
      */
     @Override
     public void editFolder(char[] folderName, int index) throws Exception {
+        // Server side
+        HttpPut editFolderRequest = new HttpPut(SERVER_ADDRESS + "/folder/" + safe.getFolderList().get(index).getId());
+        StringEntity informationToSend = new StringEntity("{\"name\": \"" + CharBuffer.wrap(folderName).toString() + "\"}");
+        editFolderRequest.addHeader("token", this.token);
+        sendRequest(informationToSend, editFolderRequest);
+
+        // Client side
         safe.editFolder(folderName, index);
-
-        // TODO: Edit in server side
-
     }
 
     /**
-     * Create an entry in the server
+     * Create an entry
      *
-     * @param newEntry             Entry created
+     * @param newEntry             the entry created
      * @param selectedFolderNumber the selected folder number
      * @throws Exception
      */
     @Override
     public void addEntry(Entry newEntry, int selectedFolderNumber) throws Exception {
+        // TODO: Put id from server
         int idFolder = this.safe.getFolderList().get(selectedFolderNumber).getId();
 
-        // Add it to the Safe
-        this.safe.getFolderList().get(selectedFolderNumber).addEntry(newEntry);
-
-        // Add it to the Server
-        HttpPost addEntryrequest = new HttpPost(SERVER_ADDRESS + "/folder/" + idFolder + "/password");
+        // Server side
         newEntry.encryptEntry(safe.getSafePassword());
 
+        HttpPost addEntryrequest = new HttpPost(SERVER_ADDRESS + "/folder/" + idFolder + "/password");
         StringEntity informationToSend = new StringEntity(newEntry.JSONentry());
         addEntryrequest.addHeader("token", this.token);
-        JSONObject addEntryStatus = POSTrequest(informationToSend, addEntryrequest);
+        JSONObject answerJSON = sendRequest(informationToSend, addEntryrequest);
+
         newEntry.decryptEntry(safe.getSafePassword());
 
-        if (!addEntryStatus.get("errorCode").equals(0)) {
-            throw new Exception(addEntryStatus.get("message").toString());
-        }
+        // Client side
+        newEntry.setId((Integer) answerJSON.get("createdId"));
+        this.safe.getFolderList().get(selectedFolderNumber).addEntry(newEntry);
     }
 
     /**
-     * Edit an entry in the server
+     * Edit an entry
      *
-     * @param actualEntry The actual entry
-     * @param editedEntry The entry to edit
+     * @param actualEntry the actual entry
+     * @param editedEntry the edited entry
      * @throws Exception
      */
     @Override
@@ -309,20 +294,15 @@ public class ServerDriver implements IStorePasswordDriver {
         actualEntry.setIcon(editedEntry.getIcon());
 
         // Update on Server
-        HttpPut editEntryrequest = new HttpPut(SERVER_ADDRESS + "/password/" + actualEntry.getId());
         actualEntry.encryptEntry(safe.getSafePassword());
 
+        HttpPut editEntryrequest = new HttpPut(SERVER_ADDRESS + "/password/" + actualEntry.getId());
         StringEntity informationToSend = new StringEntity(actualEntry.JSONentry());
-
         // TODO: Do I have to put token here ?
-        //editEntryrequest.addHeader("token", this.token);
+        editEntryrequest.addHeader("token", this.token);
+        sendRequest(informationToSend, editEntryrequest);
 
-        JSONObject addEntryStatus = POSTrequest(informationToSend, editEntryrequest);
         actualEntry.decryptEntry(safe.getSafePassword());
-
-        if (!addEntryStatus.get("errorCode").equals(0)) {
-            throw new Exception(addEntryStatus.get("message").toString());
-        }
     }
 
     /**
@@ -336,31 +316,20 @@ public class ServerDriver implements IStorePasswordDriver {
     public void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove) throws Exception {
         int idPassword = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(indexOfEntryToRemove).getId();
 
-        // Delete from Safe
+        // Server side
+        HttpDelete deleteEntryRequest = new HttpDelete(SERVER_ADDRESS + "/password/" + idPassword);
+        deleteEntryRequest.addHeader("token", this.token);
+        sendRequest(null, deleteEntryRequest);
+
+        // Client side
         safe.getFolderList().get(selectedFolderNumber).removeEntry(indexOfEntryToRemove);
-
-        // Delete on Server
-        HttpDelete deleteEntryRequete = new HttpDelete(SERVER_ADDRESS + "/password/" + idPassword);
-        deleteEntryRequete.addHeader("token", this.token);
-
-        deleteEntryRequete.addHeader("content-type", "text/plain");
-
-        // Send DELETE Request
-        HttpClient httpClient = HttpClients.custom().build();
-        HttpResponse loginAnswer = httpClient.execute(deleteEntryRequete);
-        HttpEntity httpEntitiy = loginAnswer.getEntity();
-        JSONObject answerJSON = new JSONObject(EntityUtils.toString(httpEntitiy));
-
-        if (!answerJSON.get("errorCode").equals(0)) {
-            throw new Exception(answerJSON.get("message").toString());
-        }
     }
 
     /**
-     * It will get all user data
+     * Gather all user data
      *
      * @return return the json data
-     * source: https://www.testingexcellence.com/how-to-parse-json-in-java/
+     * Source: https://www.testingexcellence.com/how-to-parse-json-in-java/
      */
     private Safe getUserData(char[] password) throws Exception {
         try {
@@ -397,7 +366,6 @@ public class ServerDriver implements IStorePasswordDriver {
                 safe.addFolder(new Folder((String) folders.getJSONObject(i).get("name"), folderEntry, (Integer) folders.getJSONObject(i).get("id")));
             }
 
-            /*
             // Group password
             for (Group group : user.getGroups()) {
                 httpget = new HttpGet(SERVER_ADDRESS + "/group/" + group.getIdGroup() + "/folders");
@@ -426,7 +394,7 @@ public class ServerDriver implements IStorePasswordDriver {
 
                     safe.addFolder(new Folder((String) folders.getJSONObject(i).get("name"), folderEntry, (Integer) folders.getJSONObject(i).get("id")));
                 }
-            }*/
+            }
 
             return safe;
         } catch (Exception e) {
@@ -441,20 +409,15 @@ public class ServerDriver implements IStorePasswordDriver {
      * @throws Exception
      */
     @Override
-    public void createGroupe(char[] groupName) throws Exception {
-        // Add group on the server
-        HttpPost addEntryrequest = new HttpPost(SERVER_ADDRESS + "/group");
-
+    public void createGroup(char[] groupName) throws Exception {
+        // Server side
+        HttpPost addEntryRequest = new HttpPost(SERVER_ADDRESS + "/group");
         StringEntity informationToSend = new StringEntity("{ \"name\": \"" + CharBuffer.wrap(groupName).toString() + "\" }");
-        addEntryrequest.addHeader("token", this.token);
-        JSONObject addEntryStatus = POSTrequest(informationToSend, addEntryrequest);
-
-        if (!addEntryStatus.get("errorCode").equals(0)) {
-            throw new Exception(addEntryStatus.get("message").toString());
-        }
+        addEntryRequest.addHeader("token", this.token);
+        sendRequest(informationToSend, addEntryRequest);
 
         // TODO: Add Random Id Group
-        // Add group locally
+        // Client side
         this.user.addGroup(new Group(CharBuffer.wrap(groupName).toString(), "ADMIN", 0));
     }
 
@@ -467,26 +430,14 @@ public class ServerDriver implements IStorePasswordDriver {
     public void deleteGroup(int selectedGroupNumber) throws Exception {
         int idGroup = user.getGroups().get(selectedGroupNumber).getIdGroup();
 
-        // Delete locally
-        user.deleteGroup(selectedGroupNumber);
-
-        // Delete on the server
-        HttpDelete deleteEntryRequete = new HttpDelete(SERVER_ADDRESS + "/group/" + idGroup);
-        deleteEntryRequete.addHeader("token", this.token);
-
-        System.out.println(token);
-
         // TODO: Renvoie une erreur même si le token est valide
+        // Server side
+        HttpDelete deleteEntryRequest = new HttpDelete(SERVER_ADDRESS + "/group/" + idGroup);
+        deleteEntryRequest.addHeader("token", this.token);
+        sendRequest(null, deleteEntryRequest);
 
-        // Send DELETE Request
-        HttpClient httpClient = HttpClients.custom().build();
-        HttpResponse loginAnswer = httpClient.execute(deleteEntryRequete);
-        HttpEntity httpEntitiy = loginAnswer.getEntity();
-        JSONObject answerJSON = new JSONObject(EntityUtils.toString(httpEntitiy));
-
-        if (!answerJSON.get("errorCode").equals(0)) {
-            throw new Exception(answerJSON.get("message").toString());
-        }
+        // Client side
+        user.deleteGroup(selectedGroupNumber);
     }
 
     /**
@@ -497,56 +448,56 @@ public class ServerDriver implements IStorePasswordDriver {
     public void renewToken() throws Exception {
         HttpPost tokenrequest = new HttpPost(SERVER_ADDRESS + "/renew");
         tokenrequest.addHeader("token", this.token);
-        JSONObject tokenStatus = POSTrequest(null, tokenrequest);
-
-        System.out.println("Old Token: " + token);
+        JSONObject tokenStatus = sendRequest(null, tokenrequest);
 
         if (!tokenStatus.get("errorCode").equals(0)) {
             throw new Exception(tokenStatus.get("message").toString());
         } else {
             this.token = (String) tokenStatus.get("token");
-            System.out.println("New Token: " + token);
         }
     }
 
     /**
-     * POST Request
+     * Send an abstract HTTP request, method can be: POST, DELETE, GET, etc...
+     * If the method support entity (not DELETE for example), the provided entity will be added
+     * Source: https://stackoverflow.com/questions/5769717/how-can-i-get-an-http-response-body-as-a-string-in-java +
+     * https://stackoverflow.com/questions/7181534/http-post-using-json-in-java
      *
      * @param informationToSend information to send to server
      * @param request           request http to server
      * @return return the json from server
-     * @throws Exception Source: https://stackoverflow.com/questions/5769717/how-can-i-get-an-http-response-body-as-a-string-in-java
-     *                   https://stackoverflow.com/questions/7181534/http-post-using-json-in-java
+     * @throws Exception
      */
-    private JSONObject POSTrequest(StringEntity informationToSend, HttpEntityEnclosingRequestBase request) throws Exception {
+    private JSONObject sendRequest(StringEntity informationToSend, HttpRequestBase request) throws Exception {
+        request.addHeader("content-type", "application/json");
 
-        HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
+        if (request instanceof HttpEntityEnclosingRequestBase) {
+            ((HttpEntityEnclosingRequestBase) request).setEntity(informationToSend);
+        }
 
-        SSLContext sslContext = SSLContextBuilder
-                .create()
-                .loadTrustMaterial(new TrustSelfSignedStrategy())
-                .build();
+        // Send the request and get the HTTP response
+        HttpResponse loginAnswer = httpClient.execute(request);
+        HttpEntity test1 = loginAnswer.getEntity();
 
-        SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(sslContext, allowAllHosts);
+        String answerJSONString = EntityUtils.toString(test1, "UTF-8");
+        JSONObject answerJSON = new JSONObject(answerJSONString);
 
-        HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(connectionFactory).setHostnameVerifier(SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER).build();
+        System.out.println(answerJSONString);
+        //detectError(answerJSON);
 
+        return answerJSON;
+    }
 
-        try {
-            request.addHeader("content-type", "application/json");
-            request.setEntity(informationToSend);
-
-            // Send Post and Get http response
-            HttpResponse loginAnswer = httpClient.execute(request);
-            HttpEntity test1 = loginAnswer.getEntity();
-
-            String answerJSONString = EntityUtils.toString(test1, "UTF-8");
-            JSONObject answerJSON = new JSONObject(answerJSONString); // <-- ici l'erreur se produit
-
-            return answerJSON;
-
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
+    /**
+     * Read the status code of a response and throw an exception if there is an error
+     *
+     * @param answerJSON the response to check error for
+     * @throws Exception if there is an error
+     */
+    private void detectError(JSONObject answerJSON) throws Exception {
+        if (!answerJSON.get("errorCode").equals(0)) {
+            throw new Exception(answerJSON.get("message").toString());
         }
     }
+
 }

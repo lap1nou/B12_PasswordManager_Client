@@ -83,7 +83,7 @@ public class FileDriver implements IStorePasswordDriver {
 
     @Override
     public void createFolder(String folderName) throws Exception {
-        safe.addFolder(folderName.toCharArray());
+        safe.addFolder(folderName.toCharArray(), 0);
     }
 
     @Override
@@ -117,7 +117,7 @@ public class FileDriver implements IStorePasswordDriver {
     }
 
     @Override
-    public void createGroupe(char[] groupName) throws Exception {
+    public void createGroup(char[] groupName) throws Exception {
 
     }
 

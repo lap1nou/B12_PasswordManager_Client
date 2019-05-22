@@ -232,13 +232,21 @@ public class EntryGUI extends JFrame {
 
                         newEntry.setIcon(iconFilename);
 
-                        // Add the entry
-                        serverDriver.addEntry(newEntry, selectedFolderNumber);
+                        try {
+                            // Add the entry
+                            serverDriver.addEntry(newEntry, selectedFolderNumber);
 
-                        JOptionPane.showMessageDialog(null,
-                                "The entry has been created",
-                                "Created entry",
-                                JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(null,
+                                    "The entry has been created",
+                                    "Created entry",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            JOptionPane.showMessageDialog(EntryGUI.this,
+                                    e.getMessage(),
+                                    "Entry error",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
 
                     } else if (entryNumber != -1) { // Edit
                         Entry actualEntry = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber);
@@ -261,7 +269,8 @@ public class EntryGUI extends JFrame {
 
                     dispose();
 
-                } catch (Exception e) {
+                } catch (
+                        Exception e) {
                     e.printStackTrace();
                 }
 

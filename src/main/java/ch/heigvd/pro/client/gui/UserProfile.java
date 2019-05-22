@@ -250,7 +250,7 @@ public class UserProfile extends JFrame {
         String folderName = JOptionPane.showInputDialog("Enter the new Group name");
         if (!folderName.equals("")) {
             try {
-                serverDriver.createGroupe(folderName.toCharArray());
+                serverDriver.createGroup(folderName.toCharArray());
                 refreshGroupTable();
                 JOptionPane.showMessageDialog(null,
                         "The group was created",

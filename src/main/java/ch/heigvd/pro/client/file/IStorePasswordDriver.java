@@ -26,7 +26,7 @@ public interface IStorePasswordDriver {
 
     void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove) throws Exception;
 
-    void createGroupe(char[] groupName) throws Exception;
+    void createGroup(char[] groupName) throws Exception;
 
     Safe getSafe();
 
