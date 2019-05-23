@@ -4,6 +4,7 @@ import ch.heigvd.pro.client.password.PasswordChecker;
 import ch.heigvd.pro.client.password.PasswordGenerator;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +31,6 @@ public class PasswordGeneratorGUI extends JFrame {
     private JButton copyButton;
     private JButton generateButton;
     private JButton cancelButton;
-    private JButton okButton;
     private JButton generatePassword;
     private JProgressBar passwordProgressBar;
     private JLabel leakedLabel;
@@ -163,15 +163,8 @@ public class PasswordGeneratorGUI extends JFrame {
         eastPanel.setLayout(new GridLayoutManager(1, 1, new Insets(10, 10, 10, 10), -1, -1));
         mainPanel.add(eastPanel, BorderLayout.EAST);
         southPanel = new JPanel();
-        southPanel.setLayout(new GridLayoutManager(1, 4, new Insets(10, 10, 10, 10), -1, -1));
+        southPanel.setLayout(new GridLayoutManager(1, 3, new Insets(10, 10, 10, 10), -1, -1));
         mainPanel.add(southPanel, BorderLayout.SOUTH);
-        okButton = new JButton();
-        okButton.setMargin(new Insets(0, 0, 0, 0));
-        okButton.setText("OK");
-        southPanel.add(okButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        cancelButton = new JButton();
-        cancelButton.setText("Cancel");
-        southPanel.add(cancelButton, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         passwordProgressBar = new JProgressBar();
         southPanel.add(passwordProgressBar, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         leakedLabel = new JLabel();
@@ -179,6 +172,9 @@ public class PasswordGeneratorGUI extends JFrame {
         leakedLabel.setText("Password leaked");
         leakedLabel.setVisible(false);
         southPanel.add(leakedLabel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cancelButton = new JButton();
+        cancelButton.setText("OK");
+        southPanel.add(cancelButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         westPanel = new JPanel();
         westPanel.setLayout(new GridLayoutManager(1, 1, new Insets(10, 10, 10, 10), -1, -1));
         mainPanel.add(westPanel, BorderLayout.WEST);
@@ -224,4 +220,5 @@ public class PasswordGeneratorGUI extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
+
 }

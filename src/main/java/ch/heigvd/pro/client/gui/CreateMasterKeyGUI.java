@@ -109,7 +109,7 @@ public class CreateMasterKeyGUI extends JFrame {
 
                     FileDriver fileDrive = new FileDriver(safe, passwordDB);
                     safe.setSafePassword(passwordField.getPassword());
-                    fileDrive.setSafe(safe);
+                    fileDrive.addSafe(safe);
 
                     HomePageGUI myHomePageGUI = new HomePageGUI(fileDrive);
 
@@ -285,4 +285,5 @@ public class CreateMasterKeyGUI extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
+
 }

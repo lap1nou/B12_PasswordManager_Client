@@ -1,7 +1,6 @@
 package ch.heigvd.pro.client.file;
 
 import ch.heigvd.pro.client.structure.Entry;
-import ch.heigvd.pro.client.structure.Folder;
 import ch.heigvd.pro.client.structure.Safe;
 import ch.heigvd.pro.client.structure.User;
 import com.google.gson.Gson;
@@ -12,8 +11,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.CharBuffer;
-import java.util.ArrayList;
 
 // Source : https://www.tutorialspoint.com/gson/gson_object_serialization.htm
 public class FileDriver implements IStorePasswordDriver {
@@ -82,27 +79,27 @@ public class FileDriver implements IStorePasswordDriver {
     }
 
     @Override
-    public void createFolder(String folderName) throws Exception {
-        safe.addFolder(folderName.toCharArray());
+    public void createFolder(String folderName, int safeIndex) throws Exception {
+        safe.addFolder(folderName.toCharArray(), 0);
     }
 
     @Override
-    public void deleteFolder(int idFolder) throws Exception {
+    public void deleteFolder(int idFolder, int safeIndex) throws Exception {
         safe.deleteFolder(idFolder);
     }
 
     @Override
-    public void editFolder(char[] folderName, int index) throws Exception {
+    public void editFolder(char[] folderName, int index, int safeIndex) throws Exception {
         safe.editFolder(folderName, index);
     }
 
     @Override
-    public void addEntry(Entry newEntry, int selectedFolderNumber) throws Exception {
+    public void addEntry(Entry newEntry, int selectedFolderNumber, int safeIndex) throws Exception {
         this.safe.getFolderList().get(selectedFolderNumber).addEntry(newEntry);
     }
 
     @Override
-    public void editEntry(Entry actualEntry, Entry editedEntry) throws Exception {
+    public void editEntry(Entry actualEntry, Entry editedEntry, int safeIndex) throws Exception {
         actualEntry.setUsername(editedEntry.getUsername());
         actualEntry.setEntryName(editedEntry.getEntryName());
         actualEntry.setClearPassword(editedEntry.getClearPassword());
@@ -112,20 +109,27 @@ public class FileDriver implements IStorePasswordDriver {
     }
 
     @Override
-    public void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove) throws Exception {
+    public void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove, int safeIndex) throws Exception {
         safe.getFolderList().get(selectedFolderNumber).removeEntry(indexOfEntryToRemove);
     }
 
     @Override
-    public void createGroupe(char[] groupName) throws Exception {
+    public void createGroup(char[] groupName) throws Exception {
 
     }
 
-    public Safe getSafe() {
+    @Override
+    public Safe getSafe(int safeIndex) {
         return safe;
     }
 
-    public void setSafe(Safe safe) {
+    @Override
+    public void addSafe(Safe safe) {
         this.safe = safe;
+    }
+
+    @Override
+    public int getSafeSize() {
+        return 1;
     }
 }

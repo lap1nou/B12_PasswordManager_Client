@@ -1,11 +1,13 @@
 package ch.heigvd.pro.client.structure;
 
+import javax.crypto.BadPaddingException;
 import java.util.List;
 
 public class Folder {
     private int idFolder;
     private String name;
     private List<Entry> entrylist;
+    private boolean groupFolder;
 
     public Folder(String name, List<Entry> entrylist) {
         this.name = name;
@@ -40,5 +42,25 @@ public class Folder {
 
     public void removeEntry(int index) {
         this.entrylist.remove(index);
+    }
+
+    public boolean isGroupFolder() {
+        return groupFolder;
+    }
+
+    public void setGroupFolder(boolean groupFolder) {
+        this.groupFolder = groupFolder;
+    }
+
+    public void encryptFolder(char[] safePassword) {
+        for (Entry entry : entrylist) {
+            entry.encryptEntry(safePassword);
+        }
+    }
+
+    public void decryptFolder(char[] safePassword) throws BadPaddingException {
+        for (Entry entry : entrylist) {
+            entry.decryptEntry(safePassword);
+        }
     }
 }

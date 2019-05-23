@@ -9,6 +9,7 @@ public class Safe {
     private List<Folder> folderList;
     private transient char[] safePassword;
     private int idUser;
+    private String safeName;
 
     public Safe() {
         folderList = new ArrayList<Folder>();
@@ -32,8 +33,8 @@ public class Safe {
      */
     public void encryptPassword() {
         for (Folder folder : this.folderList) {
-            for (Entry entry : folder.getEntrylist()) {
-                entry.encryptEntry(this.safePassword);
+            if (!folder.isGroupFolder()) {
+                folder.encryptFolder(this.safePassword);
             }
         }
     }
@@ -44,8 +45,8 @@ public class Safe {
     public void decryptPassword() throws BadPaddingException {
 
         for (Folder folder : this.folderList) {
-            for (Entry entry : folder.getEntrylist()) {
-                entry.decryptEntry(this.safePassword);
+            if (!folder.isGroupFolder()) {
+                folder.decryptFolder(this.safePassword);
             }
         }
     }
@@ -77,11 +78,19 @@ public class Safe {
         this.folderList.remove(index);
     }
 
-    public void addFolder(char[] folderName) {
-        this.folderList.add(new Folder(CharBuffer.wrap(folderName).toString(), new ArrayList<Entry>()));
+    public void addFolder(char[] folderName, int folderId) {
+        this.folderList.add(new Folder(CharBuffer.wrap(folderName).toString(), new ArrayList<Entry>(), folderId));
     }
 
-    public void editFolder(char[] folderName, int index){
+    public void editFolder(char[] folderName, int index) {
         folderList.get(index).setName(CharBuffer.wrap(folderName).toString());
+    }
+
+    public String getSafeName() {
+        return safeName;
+    }
+
+    public void setSafeName(String safeName) {
+        this.safeName = safeName;
     }
 }

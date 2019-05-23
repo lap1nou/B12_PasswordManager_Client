@@ -52,6 +52,10 @@ public class Entry {
         this.iv = iv;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public char[] getUsername() {
         return username;
     }
