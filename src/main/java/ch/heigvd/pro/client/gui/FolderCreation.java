@@ -31,8 +31,10 @@ public class FolderCreation extends JDialog {
         setModal(true);
 
         // Filling ComboBox with user groups
-        for (Group group : ((ServerDriver) serverDriver).getUser().getGroups()) {
-            groupComboBox.addItem(group.getName());
+        if (serverDriver instanceof ServerDriver) {
+            for (Group group : ((ServerDriver) serverDriver).getUser().getGroups()) {
+                groupComboBox.addItem(group.getName());
+            }
         }
 
         /*

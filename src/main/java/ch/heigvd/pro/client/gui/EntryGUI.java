@@ -234,7 +234,7 @@ public class EntryGUI extends JFrame {
 
                         try {
                             // Add the entry
-                            serverDriver.addEntry(newEntry, selectedFolderNumber);
+                            serverDriver.addEntry(newEntry, selectedFolderNumber, 0);
 
                             JOptionPane.showMessageDialog(null,
                                     "The entry has been created",
@@ -253,7 +253,7 @@ public class EntryGUI extends JFrame {
                         Entry editedEntry = new Entry(notesField.getText().toCharArray(), actualEntry.getPassword(), actualEntry.getSalt(), iconFilename, actualEntry.getId(), entryNameField.getText().toCharArray(), actualEntry.getIv(), targetField.getText().toCharArray(), usernameField.getText().toCharArray());
                         editedEntry.setClearPassword(passwordField.getPassword());
 
-                        serverDriver.editEntry(actualEntry, editedEntry);
+                        serverDriver.editEntry(actualEntry, editedEntry, 0);
                     }
 
                     serverDriver.saveSafe();
@@ -424,4 +424,5 @@ public class EntryGUI extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
+
 }

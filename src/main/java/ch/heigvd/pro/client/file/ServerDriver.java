@@ -37,7 +37,7 @@ import java.util.List;
 public class ServerDriver implements IStorePasswordDriver {
     private String token;
     private int idUser;
-    private Safe safe;
+    private ArrayList<Safe> safe = new ArrayList<>();
     private User user;
     private HttpClient httpClient;
 
@@ -94,13 +94,17 @@ public class ServerDriver implements IStorePasswordDriver {
     }
 
     @Override
-    public Safe getSafe() {
-        return safe;
+    public Safe getSafe(int safeIndex) {
+        return safe.get(safeIndex);
     }
 
     @Override
-    public void setSafe(Safe safe) {
-        this.safe = safe;
+    public void addSafe(Safe safe) {
+        this.safe.add(safe);
+    }
+
+    public int getSafeSize() {
+        return safe.size();
     }
 
     public User getUser() {
@@ -177,7 +181,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @throws Exception
      */
     @Override
-    public void createFolder(String folderName) throws Exception {
+    public void createFolder(String folderName, int safeIndex) throws Exception {
         // Server side
         HttpPost createFolderRequest = new HttpPost(SERVER_ADDRESS + "/folder");
         StringEntity informationToSend = new StringEntity("{\"userId\": \"" + idUser + "\",\"name\": \"" + CharBuffer.wrap(folderName).toString() + "\",\"passwords\": [] }");
@@ -186,8 +190,7 @@ public class ServerDriver implements IStorePasswordDriver {
         JSONObject answerJSON = sendRequest(informationToSend, createFolderRequest);
 
         // Client side
-        // TODO: Add id when server will be implemented
-        safe.addFolder(folderName.toCharArray(), (Integer) answerJSON.get("createdId"));
+        safe.get(safeIndex).addFolder(folderName.toCharArray(), (Integer) answerJSON.get("createdId"));
     }
 
     /**
@@ -196,7 +199,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @param folderName folder name
      * @throws Exception
      */
-    public void createGroupFolder(String folderName, int groupId) throws Exception {
+    public void createGroupFolder(String folderName, int groupId, int safeIndex) throws Exception {
 
         // Server side
         HttpPost createFolderRequest = new HttpPost(SERVER_ADDRESS + "/folder");
@@ -205,8 +208,7 @@ public class ServerDriver implements IStorePasswordDriver {
         JSONObject answerJSON = sendRequest(informationToSend, createFolderRequest);
 
         // Client side
-        // TODO: Add id when server will be implemented
-        safe.addFolder(folderName.toCharArray(), (Integer) answerJSON.get("createdId"));
+        safe.get(safeIndex).addFolder(folderName.toCharArray(), (Integer) answerJSON.get("createdId"));
     }
 
     /**
@@ -216,8 +218,8 @@ public class ServerDriver implements IStorePasswordDriver {
      * @throws Exception
      */
     @Override
-    public void deleteFolder(int selectedFolderNumber) throws Exception {
-        int idFolder = this.safe.getFolderList().get(selectedFolderNumber).getId();
+    public void deleteFolder(int selectedFolderNumber, int safeIndex) throws Exception {
+        int idFolder = safe.get(safeIndex).getFolderList().get(selectedFolderNumber).getId();
 
         // Server side
         HttpDelete deleteEntryRequest = new HttpDelete(SERVER_ADDRESS + "/folder/" + idFolder);
@@ -227,7 +229,7 @@ public class ServerDriver implements IStorePasswordDriver {
         sendRequest(null, deleteEntryRequest);
 
         // Client side
-        safe.deleteFolder(selectedFolderNumber);
+        safe.get(safeIndex).deleteFolder(selectedFolderNumber);
     }
 
     /**
@@ -238,15 +240,15 @@ public class ServerDriver implements IStorePasswordDriver {
      * @throws Exception
      */
     @Override
-    public void editFolder(char[] folderName, int index) throws Exception {
+    public void editFolder(char[] folderName, int index, int safeIndex) throws Exception {
         // Server side
-        HttpPut editFolderRequest = new HttpPut(SERVER_ADDRESS + "/folder/" + safe.getFolderList().get(index).getId());
+        HttpPut editFolderRequest = new HttpPut(SERVER_ADDRESS + "/folder/" + safe.get(safeIndex).getFolderList().get(index).getId());
         StringEntity informationToSend = new StringEntity("{\"name\": \"" + CharBuffer.wrap(folderName).toString() + "\"}");
         editFolderRequest.addHeader("token", this.token);
         sendRequest(informationToSend, editFolderRequest);
 
         // Client side
-        safe.editFolder(folderName, index);
+        safe.get(safeIndex).editFolder(folderName, index);
     }
 
     /**
@@ -257,23 +259,23 @@ public class ServerDriver implements IStorePasswordDriver {
      * @throws Exception
      */
     @Override
-    public void addEntry(Entry newEntry, int selectedFolderNumber) throws Exception {
+    public void addEntry(Entry newEntry, int selectedFolderNumber, int safeIndex) throws Exception {
         // TODO: Put id from server
-        int idFolder = this.safe.getFolderList().get(selectedFolderNumber).getId();
+        int idFolder = safe.get(safeIndex).getFolderList().get(selectedFolderNumber).getId();
 
         // Server side
-        newEntry.encryptEntry(safe.getSafePassword());
+        newEntry.encryptEntry(safe.get(safeIndex).getSafePassword());
 
         HttpPost addEntryrequest = new HttpPost(SERVER_ADDRESS + "/folder/" + idFolder + "/password");
         StringEntity informationToSend = new StringEntity(newEntry.JSONentry());
         addEntryrequest.addHeader("token", this.token);
         JSONObject answerJSON = sendRequest(informationToSend, addEntryrequest);
 
-        newEntry.decryptEntry(safe.getSafePassword());
+        newEntry.decryptEntry(safe.get(safeIndex).getSafePassword());
 
         // Client side
         newEntry.setId((Integer) answerJSON.get("createdId"));
-        this.safe.getFolderList().get(selectedFolderNumber).addEntry(newEntry);
+        safe.get(safeIndex).getFolderList().get(selectedFolderNumber).addEntry(newEntry);
     }
 
     /**
@@ -284,7 +286,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * @throws Exception
      */
     @Override
-    public void editEntry(Entry actualEntry, Entry editedEntry) throws Exception {
+    public void editEntry(Entry actualEntry, Entry editedEntry, int safeIndex) throws Exception {
         // Update in the Safe
         actualEntry.setUsername(editedEntry.getUsername());
         actualEntry.setEntryName(editedEntry.getEntryName());
@@ -294,7 +296,7 @@ public class ServerDriver implements IStorePasswordDriver {
         actualEntry.setIcon(editedEntry.getIcon());
 
         // Update on Server
-        actualEntry.encryptEntry(safe.getSafePassword());
+        actualEntry.encryptEntry(safe.get(safeIndex).getSafePassword());
 
         HttpPut editEntryrequest = new HttpPut(SERVER_ADDRESS + "/password/" + actualEntry.getId());
         StringEntity informationToSend = new StringEntity(actualEntry.JSONentry());
@@ -302,7 +304,7 @@ public class ServerDriver implements IStorePasswordDriver {
         editEntryrequest.addHeader("token", this.token);
         sendRequest(informationToSend, editEntryrequest);
 
-        actualEntry.decryptEntry(safe.getSafePassword());
+        actualEntry.decryptEntry(safe.get(safeIndex).getSafePassword());
     }
 
     /**
@@ -313,8 +315,8 @@ public class ServerDriver implements IStorePasswordDriver {
      * @throws Exception
      */
     @Override
-    public void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove) throws Exception {
-        int idPassword = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(indexOfEntryToRemove).getId();
+    public void deleteEntry(int selectedFolderNumber, int indexOfEntryToRemove, int safeIndex) throws Exception {
+        int idPassword = safe.get(safeIndex).getFolderList().get(selectedFolderNumber).getEntrylist().get(indexOfEntryToRemove).getId();
 
         // Server side
         HttpDelete deleteEntryRequest = new HttpDelete(SERVER_ADDRESS + "/password/" + idPassword);
@@ -322,7 +324,7 @@ public class ServerDriver implements IStorePasswordDriver {
         sendRequest(null, deleteEntryRequest);
 
         // Client side
-        safe.getFolderList().get(selectedFolderNumber).removeEntry(indexOfEntryToRemove);
+        safe.get(safeIndex).getFolderList().get(selectedFolderNumber).removeEntry(indexOfEntryToRemove);
     }
 
     /**
@@ -365,7 +367,7 @@ public class ServerDriver implements IStorePasswordDriver {
                 }
                 safe.addFolder(new Folder((String) folders.getJSONObject(i).get("name"), folderEntry, (Integer) folders.getJSONObject(i).get("id")));
             }
-
+/*
             // Group password
             for (Group group : user.getGroups()) {
                 httpget = new HttpGet(SERVER_ADDRESS + "/group/" + group.getIdGroup() + "/folders");
@@ -392,11 +394,63 @@ public class ServerDriver implements IStorePasswordDriver {
                         ));
                     }
 
-                    safe.addFolder(new Folder((String) folders.getJSONObject(i).get("name"), folderEntry, (Integer) folders.getJSONObject(i).get("id")));
+                    Folder groupFolder = new Folder((String) folders.getJSONObject(i).get("name"), folderEntry, (Integer) folders.getJSONObject(i).get("id"));
+                    groupFolder.setGroupFolder(true);
+                    safe.addFolder(groupFolder);
                 }
+            }*/
+
+            return safe;
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    /**
+     * Gather all group data
+     *
+     * @return return a Safe containing all the data
+     * Source: https://www.testingexcellence.com/how-to-parse-json-in-java/
+     */
+    public Safe getGroupData(char[] password, int groupId) throws Exception {
+        try {
+            String result = "";
+            Safe safe = new Safe();
+            byte[] iv = new byte[16];
+
+            CloseableHttpClient httpclient = HttpClients.createDefault();
+            HttpGet httpget = new HttpGet(SERVER_ADDRESS + "/group/" + groupId + "/folders");
+            httpget.addHeader("token", this.token);
+            CloseableHttpResponse response = httpclient.execute(httpget);
+
+            result = EntityUtils.toString(response.getEntity());
+
+            System.out.println("RESULT:" + result);
+
+            JSONObject answerJSON = new JSONObject(result);
+            JSONArray folders = answerJSON.getJSONArray("folders");
+
+            safe.setSafePassword(password);
+
+            for (int i = 0; i < folders.length(); ++i) {
+                List<Entry> folderEntry = new ArrayList<Entry>();
+                for (int j = 0; j < folders.getJSONObject(i).getJSONArray("passwords").length(); ++j) {
+                    folderEntry.add(new Entry((folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("note")).toString().toCharArray(),
+                            folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("password").toString().toCharArray(),
+                            folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("salt").toString().toCharArray(),
+                            folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("icon").toString(),
+                            (Integer) folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("id"),
+                            folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("title").toString().toCharArray(),
+                            Utils.JSONArrayTobyte(folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).getJSONArray("iv")),
+                            folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("target").toString().toCharArray(),
+                            folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("username").toString().toCharArray()
+                    ));
+                }
+                safe.addFolder(new Folder((String) folders.getJSONObject(i).get("name"), folderEntry, (Integer) folders.getJSONObject(i).get("id")));
             }
 
             return safe;
+
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }

@@ -102,8 +102,9 @@ public class LoginGUI extends JFrame {
                         ServerDriver serverConnection = new ServerDriver();
                         safe = serverConnection.login(usernameTextField.getText().toCharArray(), passwordField.getText().toCharArray());
                         safe.setSafePassword(passwordField.getPassword());
+                        safe.setSafeName("Personnal");
 
-                        serverConnection.setSafe(safe);
+                        serverConnection.addSafe(safe);
 
                         HomePageGUI myHomePageGUI = new HomePageGUI(serverConnection);
 
@@ -118,8 +119,9 @@ public class LoginGUI extends JFrame {
 
                         safe = test.loadSafe();
                         safe.setSafePassword(passwordField.getPassword());
+                        safe.setSafeName("Personnal");
 
-                        test.setSafe(safe);
+                        test.addSafe(safe);
 
                         // TODO: Compare password hash
                         if (safe.isPasswordCorrect()) {
