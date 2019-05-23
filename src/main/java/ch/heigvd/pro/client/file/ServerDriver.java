@@ -51,7 +51,6 @@ public class ServerDriver implements IStorePasswordDriver {
         public void run() {
             try {
                 while (true) {
-                    System.out.println(token);
                     Thread.sleep(15 * 60 * 1000);
                     Thread.sleep(15 * 60 * 1000);
 
@@ -59,10 +58,8 @@ public class ServerDriver implements IStorePasswordDriver {
                     tokenrequest.addHeader("token", token);
                     JSONObject tokenStatus = sendRequest(null, tokenrequest);
 
-                    System.out.println(tokenStatus);
                     if (tokenStatus.get("errorCode").equals(0)) {
                         token = (String) tokenStatus.get("token");
-                        System.out.println(token);
                     }
                 }
             } catch (InterruptedException e) {
@@ -193,7 +190,6 @@ public class ServerDriver implements IStorePasswordDriver {
         HttpPost createFolderRequest = new HttpPost(SERVER_ADDRESS + "/folder");
         StringEntity informationToSend = new StringEntity("{\"userId\": \"" + idUser + "\",\"name\": \"" + CharBuffer.wrap(folderName).toString() + "\",\"passwords\": [] }");
         createFolderRequest.addHeader("token", this.token);
-        System.out.println(informationToSend);
         JSONObject answerJSON = sendRequest(informationToSend, createFolderRequest);
 
         // Client side
@@ -411,8 +407,6 @@ public class ServerDriver implements IStorePasswordDriver {
 
             result = EntityUtils.toString(response.getEntity());
 
-            System.out.println("RESULT:" + result);
-
             JSONObject answerJSON = new JSONObject(result);
             JSONArray folders = answerJSON.getJSONArray("folders");
 
@@ -456,7 +450,6 @@ public class ServerDriver implements IStorePasswordDriver {
         addEntryRequest.addHeader("token", this.token);
         sendRequest(informationToSend, addEntryRequest);
 
-        // TODO: Add Random Id Group
         // Client side
         this.user.addGroup(new Group(CharBuffer.wrap(groupName).toString(), "ADMIN", 0));
     }
@@ -470,7 +463,6 @@ public class ServerDriver implements IStorePasswordDriver {
     public void deleteGroup(int selectedGroupNumber) throws Exception {
         int idGroup = user.getGroups().get(selectedGroupNumber).getIdGroup();
 
-        // TODO: Renvoie une erreur même si le token est valide
         // Server side
         HttpDelete deleteEntryRequest = new HttpDelete(SERVER_ADDRESS + "/group/" + idGroup);
         deleteEntryRequest.addHeader("token", this.token);
@@ -522,8 +514,7 @@ public class ServerDriver implements IStorePasswordDriver {
         String answerJSONString = EntityUtils.toString(test1, "UTF-8");
         JSONObject answerJSON = new JSONObject(answerJSONString);
 
-        System.out.println(answerJSONString);
-        //detectError(answerJSON);
+        detectError(answerJSON);
 
         return answerJSON;
     }

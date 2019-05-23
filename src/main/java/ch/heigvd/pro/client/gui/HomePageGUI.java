@@ -32,7 +32,6 @@ import static javax.swing.JOptionPane.YES_OPTION;
 public class HomePageGUI extends JFrame {
     private JPanel mainPanel;
     private JPanel northPanel;
-    private JPanel southPanel;
     private JPanel westPanel;
     private JMenuBar menuBar;
     private JMenu menuFile;
@@ -55,10 +54,7 @@ public class HomePageGUI extends JFrame {
 
     private Safe safe;
     private IStorePasswordDriver parameterOnlineOffline;
-
-    private String folderName;
-    private boolean folderType;
-
+    
     private int selectedFolderNumber;
     private int selectedEntryNumber;
     private int selectedSafeNumber;
@@ -82,6 +78,7 @@ public class HomePageGUI extends JFrame {
         InitGroupTree();
         setLocationRelativeTo(null);
         setSize(650, 700);
+        //setSize(200, 250);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         FolderPopup folderPopup = new FolderPopup(userTree);
@@ -156,6 +153,16 @@ public class HomePageGUI extends JFrame {
         });
 
         /*
+         * Menu group
+         */
+        menuItemShowGroups.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                ManageGroup manageGroup = new ManageGroup((ServerDriver) parameterOnlineOffline);
+            }
+        });
+
+        /*
          * Menu about
          */
         menuItemAbout.addActionListener(new ActionListener() {
@@ -179,7 +186,6 @@ public class HomePageGUI extends JFrame {
                                 HomePageGUI.this.setEnabled(true);
                             }
                         });
-
 
                     }
                 });
@@ -292,28 +298,31 @@ public class HomePageGUI extends JFrame {
         menuItemAbout = new JMenuItem();
         menuItemAbout.setText("About Us");
         menuHelp.add(menuItemAbout);
-        southPanel = new JPanel();
-        southPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        mainPanel.add(southPanel, BorderLayout.SOUTH);
-        final Spacer spacer1 = new Spacer();
-        southPanel.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         westPanel = new JPanel();
-        westPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        westPanel.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(westPanel, BorderLayout.WEST);
-        userTree = new JTree();
-        userTree.setEditable(false);
-        westPanel.add(userTree, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
-        centerPanel = new JPanel();
-        centerPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
+        final Spacer spacer1 = new Spacer();
+        westPanel.add(spacer1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, new Dimension(76, 11), null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
-        centerPanel.add(scrollPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        westPanel.add(scrollPane1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 221), null, 0, false));
+        userTree = new JTree();
+        userTree.setAutoscrolls(false);
+        userTree.setEditable(false);
+        userTree.setRootVisible(false);
+        scrollPane1.setViewportView(userTree);
+        centerPanel = new JPanel();
+        centerPanel.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+        final JScrollPane scrollPane2 = new JScrollPane();
+        centerPanel.add(scrollPane2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         entryTable = new JTable();
         entryTable.setPreferredScrollableViewportSize(new Dimension(450, 400));
         entryTable.setRowHeight(30);
         entryTable.setToolTipText("");
         entryTable.setUpdateSelectionOnSort(true);
-        scrollPane1.setViewportView(entryTable);
+        scrollPane2.setViewportView(entryTable);
+        final Spacer spacer2 = new Spacer();
+        centerPanel.add(spacer2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
     }
 
     /**
@@ -402,9 +411,11 @@ public class HomePageGUI extends JFrame {
                                     // Editing into the JTree, source: https://stackoverflow.com/questions/6663358/renaming-the-jtree-node-manually-in-java
                                     DefaultTreeModel treeModel = (DefaultTreeModel) userTree.getModel();
                                     DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
-                                    DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(selectedFolderNumber);
-                                    child.setUserObject(folderName);
-                                    treeModel.nodeChanged(child);
+                                    DefaultMutableTreeNode child = (DefaultMutableTreeNode) root.getChildAt(selectedSafeNumber);
+                                    DefaultMutableTreeNode folderNode = (DefaultMutableTreeNode) child.getChildAt(selectedFolderNumber);
+
+                                    folderNode.setUserObject(folderName);
+                                    treeModel.nodeChanged(folderNode);
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -450,22 +461,13 @@ public class HomePageGUI extends JFrame {
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             try {
-                                //if (safe.getFolderList().get(selectedFolderNumber).isGroupFolder()) {
                                 AddSafe addSafe = new AddSafe(HomePageGUI.this, (ServerDriver) parameterOnlineOffline);
-                                //String folderPassword = JOptionPane.showInputDialog("Enter the password");
-
-                                //safe.getFolderList().get(selectedFolderNumber).decryptFolder(folderPassword.toCharArray());
-                                //addSafeInTree(folderPassword);
-                                //} else {
-                                // Display error
-                                //}
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
 
                             parameterOnlineOffline.saveSafe();
                             refreshTable();
-
                         }
                     });
                 }
@@ -476,8 +478,10 @@ public class HomePageGUI extends JFrame {
             add(addFolder);
             add(editFolder);
             add(deleteFolder);
-            add(addSafeGroup);
 
+            if (HomePageGUI.this.parameterOnlineOffline instanceof ServerDriver) {
+                add(addSafeGroup);
+            }
         }
     }
 
@@ -613,14 +617,12 @@ public class HomePageGUI extends JFrame {
         if (selectedFolder != null) {
             selectedFolderNumber = selectedSafe.getIndex(selectedFolder);
 
+            // TODO: OutOfBound when creating groupfolder + password
             if (selectedFolderNumber != -1) {
                 CustomTableModel myModel = new CustomTableModel(parameterOnlineOffline.getSafe(selectedSafeNumber).getFolderList().get(selectedFolderNumber).getEntrylist(), new String[]{"", "Entry name", "User Name", "Target", "Date"});
                 entryTable.setModel(myModel);
             }
         }
-
-        System.out.println("Selected folder number: " + selectedFolderNumber);
-        System.out.println("Selected safe number: " + selectedSafeNumber);
 
     }
 

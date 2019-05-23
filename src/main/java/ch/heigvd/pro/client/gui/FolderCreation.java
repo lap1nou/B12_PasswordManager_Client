@@ -18,7 +18,9 @@ public class FolderCreation extends JDialog {
     private JButton OKButton;
     private JTextField groupNameField;
     private JCheckBox groupFolderCheckBox;
+    private JButton cancelButton;
 
+    // TODO: Fix size of window + don't show online functionality in offline mode + put icon
     public FolderCreation(HomePageGUI homepage, IStorePasswordDriver serverDriver) {
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
         setTitle("Create folder");
@@ -51,6 +53,13 @@ public class FolderCreation extends JDialog {
 
                 homepage.createFolder(groupNameField.getText(), groupFolderCheckBox.isSelected(), selectedGroupIndex);
 
+                dispose();
+            }
+        });
+
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
                 dispose();
             }
         });
@@ -94,6 +103,9 @@ public class FolderCreation extends JDialog {
         final JLabel label2 = new JLabel();
         label2.setText("Group:");
         panel1.add(label2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cancelButton = new JButton();
+        cancelButton.setText("Cancel");
+        panel1.add(cancelButton, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     /**

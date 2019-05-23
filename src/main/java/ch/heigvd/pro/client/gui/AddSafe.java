@@ -37,6 +37,9 @@ public class AddSafe extends JDialog {
             }
         }
 
+        /*
+         * Confirming
+         */
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -63,6 +66,16 @@ public class AddSafe extends JDialog {
                             JOptionPane.ERROR_MESSAGE);
                 }
 
+            }
+        });
+
+        /*
+         * Cancel
+         */
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                dispose();
             }
         });
     }

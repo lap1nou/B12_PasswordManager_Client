@@ -46,6 +46,7 @@ public class EntryGUI extends JFrame {
 
     // TODO: The OK button is useless, remove it or remove cancel button
     // TODO: Put a mode variable (EDIT or CREATE)
+    // TODO: Delete the "delete" the button
     public EntryGUI(Safe safe, int selectedFolderNumber, int entryNumber, HomePageGUI homepage, IStorePasswordDriver serverDriver) {
         /*
          * Edit entry
