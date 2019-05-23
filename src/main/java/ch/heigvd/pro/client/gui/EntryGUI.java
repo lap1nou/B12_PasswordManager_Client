@@ -8,8 +8,11 @@ import ch.heigvd.pro.client.structure.Safe;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import sun.reflect.generics.tree.Tree;
 
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.nio.CharBuffer;
@@ -42,6 +45,7 @@ public class EntryGUI extends JFrame {
     private String iconFilename = "default.png";
 
     // TODO: The OK button is useless, remove it or remove cancel button
+    // TODO: Put a mode variable (EDIT or CREATE)
     public EntryGUI(Safe safe, int selectedFolderNumber, int entryNumber, HomePageGUI homepage, IStorePasswordDriver serverDriver) {
         /*
          * Edit entry
@@ -217,6 +221,9 @@ public class EntryGUI extends JFrame {
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                // Source: https://coderanch.com/t/559970/java/TreePath-newly-inserted-TreeNode
+                DefaultMutableTreeNode actualNode = (DefaultMutableTreeNode) homepage.userTree.getLastSelectedPathComponent();
+                TreePath actualPath = new TreePath(actualNode.getPath());
 
                 try {
                     // Verify that all fields are filled
@@ -234,7 +241,7 @@ public class EntryGUI extends JFrame {
 
                         try {
                             // Add the entry
-                            serverDriver.addEntry(newEntry, selectedFolderNumber, 0);
+                            serverDriver.addEntry(newEntry, selectedFolderNumber, homepage.getSelectedSafeNumber());
 
                             JOptionPane.showMessageDialog(null,
                                     "The entry has been created",
@@ -253,7 +260,7 @@ public class EntryGUI extends JFrame {
                         Entry editedEntry = new Entry(notesField.getText().toCharArray(), actualEntry.getPassword(), actualEntry.getSalt(), iconFilename, actualEntry.getId(), entryNameField.getText().toCharArray(), actualEntry.getIv(), targetField.getText().toCharArray(), usernameField.getText().toCharArray());
                         editedEntry.setClearPassword(passwordField.getPassword());
 
-                        serverDriver.editEntry(actualEntry, editedEntry, 0);
+                        serverDriver.editEntry(actualEntry, editedEntry, homepage.getSelectedSafeNumber());
                     }
 
                     serverDriver.saveSafe();
@@ -262,10 +269,10 @@ public class EntryGUI extends JFrame {
                     int tmp = selectedFolderNumber;
 
                     // Refreshing JTree and JTable
-                    homepage.InitGroupTree();
+                    //homepage.InitGroupTree();
                     homepage.refreshTable();
                     homepage.setEnabled(true);
-                    homepage.userTree.setSelectionRow(tmp + 1);
+                    homepage.userTree.setSelectionPath(actualPath);
 
                     dispose();
 

@@ -114,7 +114,7 @@ public class ServerDriver implements IStorePasswordDriver {
     /**
      * @param username username
      * @param password password
-     * @return return the User connected
+     * @return return the main safe
      * @throws Exception return exception if the username and password is not good
      */
     @Override
@@ -154,6 +154,12 @@ public class ServerDriver implements IStorePasswordDriver {
         sendRequest(informationToSend, createUserrequest);
     }
 
+    /**
+     * Gather user information and return the user
+     *
+     * @return the user
+     * @throws Exception
+     */
     public User getUserInformation() throws Exception {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpget = new HttpGet(SERVER_ADDRESS + "/user/" + idUser);
@@ -178,6 +184,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * Create a folder that will contains passwords
      *
      * @param folderName folder name
+     * @param safeIndex  the safe index
      * @throws Exception
      */
     @Override
@@ -197,6 +204,8 @@ public class ServerDriver implements IStorePasswordDriver {
      * Create a group folder that will contains passwords shared by all group members
      *
      * @param folderName folder name
+     * @param groupId    the group id
+     * @param safeIndex  the safe index
      * @throws Exception
      */
     public void createGroupFolder(String folderName, int groupId, int safeIndex) throws Exception {
@@ -215,6 +224,7 @@ public class ServerDriver implements IStorePasswordDriver {
      * Delete a folder
      *
      * @param selectedFolderNumber the selected folder position
+     * @param safeIndex            the safe index
      * @throws Exception
      */
     @Override
@@ -237,6 +247,7 @@ public class ServerDriver implements IStorePasswordDriver {
      *
      * @param folderName the new name of the folder
      * @param index      the index of the folder to change the name of
+     * @param safeIndex  the safe index
      * @throws Exception
      */
     @Override
@@ -256,6 +267,7 @@ public class ServerDriver implements IStorePasswordDriver {
      *
      * @param newEntry             the entry created
      * @param selectedFolderNumber the selected folder number
+     * @param safeIndex            the safe index
      * @throws Exception
      */
     @Override
@@ -283,6 +295,7 @@ public class ServerDriver implements IStorePasswordDriver {
      *
      * @param actualEntry the actual entry
      * @param editedEntry the edited entry
+     * @param safeIndex   the safe index
      * @throws Exception
      */
     @Override
@@ -312,6 +325,7 @@ public class ServerDriver implements IStorePasswordDriver {
      *
      * @param selectedFolderNumber the index of the selected entry
      * @param indexOfEntryToRemove the index of the entry to remove
+     * @param safeIndex            the safe index
      * @throws Exception
      */
     @Override
@@ -330,7 +344,8 @@ public class ServerDriver implements IStorePasswordDriver {
     /**
      * Gather all user data
      *
-     * @return return the json data
+     * @param password the Safe group password
+     * @return a Safe containing all the data
      * Source: https://www.testingexcellence.com/how-to-parse-json-in-java/
      */
     private Safe getUserData(char[] password) throws Exception {
@@ -367,40 +382,9 @@ public class ServerDriver implements IStorePasswordDriver {
                 }
                 safe.addFolder(new Folder((String) folders.getJSONObject(i).get("name"), folderEntry, (Integer) folders.getJSONObject(i).get("id")));
             }
-/*
-            // Group password
-            for (Group group : user.getGroups()) {
-                httpget = new HttpGet(SERVER_ADDRESS + "/group/" + group.getIdGroup() + "/folders");
-                httpget.addHeader("token", this.token);
-                response = httpclient.execute(httpget);
-
-                result = EntityUtils.toString(response.getEntity());
-
-                answerJSON = new JSONObject(result);
-                folders = answerJSON.getJSONArray("folders");
-
-                for (int i = 0; i < folders.length(); ++i) {
-                    List<Entry> folderEntry = new ArrayList<Entry>();
-                    for (int j = 0; j < folders.getJSONObject(i).getJSONArray("passwords").length(); ++j) {
-                        folderEntry.add(new Entry((folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("note")).toString().toCharArray(),
-                                folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("password").toString().toCharArray(),
-                                folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("salt").toString().toCharArray(),
-                                folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("icon").toString(),
-                                (Integer) folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("id"),
-                                folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("title").toString().toCharArray(),
-                                Utils.JSONArrayTobyte(folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).getJSONArray("iv")),
-                                folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("target").toString().toCharArray(),
-                                folders.getJSONObject(i).getJSONArray("passwords").getJSONObject(j).get("username").toString().toCharArray()
-                        ));
-                    }
-
-                    Folder groupFolder = new Folder((String) folders.getJSONObject(i).get("name"), folderEntry, (Integer) folders.getJSONObject(i).get("id"));
-                    groupFolder.setGroupFolder(true);
-                    safe.addFolder(groupFolder);
-                }
-            }*/
 
             return safe;
+
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
@@ -409,7 +393,9 @@ public class ServerDriver implements IStorePasswordDriver {
     /**
      * Gather all group data
      *
-     * @return return a Safe containing all the data
+     * @param password the Safe group password
+     * @param groupId  the group id
+     * @return a Safe containing all the data
      * Source: https://www.testingexcellence.com/how-to-parse-json-in-java/
      */
     public Safe getGroupData(char[] password, int groupId) throws Exception {

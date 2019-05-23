@@ -1,6 +1,5 @@
 package ch.heigvd.pro.client.gui;
 
-import ch.heigvd.pro.client.file.IStorePasswordDriver;
 import ch.heigvd.pro.client.file.ServerDriver;
 import ch.heigvd.pro.client.structure.Group;
 import ch.heigvd.pro.client.structure.Safe;
@@ -22,7 +21,7 @@ public class AddSafe extends JDialog {
 
     public AddSafe(HomePageGUI homepage, ServerDriver serverDriver) {
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
-        setTitle("Create folder");
+        setTitle("Add a group safe");
         add(panel);
         setLocationRelativeTo(null);
         setSize(300, 350);
@@ -44,14 +43,26 @@ public class AddSafe extends JDialog {
                 try {
                     Safe groupSafe = serverDriver.getGroupData(groupPasswordField.getPassword(), serverDriver.getUser().getGroups().get(groupComboBox.getSelectedIndex()).getIdGroup());
                     groupSafe.setSafeName(groupComboBox.getSelectedItem().toString());
-                    serverDriver.addSafe(groupSafe);
+                    groupSafe.setSafePassword(groupPasswordField.getPassword());
+
+                    if (groupSafe.isPasswordCorrect()) {
+                        groupSafe.decryptPassword();
+
+                        serverDriver.addSafe(groupSafe);
+                        homepage.addSafeInTree(groupComboBox.getSelectedItem().toString());
+                        homepage.InitGroupTree();
+
+                        dispose();
+                    } else {
+                        throw new Exception("The password is not correct");
+                    }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(AddSafe.this,
+                            e.getMessage(),
+                            "Login error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
 
-                homepage.addSafeInTree(groupComboBox.getSelectedItem().toString());
-                homepage.InitGroupTree();
-                dispose();
             }
         });
     }

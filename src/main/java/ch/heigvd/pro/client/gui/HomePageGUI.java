@@ -201,7 +201,7 @@ public class HomePageGUI extends JFrame {
                 if (mouseEvent.getClickCount() >= 2) {
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
-                            EntryGUI entryView = new EntryGUI(safe, selectedFolderNumber, entryTable.getSelectedRow(), HomePageGUI.this, (IStorePasswordDriver) parameterOnlineOffline);
+                            EntryGUI entryView = new EntryGUI(parameterOnlineOffline.getSafe(selectedSafeNumber), selectedFolderNumber, entryTable.getSelectedRow(), HomePageGUI.this, (IStorePasswordDriver) parameterOnlineOffline);
                             entryView.addWindowListener(new WindowAdapter() {
                                 public void windowClosing(WindowEvent e) {
                                     HomePageGUI.this.setEnabled(true);
@@ -380,11 +380,7 @@ public class HomePageGUI extends JFrame {
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             try {
-                                // TODO: Fix bug where folderCreation is closed with 'X'
                                 FolderCreation folderCreation = new FolderCreation(HomePageGUI.this, parameterOnlineOffline);
-                                HomePageGUI.this.setEnabled(false);
-
-                                String folderName = "";
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -431,7 +427,7 @@ public class HomePageGUI extends JFrame {
 
                             if (answer == YES_OPTION && selectedFolderNumber >= 0) {
                                 try {
-                                    parameterOnlineOffline.deleteFolder(selectedFolderNumber, 0);
+                                    parameterOnlineOffline.deleteFolder(selectedFolderNumber, selectedSafeNumber);
 
                                     // Removing from the JTree
                                     treeModel.removeNodeFromParent((DefaultMutableTreeNode) userTree.getSelectionPath().getLastPathComponent());
@@ -737,5 +733,9 @@ public class HomePageGUI extends JFrame {
         DefaultMutableTreeNode safeNode = (DefaultMutableTreeNode) root.getChildAt(selectedSafeNumber);
 
         treeModel.insertNodeInto(new DefaultMutableTreeNode(folderName), safeNode, safeNode.getChildCount());
+    }
+
+    public int getSelectedSafeNumber() {
+        return selectedSafeNumber;
     }
 }

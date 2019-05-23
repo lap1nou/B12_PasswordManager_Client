@@ -134,7 +134,6 @@ public class LoginGUI extends JFrame {
 
                     dispose();
                 } catch (Exception ex) {
-                    ex.printStackTrace();
                     JOptionPane.showMessageDialog(frame,
                             ex.getMessage(),
                             "Login error",
