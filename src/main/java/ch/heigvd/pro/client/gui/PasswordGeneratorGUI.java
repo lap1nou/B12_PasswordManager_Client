@@ -122,7 +122,7 @@ public class PasswordGeneratorGUI extends JFrame {
 
         /**
          * Button that will copy the password
-         * source : https://stackoverflow.com/questions/24702434/copy-text-to-clipboard-from-a-jtextfield-with-press-of-a-button
+         * Source : https://stackoverflow.com/questions/24702434/copy-text-to-clipboard-from-a-jtextfield-with-press-of-a-button
          */
         copyButton.addActionListener(new ActionListener() {
             @Override
@@ -134,7 +134,6 @@ public class PasswordGeneratorGUI extends JFrame {
         });
     }
 
-    // Getters
     public JButton getCancelButton() {
         return cancelButton;
     }

@@ -12,14 +12,19 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.URLDecoder;
 import java.util.List;
 
-public class ManageGroup extends JDialog {
+import org.apache.commons.codec.binary.Base64;
+
+public class ManageGroup extends JFrame {
     private JPanel panel1;
     private JButton addGroupButton;
     private JButton deleteGroupButton;
@@ -46,7 +51,7 @@ public class ManageGroup extends JDialog {
         setResizable(false);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
-        setModal(true);
+
         ManageGroup.GroupPopup groupPopup = new ManageGroup.GroupPopup(groupTable, serverDriver);
 
         refreshGroupTable();
@@ -74,6 +79,18 @@ public class ManageGroup extends JDialog {
         addMemberButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                try {
+                    if (groupTable.getSelectedRow() != -1) {
+                        String groupToken = serverDriver.generateGroupToken(serverDriver.getUser().getGroups().get(groupTable.getSelectedRow()).getIdGroup());
+                        JOptionPane.showMessageDialog(null, "The token has been copied into the clipboard !");
+
+                        StringSelection stringSelection = new StringSelection(groupToken);
+                        Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
+                        clpbrd.setContents(stringSelection, null);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -87,7 +104,20 @@ public class ManageGroup extends JDialog {
         joinAGroupButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                String groupToken = JOptionPane.showInputDialog("Enter the invite token");
 
+                // Source: https://stackoverflow.com/questions/11544568/decoding-a-base64-string-in-java
+                String tmp = new String(Base64.decodeBase64(URLDecoder.decode(groupToken)));
+
+                int groupId = Integer.valueOf(tmp.split(",")[0]);
+
+                refreshGroupTable();
+
+                try {
+                    serverDriver.joinGroup(groupId, groupToken);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -298,6 +328,10 @@ public class ManageGroup extends JDialog {
      */
     public JComponent $$$getRootComponent$$$() {
         return panel1;
+    }
+
+    public JButton getCancelButton() {
+        return cancelButton;
     }
 
 }

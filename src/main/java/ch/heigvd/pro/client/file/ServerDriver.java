@@ -268,7 +268,6 @@ public class ServerDriver implements IStorePasswordDriver {
      */
     @Override
     public void addEntry(Entry newEntry, int selectedFolderNumber, int safeIndex) throws Exception {
-        // TODO: Put id from server
         int idFolder = safe.get(safeIndex).getFolderList().get(selectedFolderNumber).getId();
 
         // Server side
@@ -309,7 +308,6 @@ public class ServerDriver implements IStorePasswordDriver {
 
         HttpPut editEntryrequest = new HttpPut(SERVER_ADDRESS + "/password/" + actualEntry.getId());
         StringEntity informationToSend = new StringEntity(actualEntry.JSONentry());
-        // TODO: Do I have to put token here ?
         editEntryrequest.addHeader("token", this.token);
         sendRequest(informationToSend, editEntryrequest);
 
@@ -529,6 +527,38 @@ public class ServerDriver implements IStorePasswordDriver {
         if (!answerJSON.get("errorCode").equals(0)) {
             throw new Exception(answerJSON.get("message").toString());
         }
+    }
+
+    /**
+     * Generate a group token
+     *
+     * @param groupId the group id
+     * @return
+     * @throws Exception
+     */
+    public String generateGroupToken(int groupId) throws Exception {
+        HttpGet addEntryRequest = new HttpGet(SERVER_ADDRESS + "/group/" + groupId + "/token");
+        addEntryRequest.addHeader("token", this.token);
+        JSONObject tokenResult = sendRequest(null, addEntryRequest);
+
+        detectError(tokenResult);
+
+        return tokenResult.get("token").toString();
+    }
+
+    /**
+     * Join a group with an invite token
+     *
+     * @param groupId    the group id
+     * @param groupToken the group token
+     * @throws Exception
+     */
+    public void joinGroup(int groupId, String groupToken) throws Exception {
+        HttpPost addEntryRequest = new HttpPost(SERVER_ADDRESS + "/group/join/" + groupToken);
+        addEntryRequest.addHeader("token", this.token);
+        JSONObject tokenResult = sendRequest(new StringEntity("{ }"), addEntryRequest);
+
+        detectError(tokenResult);
     }
 
 }

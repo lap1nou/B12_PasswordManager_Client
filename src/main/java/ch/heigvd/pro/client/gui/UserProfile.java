@@ -3,6 +3,7 @@ package ch.heigvd.pro.client.gui;
 import ch.heigvd.pro.client.file.IStorePasswordDriver;
 import ch.heigvd.pro.client.file.ServerDriver;
 import ch.heigvd.pro.client.structure.Group;
+
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 
@@ -31,12 +32,12 @@ public class UserProfile extends JFrame {
 
         // Frame initialisation
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
+
         setTitle("Profile");
         add(main);
         setLocationRelativeTo(null);
         setSize(300, 350);
         setResizable(false);
-        //pack();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
         GroupPopup groupPopup = new GroupPopup(groupTable, serverDriver);

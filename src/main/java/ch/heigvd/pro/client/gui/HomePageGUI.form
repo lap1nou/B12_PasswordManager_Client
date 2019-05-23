@@ -83,7 +83,9 @@
                   <component id="b24fa" class="javax.swing.JMenuItem" binding="menuItemNewGroup">
                     <constraints/>
                     <properties>
+                      <enabled value="false"/>
                       <text value="New Group"/>
+                      <visible value="false"/>
                     </properties>
                   </component>
                 </children>

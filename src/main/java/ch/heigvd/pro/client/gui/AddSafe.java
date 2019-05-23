@@ -53,6 +53,7 @@ public class AddSafe extends JDialog {
 
                         serverDriver.addSafe(groupSafe);
                         homepage.addSafeInTree(groupComboBox.getSelectedItem().toString());
+                        serverDriver.saveSafe();
                         homepage.InitGroupTree();
 
                         dispose();

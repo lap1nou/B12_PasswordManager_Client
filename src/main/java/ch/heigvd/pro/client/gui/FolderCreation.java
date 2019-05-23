@@ -3,34 +3,40 @@ package ch.heigvd.pro.client.gui;
 import ch.heigvd.pro.client.file.IStorePasswordDriver;
 import ch.heigvd.pro.client.file.ServerDriver;
 import ch.heigvd.pro.client.structure.Group;
+
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class FolderCreation extends JDialog {
+public class FolderCreation extends JFrame {
     private JPanel panel1;
     private JComboBox groupComboBox;
     private JButton OKButton;
     private JTextField groupNameField;
     private JCheckBox groupFolderCheckBox;
     private JButton cancelButton;
+    private JLabel groupLabel;
 
-    // TODO: Fix size of window + don't show online functionality in offline mode + put icon
     public FolderCreation(HomePageGUI homepage, IStorePasswordDriver serverDriver) {
         this.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("javaIcone.png")));
+
         setTitle("Create folder");
         add(panel1);
         setLocationRelativeTo(null);
-        setSize(300, 350);
+        setSize(400, 350);
         setResizable(false);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setVisible(true);
-        setModal(true);
+
+        groupComboBox.setVisible(groupFolderCheckBox.isSelected());
+        groupLabel.setVisible(groupFolderCheckBox.isSelected());
+        groupFolderCheckBox.setVisible(serverDriver instanceof ServerDriver);
 
         // Filling ComboBox with user groups
         if (serverDriver instanceof ServerDriver) {
@@ -61,6 +67,14 @@ public class FolderCreation extends JDialog {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 dispose();
+            }
+        });
+
+        groupFolderCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                groupComboBox.setVisible(groupFolderCheckBox.isSelected());
+                groupLabel.setVisible(groupFolderCheckBox.isSelected());
             }
         });
     }
@@ -100,9 +114,9 @@ public class FolderCreation extends JDialog {
         groupFolderCheckBox = new JCheckBox();
         groupFolderCheckBox.setText("Group folder");
         panel1.add(groupFolderCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label2 = new JLabel();
-        label2.setText("Group:");
-        panel1.add(label2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        groupLabel = new JLabel();
+        groupLabel.setText("Group:");
+        panel1.add(groupLabel, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cancelButton = new JButton();
         cancelButton.setText("Cancel");
         panel1.add(cancelButton, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

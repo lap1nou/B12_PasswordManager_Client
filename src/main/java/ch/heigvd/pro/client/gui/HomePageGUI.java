@@ -54,7 +54,7 @@ public class HomePageGUI extends JFrame {
 
     private Safe safe;
     private IStorePasswordDriver parameterOnlineOffline;
-    
+
     private int selectedFolderNumber;
     private int selectedEntryNumber;
     private int selectedSafeNumber;
@@ -78,7 +78,6 @@ public class HomePageGUI extends JFrame {
         InitGroupTree();
         setLocationRelativeTo(null);
         setSize(650, 700);
-        //setSize(200, 250);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         FolderPopup folderPopup = new FolderPopup(userTree);
@@ -158,7 +157,27 @@ public class HomePageGUI extends JFrame {
         menuItemShowGroups.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                ManageGroup manageGroup = new ManageGroup((ServerDriver) parameterOnlineOffline);
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        ManageGroup manageGroup = new ManageGroup((ServerDriver) parameterOnlineOffline);
+                        manageGroup.addWindowListener(new WindowAdapter() {
+                            public void windowClosing(WindowEvent e) {
+                                HomePageGUI.this.setEnabled(true);
+                                manageGroup.dispose();
+                            }
+                        });
+
+                        manageGroup.getCancelButton().addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                HomePageGUI.this.setEnabled(true);
+                                manageGroup.dispose();
+                            }
+                        });
+
+                    }
+                });
+                setEnabled(false);
             }
         });
 
@@ -228,7 +247,6 @@ public class HomePageGUI extends JFrame {
             }
         });
 
-        // TODO: Replace by anonymous class ?
         entryTable.getSelectionModel().addListSelectionListener(new ListAction());
     }
 
@@ -289,7 +307,9 @@ public class HomePageGUI extends JFrame {
         menuItemShowGroups.setText("Show groups");
         Groups.add(menuItemShowGroups);
         menuItemNewGroup = new JMenuItem();
+        menuItemNewGroup.setEnabled(false);
         menuItemNewGroup.setText("New Group");
+        menuItemNewGroup.setVisible(false);
         Groups.add(menuItemNewGroup);
         menuHelp = new JMenu();
         menuHelp.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
@@ -465,9 +485,6 @@ public class HomePageGUI extends JFrame {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-
-                            parameterOnlineOffline.saveSafe();
-                            refreshTable();
                         }
                     });
                 }
@@ -537,7 +554,7 @@ public class HomePageGUI extends JFrame {
         }
 
         public int getColumnCount() {
-            return 5;
+            return 4;
         }
 
         public Object getValueAt(int parm1, int parm2) {
@@ -551,8 +568,6 @@ public class HomePageGUI extends JFrame {
                     return CharBuffer.wrap(donnees.get(parm1).getUsername());
                 case 3:
                     return CharBuffer.wrap(donnees.get(parm1).getTarget());
-                case 4:
-                    return donnees.get(parm1).getRegisterDate();
                 default:
                     break;
             }
@@ -577,8 +592,6 @@ public class HomePageGUI extends JFrame {
                 case 2:
                     return String.class;
                 case 3:
-                    return String.class;
-                case 4:
                     return String.class;
                 default:
                     break;
@@ -617,9 +630,8 @@ public class HomePageGUI extends JFrame {
         if (selectedFolder != null) {
             selectedFolderNumber = selectedSafe.getIndex(selectedFolder);
 
-            // TODO: OutOfBound when creating groupfolder + password
             if (selectedFolderNumber != -1) {
-                CustomTableModel myModel = new CustomTableModel(parameterOnlineOffline.getSafe(selectedSafeNumber).getFolderList().get(selectedFolderNumber).getEntrylist(), new String[]{"", "Entry name", "User Name", "Target", "Date"});
+                CustomTableModel myModel = new CustomTableModel(parameterOnlineOffline.getSafe(selectedSafeNumber).getFolderList().get(selectedFolderNumber).getEntrylist(), new String[]{"", "Entry name", "User Name", "Target"});
                 entryTable.setModel(myModel);
             }
         }
@@ -681,17 +693,17 @@ public class HomePageGUI extends JFrame {
     /**
      * Create a folder on the JTree and in the Safe
      *
-     * @param folderName
-     * @param folderType
-     * @param groupId
+     * @param folderName the folder name
+     * @param folderType the folder type: group folder or personal folder
+     * @param groupId    the groupid
      */
     public void createFolder(String folderName, boolean folderType, int groupId) {
         if (!folderName.equals("")) {
             try {
                 if (!folderType) {
-                    parameterOnlineOffline.createFolder(folderName, 0);
+                    parameterOnlineOffline.createFolder(folderName, selectedSafeNumber);
                 } else {
-                    ((ServerDriver) parameterOnlineOffline).createGroupFolder(folderName, groupId, 0);
+                    ((ServerDriver) parameterOnlineOffline).createGroupFolder(folderName, groupId, selectedSafeNumber);
                 }
 
                 addFolderInTree(folderName);
@@ -699,9 +711,8 @@ public class HomePageGUI extends JFrame {
                 parameterOnlineOffline.saveSafe();
                 refreshTable();
             } catch (Exception e) {
-
-                parameterOnlineOffline.saveSafe();
-                refreshTable();
+                //parameterOnlineOffline.saveSafe();
+                //refreshTable();
                 e.printStackTrace();
             }
 

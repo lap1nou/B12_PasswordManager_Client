@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Safe {
-    private List<Folder> folderList;
+    private List<Folder> folderList = new ArrayList<Folder>();
     private transient char[] safePassword;
     private int idUser;
     private String safeName;

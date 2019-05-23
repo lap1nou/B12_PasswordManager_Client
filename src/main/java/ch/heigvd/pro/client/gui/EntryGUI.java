@@ -8,7 +8,6 @@ import ch.heigvd.pro.client.structure.Safe;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import sun.reflect.generics.tree.Tree;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -40,18 +39,15 @@ public class EntryGUI extends JFrame {
     private JProgressBar scoreProgress;
     private JLabel imageLabel;
     private JButton browseButton;
-    private JButton deleteButton;
 
     private String iconFilename = "default.png";
 
-    // TODO: The OK button is useless, remove it or remove cancel button
-    // TODO: Put a mode variable (EDIT or CREATE)
-    // TODO: Delete the "delete" the button
     public EntryGUI(Safe safe, int selectedFolderNumber, int entryNumber, HomePageGUI homepage, IStorePasswordDriver serverDriver) {
         /*
          * Edit entry
          */
         $$$setupUI$$$();
+
         if (entryNumber != -1) {
             if (selectedFolderNumber != -1) {
                 this.iconFilename = safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getIcon();
@@ -76,10 +72,6 @@ public class EntryGUI extends JFrame {
 
                 charBuffer = CharBuffer.wrap(safe.getFolderList().get(selectedFolderNumber).getEntrylist().get(entryNumber).getNotes());
                 notesField.setText(charBuffer.toString());
-
-                // TODO Fix bug where notes is disappearing because of that line
-                // Wiping sensible data
-                //Arrays.fill(charBuffer.array(), (char) 0);
             }
         }
 
@@ -92,7 +84,6 @@ public class EntryGUI extends JFrame {
         setLocationRelativeTo(null);
         setSize(600, 450);
         setResizable(false);
-        //pack();
         SwingUtilities.getRootPane(saveButton).setDefaultButton(saveButton);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         scoreProgress.setValue(0);
@@ -107,12 +98,6 @@ public class EntryGUI extends JFrame {
                     int scorePassword = PasswordChecker.checkStrong(passwordField.getPassword());
 
                     if (scorePassword != scoreProgress.getValue()) {
-                        /*
-                        if (scorePassword == -1) {
-                            leakedLabel.setVisible(true);
-                        } else {
-                            leakedLabel.setVisible(false);
-                        }*/
 
                         scoreProgress.setValue(scorePassword);
                         scoreProgress.setString(scoreProgress.getValue() + "%");
@@ -148,15 +133,6 @@ public class EntryGUI extends JFrame {
             }
         });
 
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                homepage.deleteSelectedEntry();
-                homepage.setEnabled(true);
-                dispose();
-            }
-        });
-
         /*
          * Show password
          */
@@ -173,48 +149,6 @@ public class EntryGUI extends JFrame {
                 }
             }
         });
-
-        /*
-         *
-         */
-        /*RetypePasswordField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-                super.focusLost(e);
-                char[] pass1 = passwordField.getPassword();
-                char[] pass2 = RetypePasswordField.getPassword();
-                boolean different = false;
-
-                // Check same length
-                if (pass1.length == pass2.length) {
-                    // CHeck same length and same chars
-                    for (int i = 0; i < pass1.length; ++i) {
-                        if (pass1[i] != pass2[i]) {
-                            different = true;
-                        }
-                    }
-                } else {
-                    different = true;
-                }
-
-                if (different) {
-                    JOptionPane.showMessageDialog(null, "Passwords must be the same");
-                    passwordField.setText("");
-                    RetypePasswordField.setText("");
-                }
-                RetypePasswordField.setEditable(false);
-
-                // TODO : Clean with Array.fill()
-                // Clean password arrays
-                for (int i = 0; i < pass1.length; i++) {
-                    pass1[i] = '\0';
-                }
-
-                for (int i = 0; i < pass2.length; i++) {
-                    pass2[i] = '\0';
-                }
-            }
-        });*/
 
         /*
          * Create/Edit the entry
@@ -357,19 +291,16 @@ public class EntryGUI extends JFrame {
         eastPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         mainPanel.add(eastPanel, BorderLayout.EAST);
         southPanel = new JPanel();
-        southPanel.setLayout(new GridLayoutManager(1, 4, new Insets(10, 10, 10, 10), -1, -1));
+        southPanel.setLayout(new GridLayoutManager(1, 3, new Insets(10, 10, 10, 10), -1, -1));
         mainPanel.add(southPanel, BorderLayout.SOUTH);
         cancelButton = new JButton();
         cancelButton.setText("Cancel");
-        southPanel.add(cancelButton, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        southPanel.add(cancelButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        southPanel.add(spacer1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        southPanel.add(spacer1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         saveButton = new JButton();
         saveButton.setText("Save");
-        southPanel.add(saveButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        deleteButton = new JButton();
-        deleteButton.setText("Delete");
-        southPanel.add(deleteButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        southPanel.add(saveButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         centerPanel = new JPanel();
         centerPanel.setLayout(new GridLayoutManager(8, 5, new Insets(10, 10, 10, 10), -1, -1));
         mainPanel.add(centerPanel, BorderLayout.CENTER);

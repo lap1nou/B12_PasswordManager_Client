@@ -123,7 +123,6 @@ public class LoginGUI extends JFrame {
 
                         test.addSafe(safe);
 
-                        // TODO: Compare password hash
                         if (safe.isPasswordCorrect()) {
                             HomePageGUI myHomePageGUI = new HomePageGUI(test);
                         } else {
@@ -139,7 +138,6 @@ public class LoginGUI extends JFrame {
                             "Login error",
                             JOptionPane.ERROR_MESSAGE);
                 }
-
 
             }
         });
