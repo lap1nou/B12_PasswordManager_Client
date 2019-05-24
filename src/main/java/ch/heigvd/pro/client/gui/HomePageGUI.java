@@ -159,22 +159,26 @@ public class HomePageGUI extends JFrame {
             public void actionPerformed(ActionEvent actionEvent) {
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        ManageGroup manageGroup = new ManageGroup((ServerDriver) parameterOnlineOffline);
-                        manageGroup.addWindowListener(new WindowAdapter() {
-                            public void windowClosing(WindowEvent e) {
-                                HomePageGUI.this.setEnabled(true);
-                                manageGroup.dispose();
-                            }
-                        });
+                        if (parameterOnlineOffline instanceof ServerDriver) {
+                            ManageGroup manageGroup = new ManageGroup((ServerDriver) parameterOnlineOffline);
+                            manageGroup.addWindowListener(new WindowAdapter() {
+                                public void windowClosing(WindowEvent e) {
+                                    HomePageGUI.this.setEnabled(true);
+                                    manageGroup.dispose();
+                                }
+                            });
 
-                        manageGroup.getCancelButton().addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                HomePageGUI.this.setEnabled(true);
-                                manageGroup.dispose();
-                            }
-                        });
-
+                            manageGroup.getCancelButton().addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    HomePageGUI.this.setEnabled(true);
+                                    manageGroup.dispose();
+                                }
+                            });
+                        } else {
+                            HomePageGUI.this.setEnabled(true);
+                            JOptionPane.showMessageDialog(null, "This option is only available online");
+                        }
                     }
                 });
                 setEnabled(false);

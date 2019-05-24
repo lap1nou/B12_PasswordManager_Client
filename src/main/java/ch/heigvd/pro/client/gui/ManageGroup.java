@@ -107,16 +107,18 @@ public class ManageGroup extends JFrame {
                 String groupToken = JOptionPane.showInputDialog("Enter the invite token");
 
                 // Source: https://stackoverflow.com/questions/11544568/decoding-a-base64-string-in-java
-                String tmp = new String(Base64.decodeBase64(URLDecoder.decode(groupToken)));
+                if (groupToken != null) {
+                    String tmp = new String(Base64.decodeBase64(URLDecoder.decode(groupToken)));
 
-                int groupId = Integer.valueOf(tmp.split(",")[0]);
+                    int groupId = Integer.valueOf(tmp.split(",")[0]);
 
-                refreshGroupTable();
+                    refreshGroupTable();
 
-                try {
-                    serverDriver.joinGroup(groupId, groupToken);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    try {
+                        serverDriver.joinGroup(groupId, groupToken);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -333,5 +335,4 @@ public class ManageGroup extends JFrame {
     public JButton getCancelButton() {
         return cancelButton;
     }
-
 }
