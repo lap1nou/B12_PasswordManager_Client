@@ -109,6 +109,8 @@ public class CreateMasterKeyGUI extends JFrame {
 
                     FileDriver fileDrive = new FileDriver(safe, passwordDB);
                     safe.setSafePassword(passwordField.getPassword());
+                    safe.setSafeName("Personnal");
+                    
                     fileDrive.addSafe(safe);
 
                     HomePageGUI myHomePageGUI = new HomePageGUI(fileDrive);
