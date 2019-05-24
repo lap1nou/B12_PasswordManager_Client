@@ -136,7 +136,7 @@
                 <properties>
                   <autoscrolls value="false"/>
                   <editable value="false"/>
-                  <rootVisible value="true"/>
+                  <rootVisible value="false"/>
                 </properties>
               </component>
             </children>

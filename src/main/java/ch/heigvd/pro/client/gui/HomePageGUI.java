@@ -333,7 +333,7 @@ public class HomePageGUI extends JFrame {
         userTree = new JTree();
         userTree.setAutoscrolls(false);
         userTree.setEditable(false);
-        userTree.setRootVisible(true);
+        userTree.setRootVisible(false);
         treeScroll.setViewportView(userTree);
         centerPanel = new JPanel();
         centerPanel.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
